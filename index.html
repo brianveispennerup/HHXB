@@ -1388,7 +1388,7 @@ function startOpgaver311() {
 
 function restartOpgaver311() {
   opg311Started=false; opg311Level=1;
-  opg3111Sel={}; opg3112Sel={}; opg311hSel={};
+  opg3111Sel={}; opg3112Sel={}; opg311hSel={}; opg311MedalShown=false;
   opg3111Done=false; opg3112Done=false; opg311hDone=false;
   var energyWrap = document.querySelector('#t311-opg .energy-wrap');
   if (energyWrap) energyWrap.classList.remove('slider-locked');
@@ -1450,14 +1450,39 @@ function checkMultiOpg(done, sel, correct, widgetId, fbId, chkId, prefix) {
 function checkOpg3111(){
   if(opg3111Done)return; opg3111Done=true;
   checkMultiOpg(opg3111Done, opg3111Sel, ['B'], 'opg311-low', 'fb3111', 'chk3111', 'mb3111');
+  setTimeout(check311MedalDone, 600);
 }
 function checkOpg3112(){
   if(opg3112Done)return; opg3112Done=true;
   checkMultiOpg(opg3112Done, opg3112Sel, ['C','D'], 'opg311-mid', 'fb3112', 'chk3112', 'mb3112');
+  setTimeout(check311MedalDone, 600);
 }
 function checkOpg311h(){
   if(opg311hDone)return; opg311hDone=true;
   checkMultiOpg(opg311hDone, opg311hSel, ['A','C'], 'opg311-high', 'fb311h', 'chk311h', 'mb311h');
+  setTimeout(check311MedalDone, 600);
+}
+
+var opg311MedalShown = false;
+
+function check311MedalDone() {
+  if (opg311MedalShown) return;
+  var widgets = [];
+  if (opg311Level >= 1) widgets.push(document.getElementById('opg311-low'));
+  if (opg311Level >= 2) widgets.push(document.getElementById('opg311-mid'));
+  if (opg311Level >= 3) widgets.push(document.getElementById('opg311-high'));
+
+  var allDone = widgets.every(function(w) {
+    if (!w || w.classList.contains('opgave-hidden')) return true;
+    return w.querySelector('.quiz-feedback.ok') !== null;
+  });
+
+  if (allDone) {
+    opg311MedalShown = true;
+    var prev = parseInt(loadProgress('medal_311', 0));
+    if (opg311Level > prev) saveProgress('medal_311', opg311Level);
+    setTimeout(function() { showMedal(opg311Level); }, 400);
+  }
 }
 function closeMedal() {
   document.getElementById('medal-overlay').classList.remove('show');
@@ -1490,7 +1515,7 @@ function loadProgress(key, fallback) {
 // ── OPGAVE TRACKING ───────────────────────────────────────────────────────
 var emneData = {
   '1.3.1': { navn: 'Simple ligninger',            opgaver: ['1a','1b','1d','2a','2b'], materiale: ['chk-131-bog','chk-131-yt'] },
-  '3.1.1': { navn: 'Lodret-kriteriet og definition', opgaver: [],                     materiale: ['chk-311-bog','chk-311-yt'] },
+  '3.1.1': { navn: 'Lodret-kriteriet og definition', opgaver: [],                     materiale: ['chk-311-bog','chk-311-yt1','chk-311-yt2'] },
 };
 
 // ── FREMGANG SIDE ─────────────────────────────────────────────────────────
