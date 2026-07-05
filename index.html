@@ -1563,7 +1563,6 @@ function updateFremgang() {
     var allDone = (opgLoest === opgCount && matLoest === matCount && opgCount + matCount > 0);
     var pills = '';
     if (matLoest > 0) pills += '<span class="fp-pill mat">Materiale: ' + matLoest + (matCount > 0 ? '/' + matCount : '') + '</span>';
-    if (opgLoest > 0) pills += '<span class="fp-pill">Opgaver: ' + opgLoest + (opgCount > 0 ? '/' + opgCount : '') + '</span>';
     var medalKey = 'medal_' + nr.replace(/\./g, '');
     var medalVal = parseInt(data[medalKey] || 0);
     if (medalVal > 0) pills += '<span class="fp-medal">' + {1:'\uD83E\uDD49',2:'\uD83E\uDD48',3:'\uD83E\uDD47'}[medalVal] + '</span>';
