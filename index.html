@@ -490,6 +490,14 @@ a { text-decoration: none; color: inherit; }
 
 .opgave-hidden { display: none !important; }
 .page-hidden { display: none !important; }
+.emne-card.done-bronze { border-color: #86efac; background: #f0fdf4; }
+.emne-card.done-gold { border-color: #fbbf24; background: linear-gradient(135deg, #fefce8 0%, #fef3c7 50%, #fefce8 100%); box-shadow: 0 0 12px rgba(251,191,36,0.3); }
+.emne-card.done-bronze .emne-nr { color: #16a34a; }
+.emne-card.done-gold .emne-nr { color: #d97706; }
+.emne-status { font-size: 0.75rem; font-weight: 700; margin-top: 4px; }
+.emne-status.bronze { color: #16a34a; }
+.emne-status.gold { color: #d97706; }
+
 .quiz-question { background:var(--surface); border:1.5px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:10px; }
 .quiz-q-text { font-size:0.92rem; font-weight:600; margin-bottom:12px; line-height:1.5; }
 .quiz-q-note { font-size:0.78rem; color:var(--text-muted); margin-bottom:10px; font-style:italic; }
@@ -544,7 +552,7 @@ a { text-decoration: none; color: inherit; }
 </header>
 <main class="container">
 <div id="page-home">
-<button class="star-btn" onclick="showPage('fremgang'); updateFremgang()"><span>⭐</span> Min fremgang</button><section class="intro"><h1>Vælg et forløb</h1><p>Klik på et forløb for at se emner, materiale og opgaver.</p></section>
+<section class="intro"><h1>Vælg et forløb</h1><p>Klik på et forløb for at se emner, materiale og opgaver.</p></section>
 <div class="forloeb-grid">
 <div class="forloeb-card active" onclick="showPage('f1')"><span class="forloeb-nr">F1</span><span class="forloeb-titel">Lineære funktioner</span></div>
 <div class="forloeb-card disabled"><span class="forloeb-nr">F2</span><span class="forloeb-titel">Deskriptiv statistik</span><span class="coming-soon">Kommer snart</span></div>
@@ -899,7 +907,6 @@ a { text-decoration: none; color: inherit; }
 </div>
 <div class="fremgang-forloeb">
 <div class="fremgang-emne-list" id="fp-emne-list"></div>
-  <div id="fp-next" style="display:none"></div>
 </div>
 </div>
 </main>
@@ -1484,10 +1491,55 @@ function check311MedalDone() {
     setTimeout(function() { showMedal(opg311Level); }, 400);
   }
 }
+
+function updateEmneStatus() {
+  try {
+    var data = loadAllProgress();
+    document.querySelectorAll('#page-f1 .emne-card').forEach(function(card) {
+      var slug = card.getAttribute('onclick').match(/showPage\('([^']+)'\)/);
+      if (!slug) return;
+      var nr = slug[1].split('-').join('.');
+      var medalKey = 'medal_' + nr.split('.').join('');
+      var medalVal = parseInt(data[medalKey] || 0);
+      var ed = emneData[nr];
+      var matCount = ed ? ed.materiale.length : 0;
+      var matLoest = ed ? ed.materiale.filter(function(id){return data['mat_'+id];}).length : 0;
+
+      card.classList.remove('done-bronze','done-gold');
+      var oldStatus = card.querySelector('.emne-status');
+      if (oldStatus) oldStatus.remove();
+
+      if (matLoest === 0 && medalVal === 0) return;
+
+      if (medalVal === 3) card.classList.add('done-gold');
+      else if (medalVal >= 1) card.classList.add('done-bronze');
+
+      var allDone = medalVal >= 1 && matLoest === matCount && matCount > 0;
+      var altKlaretColor = medalVal === 3 ? '#d97706' : '#16a34a';
+
+      var left = '';
+      if (matCount > 0) left += '<span class="fp-pill mat" style="font-size:0.72rem;padding:2px 8px">Materiale: ' + matLoest + '/' + matCount + '</span>';
+      if (allDone) {
+        left += '<span style="font-size:0.72rem;font-weight:700;color:' + altKlaretColor + ';margin-left:4px">' + (medalVal === 3 ? '★ Alt klaret' : '✓ Alt klaret') + '</span>';
+      }
+
+      var right = medalVal > 0
+        ? '<span style="font-size:2.8rem;line-height:1;flex-shrink:0">' + {1:'🥉',2:'🥈',3:'🥇'}[medalVal] + '</span>'
+        : '';
+
+      card.insertAdjacentHTML('beforeend',
+        '<div class="emne-status" style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;min-height:3rem">' +
+          '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' + left + '</div>' +
+          right +
+        '</div>'
+      );
+    });
+  } catch(e) {}
+}
 function closeMedal() {
   document.getElementById('medal-overlay').classList.remove('show');
-  updateFremgang();
   restartOpgaver();
+  showPage('f1');
 }
 
 // ── LOCALSTORAGE ──────────────────────────────────────────────────────────
@@ -1583,47 +1635,6 @@ function updateFremgang() {
 
   list.innerHTML = html;
 
-  // Naeste emne: find første emne der ikke er fuldt færdigt (medal+materiale)
-  var nextNr = null;
-  var allDoneF1 = true;
-  for (var ni = 0; ni < emneRaekkefoelge.length; ni++) {
-    var nnr = emneRaekkefoelge[ni];
-    var mKey = 'medal_' + nnr.split('.').join('');
-    var hasMedal = parseInt(data[mKey] || 0) >= 1;
-    var ed2 = emneData[nnr];
-    var matCount2 = ed2 ? ed2.materiale.length : 0;
-    var matLoest2 = ed2 ? ed2.materiale.filter(function(id){return data['mat_'+id];}).length : 0;
-    var matDone = matCount2 === 0 || matLoest2 === matCount2;
-    // Emne er kun done hvis det har en medalje (kræver at opgaver er lavet)
-    // Emner uden emneData kræver stadig en medalje for at tælle som done
-    var hasContent = ed2 && (ed2.materiale.length > 0 || ed2.opgaver.length > 0);
-    var isFullyDone = hasMedal && (matDone || !hasContent);
-    // Emner helt uden indhold (stub) springer vi over i allDoneF1 check
-    if (!ed2) { allDoneF1 = false; break; }
-    if (!isFullyDone) {
-      allDoneF1 = false;
-      var hasAnyProgress = hasMedal || matLoest2 > 0 ||
-        (ed2 && ed2.opgaver.some(function(id){return data['opg_'+id];}));
-      if (!hasAnyProgress) {
-        nextNr = nnr;
-      }
-      break;
-    }
-  }
-  var nextBox = document.getElementById('fp-next');
-  if (nextBox) {
-    if (nextNr) {
-      var nslug = nextNr.split('.').join('-');
-      nextBox.innerHTML = '<div style="margin-top:16px;padding:14px 16px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div style="font-size:0.72rem;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px">N\u00e6ste emne</div><div style="font-size:0.92rem;font-weight:600">' + nextNr + ' \u2013 ' + emneNavneAlle[nextNr] + '</div></div><button onclick="showPage(\'' + nslug + '\')" style="padding:8px 16px;background:#2563eb;color:white;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;flex-shrink:0">G\u00e5 til emne \u2192</button></div>';
-      nextBox.style.display = '';
-    } else if (allDoneF1) {
-      nextBox.innerHTML = '<div style="margin-top:16px;padding:14px 16px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;text-align:center;font-size:0.92rem;font-weight:600;color:#15803d">Du har gennemf\u00f8rt alle emner i F1!</div>';
-      nextBox.style.display = '';
-    } else {
-      nextBox.innerHTML = '';
-      nextBox.style.display = 'none';
-    }
-  }
 }
 
 // ── RESTORE STATE FRA LOCALSTORAGE ────────────────────────────────────────
@@ -1714,6 +1725,7 @@ function showPage(id) {
   var el = document.getElementById('page-' + id);
   if (el) el.classList.remove('page-hidden');
   window.scrollTo(0, 0);
+  if (id === 'f1') updateEmneStatus();
 }
 
 document.addEventListener('click', function(e) {
@@ -1829,10 +1841,7 @@ function owCheck(id, answer) {
 <span class="medal-emoji" id="medal-emoji">🥇</span>
 <div class="medal-title" id="medal-title">Fantastisk!</div>
 <div class="medal-sub" id="medal-sub">Du har klaret alle opgaver!</div>
-<div style="display:flex;gap:10px;justify-content:center">
-      <button class="medal-close" onclick="closeMedal()">Fortsæt</button>
-      <button class="medal-close" style="background:#eff6ff;color:#2563eb;border:none" onclick="closeMedal(); showPage('fremgang'); updateFremgang();">Se min fremgang</button>
-    </div>
+<button class="medal-close" onclick="closeMedal()">Fortsæt</button>
 </div>
 </div>
 </body>
