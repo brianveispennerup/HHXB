@@ -1560,7 +1560,9 @@ function updateFremgang() {
     if (opgLoest === 0 && matLoest === 0) return;
     harFremgang = true;
 
-    var allDone = (opgLoest === opgCount && matLoest === matCount && opgCount + matCount > 0);
+    var medalKey = 'medal_' + nr.split('.').join('');
+    var medalVal = parseInt(data[medalKey] || 0);
+    var allDone = (medalVal >= 1 && matLoest === matCount && matCount > 0);
     var pills = '';
     if (matLoest > 0) pills += '<span class="fp-pill mat">Materiale: ' + matLoest + (matCount > 0 ? '/' + matCount : '') + '</span>';
     var medalKey = 'medal_' + nr.replace(/\./g, '');
@@ -1592,7 +1594,12 @@ function updateFremgang() {
     var matCount2 = ed2 ? ed2.materiale.length : 0;
     var matLoest2 = ed2 ? ed2.materiale.filter(function(id){return data['mat_'+id];}).length : 0;
     var matDone = matCount2 === 0 || matLoest2 === matCount2;
-    var isFullyDone = hasMedal && matDone;
+    // Emne er kun done hvis det har en medalje (kræver at opgaver er lavet)
+    // Emner uden emneData kræver stadig en medalje for at tælle som done
+    var hasContent = ed2 && (ed2.materiale.length > 0 || ed2.opgaver.length > 0);
+    var isFullyDone = hasMedal && (matDone || !hasContent);
+    // Emner helt uden indhold (stub) springer vi over i allDoneF1 check
+    if (!ed2) { allDoneF1 = false; break; }
     if (!isFullyDone) {
       allDoneF1 = false;
       var hasAnyProgress = hasMedal || matLoest2 > 0 ||
