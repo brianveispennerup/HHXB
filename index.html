@@ -1582,12 +1582,27 @@ function updateFremgang() {
 
   list.innerHTML = html;
 
-  // Naeste emne forslag
+  // Naeste emne: find første emne der ikke er fuldt færdigt (medal+materiale)
   var nextNr = null;
+  var allDoneF1 = true;
   for (var ni = 0; ni < emneRaekkefoelge.length; ni++) {
     var nnr = emneRaekkefoelge[ni];
     var mKey = 'medal_' + nnr.split('.').join('');
-    if (parseInt(data[mKey] || 0) < 1) { nextNr = nnr; break; }
+    var hasMedal = parseInt(data[mKey] || 0) >= 1;
+    var ed2 = emneData[nnr];
+    var matCount2 = ed2 ? ed2.materiale.length : 0;
+    var matLoest2 = ed2 ? ed2.materiale.filter(function(id){return data['mat_'+id];}).length : 0;
+    var matDone = matCount2 === 0 || matLoest2 === matCount2;
+    var isFullyDone = hasMedal && matDone;
+    if (!isFullyDone) {
+      allDoneF1 = false;
+      var hasAnyProgress = hasMedal || matLoest2 > 0 ||
+        (ed2 && ed2.opgaver.some(function(id){return data['opg_'+id];}));
+      if (!hasAnyProgress) {
+        nextNr = nnr;
+      }
+      break;
+    }
   }
   var nextBox = document.getElementById('fp-next');
   if (nextBox) {
@@ -1595,9 +1610,12 @@ function updateFremgang() {
       var nslug = nextNr.split('.').join('-');
       nextBox.innerHTML = '<div style="margin-top:16px;padding:14px 16px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div style="font-size:0.72rem;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px">N\u00e6ste emne</div><div style="font-size:0.92rem;font-weight:600">' + nextNr + ' \u2013 ' + emneNavneAlle[nextNr] + '</div></div><button onclick="showPage(\'' + nslug + '\')" style="padding:8px 16px;background:#2563eb;color:white;border:none;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;flex-shrink:0">G\u00e5 til emne \u2192</button></div>';
       nextBox.style.display = '';
-    } else {
+    } else if (allDoneF1) {
       nextBox.innerHTML = '<div style="margin-top:16px;padding:14px 16px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;text-align:center;font-size:0.92rem;font-weight:600;color:#15803d">Du har gennemf\u00f8rt alle emner i F1!</div>';
       nextBox.style.display = '';
+    } else {
+      nextBox.innerHTML = '';
+      nextBox.style.display = 'none';
     }
   }
 }
