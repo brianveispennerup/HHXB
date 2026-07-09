@@ -231,21 +231,21 @@ setTimeout(() => {
   function isCorrect313(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
 
   // Alle korrekte
-  setVal313('313b1','-2'); setVal313('313b2','-34'); setVal313('313b3','-1');
+  setVal313('313b1','-7'); setVal313('313b2','-2'); setVal313('313b3','-1');
   w.checkBronze313();
-  test('h(2)=-2, h(6)=-34, h(√3)=-1 → alle correct', isCorrect313('313b1')&&isCorrect313('313b2')&&isCorrect313('313b3'));
+  test('h(3)=-7, h(-2)=-2, h(√3)=-1 → alle correct', isCorrect313('313b1')&&isCorrect313('313b2')&&isCorrect313('313b3'));
 
   // Negative
   w.restartOpgaver313(); w.startOpgaver313();
-  setVal313('313b1','99'); setVal313('313b2','-34'); setVal313('313b3','-1');
+  setVal313('313b1','99'); setVal313('313b2','-2'); setVal313('313b3','-1');
   w.checkBronze313();
-  test('h(2)=99 (forkert) → not correct', !isCorrect313('313b1'));
-  test('h(6)=-34 (korrekt) → correct', isCorrect313('313b2'));
+  test('h(3)=99 (forkert) → not correct', !isCorrect313('313b1'));
+  test('h(-2)=-2 (korrekt) → correct', isCorrect313('313b2'));
 
   w.restartOpgaver313(); w.startOpgaver313();
-  setVal313('313b1','abc'); setVal313('313b2','-34'); setVal313('313b3','-1');
+  setVal313('313b1','abc'); setVal313('313b2','-2'); setVal313('313b3','-1');
   w.checkBronze313();
-  test('h(2)=abc → not correct', !isCorrect313('313b1'));
+  test('h(3)=abc → not correct', !isCorrect313('313b1'));
 
   // ── GULD TABEL 3.1.3 ─────────────────────────────────────────────────────
   console.log('\nGuld tabel 3.1.3 – f(x) = x²+2');
@@ -404,6 +404,158 @@ setTimeout(() => {
   d.getElementById('chk3111') && d.getElementById('chk3111').click();
   test('opg3111: kun A → feedback err', d.getElementById('fb3111')&&d.getElementById('fb3111').classList.contains('err'));
   test('opg3111: feedback afslører ikke svar', d.getElementById('fb3111')&&!d.getElementById('fb3111').textContent.includes('B'));
+
+
+  // ── FLOW 3.1.3 ───────────────────────────────────────────────────────────
+  console.log('\nFlow: Bronze/Sølv/Guld genstart');
+  function isHidden313(id){var el=d.getElementById(id);return !el||el.classList.contains('opgave-hidden');}
+  function isVis313(id){var el=d.getElementById(id);return el&&!el.classList.contains('opgave-hidden');}
+
+  // Bronze
+  w.showPage('3-1-3'); w.restartOpgaver313(); w.updateEnergy313(30); w.startOpgaver313();
+  test('Bronze: low synlig, mid+high skjult', isVis313('opg313-low')&&isHidden313('opg313-mid')&&isHidden313('opg313-high'));
+  w.restartOpgaver313(); w.updateEnergy313(30); w.startOpgaver313();
+  test('Genstart bronze: low synlig igen', isVis313('opg313-low'));
+
+  // Sølv
+  w.restartOpgaver313(); w.updateEnergy313(60); w.startOpgaver313();
+  test('Sølv: low+mid synlig, high skjult', isVis313('opg313-low')&&isVis313('opg313-mid')&&isHidden313('opg313-high'));
+  w.restartOpgaver313(); w.updateEnergy313(60); w.startOpgaver313();
+  test('Genstart sølv: low+mid synlig igen', isVis313('opg313-low')&&isVis313('opg313-mid'));
+
+  // Guld – fuld flow
+  w.restartOpgaver313(); w.updateEnergy313(90); w.startOpgaver313();
+  test('Guld: alle tre synlige', isVis313('opg313-low')&&isVis313('opg313-mid')&&isVis313('opg313-high'));
+
+  ['313g1','313g2','313g3','313g4','313g5'].forEach(function(id,i){
+    var inp=d.getElementById('ow-'+id); if(inp)inp.value=[6,3,2,3,6][i];
+  });
+  w.checkGold313();
+  var cw=d.getElementById('canvas-313-wrap');
+  test('Guld: canvas vises efter korrekt tabel', cw&&cw.style.display!=='none');
+
+  w.graph313Points=[[-2,6],[-1,3],[0,2],[1,3],[2,6]];
+  w.checkPoints313();
+  var dw=d.getElementById('canvas-313-draw-wrap');
+  test('Guld: draw-wrap vises efter korrekte punkter', dw&&dw.style.display!=='none');
+
+  // Genstart guld – alt nulstilles
+  w.restartOpgaver313();
+  test('Guld restart: canvas-wrap skjult', !cw||cw.style.display==='none');
+  test('Guld restart: draw-wrap skjult', !dw||dw.style.display==='none');
+  test('Guld restart: punkter nulstillet', w.graph313Points.length===0);
+  test('Guld restart: tableDone=false', w.opg313TableDone===false);
+  test('Guld restart: pointsDone=false', w.opg313PointsDone===false);
+
+  // Guld 2. gang – canvas skal virke igen
+  w.updateEnergy313(90); w.startOpgaver313();
+  ['313g1','313g2','313g3','313g4','313g5'].forEach(function(id,i){
+    var inp=d.getElementById('ow-'+id); if(inp)inp.value=[6,3,2,3,6][i];
+  });
+  w.checkGold313();
+  test('Guld 2. gang: canvas vises igen', cw&&cw.style.display!=='none');
+  w.graph313Points=[[-2,6],[-1,3],[0,2],[1,3],[2,6]];
+  w.checkPoints313();
+  test('Guld 2. gang: punkter godkendt igen', w.opg313PointsDone===true);
+
+  // ── FLOW: Medalje gemmes ikke lavere ─────────────────────────────────────
+  console.log('\nFlow: Medalje overskriver ikke højere niveau');
+  storage._data={};
+  w.saveProgress('medal_313',3);
+  var prev=parseInt(w.loadProgress('medal_313',0));
+  if(1>prev) w.saveProgress('medal_313',1);
+  test('Bronze overskriver ikke guld', parseInt(w.loadProgress('medal_313',0))===3);
+  prev=parseInt(w.loadProgress('medal_313',0));
+  if(2>prev) w.saveProgress('medal_313',2);
+  test('Sølv overskriver ikke guld', parseInt(w.loadProgress('medal_313',0))===3);
+
+  // ── FLOW: Skift niveau undervejs ─────────────────────────────────────────
+  console.log('\nFlow: Skift niveau undervejs');
+  w.restartOpgaver313(); w.updateEnergy313(90); w.startOpgaver313();
+  test('Guld: restart-btn synlig', d.getElementById('restart-btn-313')&&d.getElementById('restart-btn-313').style.display!=='none');
+  w.restartOpgaver313(); w.updateEnergy313(30); w.startOpgaver313();
+  test('Skift til bronze: kun low synlig', isVis313('opg313-low')&&isHidden313('opg313-mid')&&isHidden313('opg313-high'));
+
+
+  // ── FLOW: Afbryd midt i guld og start forfra ─────────────────────────────
+  console.log('\nFlow: Afbryd midt i guld');
+  w.restartOpgaver313(); w.updateEnergy313(90); w.startOpgaver313();
+  ['313g1','313g2','313g3','313g4','313g5'].forEach(function(id,i){var inp=d.getElementById('ow-'+id);if(inp)inp.value=[6,3,2,3,6][i];});
+  w.checkGold313();
+  w.graph313Points=[[-2,6]]; // delvis – ikke godkendt
+  w.restartOpgaver313(); w.updateEnergy313(90); w.startOpgaver313();
+  ['313g1','313g2','313g3','313g4','313g5'].forEach(function(id,i){var inp=d.getElementById('ow-'+id);if(inp)inp.value=[6,3,2,3,6][i];});
+  w.checkGold313();
+  var ptBtns2=d.getElementById('canvas-313-point-btns');
+  test('Afbryd+genstart: point-btns synlige', ptBtns2&&ptBtns2.style.display!=='none');
+  test('Afbryd+genstart: canvas-wrap synlig', d.getElementById('canvas-313-wrap')&&d.getElementById('canvas-313-wrap').style.display!=='none');
+  test('Afbryd+genstart: draw-wrap skjult', d.getElementById('canvas-313-draw-wrap')&&d.getElementById('canvas-313-draw-wrap').style.display==='none'||d.getElementById('canvas-313-draw-wrap').style.display==='');
+  test('Afbryd+genstart: punkter nulstillet', w.graph313Points.length===0);
+
+  // Afbryd efter punkter godkendt
+  w.restartOpgaver313(); w.updateEnergy313(90); w.startOpgaver313();
+  ['313g1','313g2','313g3','313g4','313g5'].forEach(function(id,i){var inp=d.getElementById('ow-'+id);if(inp)inp.value=[6,3,2,3,6][i];});
+  w.checkGold313();
+  w.graph313Points=[[-2,6],[-1,3],[0,2],[1,3],[2,6]];
+  w.checkPoints313(); // godkendt – knapper skjules
+  test('Point-btns skjules efter godkendt', ptBtns2&&ptBtns2.style.display==='none');
+  w.restartOpgaver313(); w.updateEnergy313(90); w.startOpgaver313();
+  ['313g1','313g2','313g3','313g4','313g5'].forEach(function(id,i){var inp=d.getElementById('ow-'+id);if(inp)inp.value=[6,3,2,3,6][i];});
+  w.checkGold313();
+  test('Restart efter godkendt: point-btns synlige igen', ptBtns2&&ptBtns2.style.display!=='none');
+  test('Restart efter godkendt: pointsDone=false', w.opg313PointsDone===false);
+
+
+  // ── FULD FLOW 3.1.3 ──────────────────────────────────────────────────────
+  // Patch drawCanvas313 to no-op to avoid canvas issues in jsdom
+  w.drawCanvas313 = function(){};
+
+  console.log('\nFuld flow 3.1.3 – 1. gennemgang');
+  w.restartOpgaver313(); w.updateEnergy313(90); w.startOpgaver313();
+
+  function fillTable313(){['313g1','313g2','313g3','313g4','313g5'].forEach(function(id,i){var inp=d.getElementById('ow-'+id);if(inp){inp.value=[6,3,2,3,6][i];inp.className='ow-input';}});}
+  function correctCurve313(){w.canvas313Curve=[];for(var cx=-2;cx<=2;cx+=0.1)w.canvas313Curve.push([cx,cx*cx+2]);}
+  function ptBtnsVis(){var el=d.getElementById('canvas-313-point-btns');return el&&el.style.display!=='none';}
+  function drawWrapVis(){var el=d.getElementById('canvas-313-draw-wrap');return el&&(el.style.display==='block'||el.style.display==='')&&el.style.display!=='none';}
+  function canvasWrapVis(){var el=d.getElementById('canvas-313-wrap');return el&&el.style.display!=='none';}
+
+  fillTable313(); w.checkGold313();
+  test('Fuld flow 1: canvas-wrap synlig', canvasWrapVis());
+  test('Fuld flow 1: point-knapper synlige', ptBtnsVis());
+  test('Fuld flow 1: draw-wrap skjult', !drawWrapVis());
+  w.graph313Points=[[-2,6],[-1,3],[0,2],[1,3],[2,6]]; w.checkPoints313();
+  test('Fuld flow 1: point-knapper skjult efter godkendt', !ptBtnsVis());
+  test('Fuld flow 1: draw-wrap synlig', drawWrapVis());
+  correctCurve313(); w.checkCurve313();
+  test('Fuld flow 1: kurve godkendt', w.opg313GraphDone);
+
+  console.log('\nFuld flow 3.1.3 – restart og 2. gennemgang');
+  w.restartOpgaver313();
+  test('Restart: canvas._init313 undefined', d.getElementById('canvas-313')&&d.getElementById('canvas-313')._init313===undefined);
+  test('Restart: point-btns reset til flex', ptBtnsVis());
+  test('Restart: canvas-wrap skjult', !canvasWrapVis());
+  test('Restart: draw-wrap skjult', !drawWrapVis());
+  test('Restart: punkter nulstillet', w.graph313Points.length===0);
+  test('Restart: kurve nulstillet', w.canvas313Curve.length===0);
+
+  w.updateEnergy313(90); w.startOpgaver313();
+  fillTable313(); w.checkGold313();
+  test('2. gennemgang: canvas-wrap synlig', canvasWrapVis());
+  test('2. gennemgang: point-knapper synlige', ptBtnsVis());
+  test('2. gennemgang: draw-wrap skjult', !drawWrapVis());
+  w.graph313Points=[[-2,6],[-1,3],[0,2],[1,3],[2,6]]; w.checkPoints313();
+  test('2. gennemgang: point-knapper skjult', !ptBtnsVis());
+  test('2. gennemgang: draw-wrap synlig', drawWrapVis());
+  correctCurve313(); w.checkCurve313();
+  test('2. gennemgang: kurve godkendt', w.opg313GraphDone);
+
+  console.log('\nFuld flow 3.1.3 – ryd kurve og gentegn');
+  w.clearCurve313();
+  test('Ryd kurve: graphDone=false', !w.opg313GraphDone);
+  test('Ryd kurve: draw-wrap stadig synlig', drawWrapVis());
+  test('Ryd kurve: punkter bevaret', w.graph313Points.length===5);
+  correctCurve313(); w.checkCurve313();
+  test('Ryd+gentegn: kurve godkendt igen', w.opg313GraphDone);
 
   // ── RESULTAT ──────────────────────────────────────────────────────────────────
   console.log(`\n${'='.repeat(40)}`);

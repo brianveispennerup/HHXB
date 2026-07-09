@@ -2329,7 +2329,7 @@ function restartOpgaver312() {
 var quiz313Answered = {}, quiz313Correct = 0, quiz313Total = 5;
 var opg313Level = 1, opg313Started = false, opg313MedalShown = false;
 var opg313TableDone = false, opg313PointsDone = false, opg313GraphDone = false;
-var graph313Points = [], canvas313Curve = [], canvas313Drawing = false;
+var graph313Points = [], canvas313Curve = [], canvas313Drawing = false, canvas313WasDrawing = false;
 
 function quizAnswer313(qnum, result, evt) {
   if (quiz313Answered[qnum]) return;
@@ -2449,56 +2449,75 @@ function checkGold313() {
   }
 }
 
+function canvas313ClickHandler(e) {
+  if(canvas313WasDrawing){canvas313WasDrawing=false;return;}
+  var dw=document.getElementById('canvas-313-draw-wrap');
+  if(dw&&dw.style.display!=='none')return;
+  if(opg313PointsDone)return;
+  var canvas=document.getElementById('canvas-313');
+  var pt=getCanvasPoint313(canvas,e);
+  var mx=Math.round(pt[0]*2)/2, my=Math.round(pt[1]*2)/2;
+  var existing=graph313Points.findIndex(function(p){return Math.abs(p[0]-mx)<0.3&&Math.abs(p[1]-my)<0.3;});
+  if(existing>=0)graph313Points.splice(existing,1);
+  else graph313Points.push([mx,my]);
+  drawCanvas313();
+}
+function canvas313MousedownHandler(e) {
+  var dw=document.getElementById('canvas-313-draw-wrap');
+  if(!dw||dw.style.display==='none')return;
+  canvas313Drawing=true; canvas313WasDrawing=false; canvas313Curve=[];
+  var canvas=document.getElementById('canvas-313');
+  canvas313Curve.push(getCanvasPoint313(canvas,e));
+}
+function canvas313MousemoveHandler(e) {
+  if(!canvas313Drawing)return;
+  var canvas=document.getElementById('canvas-313');
+  canvas313Curve.push(getCanvasPoint313(canvas,e));
+  drawCanvas313();
+}
+function canvas313MouseupHandler() {
+  if(canvas313Drawing) canvas313WasDrawing=true;
+  canvas313Drawing=false; drawCanvas313();
+}
+function canvas313TouchstartHandler(e) {
+  var dw=document.getElementById('canvas-313-draw-wrap');
+  if(!dw||dw.style.display==='none')return;
+  e.preventDefault(); canvas313Drawing=true; canvas313Curve=[];
+  var canvas=document.getElementById('canvas-313');
+  canvas313Curve.push(getCanvasPoint313(canvas,e.touches[0]));
+}
+function canvas313TouchmoveHandler(e) {
+  if(!canvas313Drawing)return; e.preventDefault();
+  var canvas=document.getElementById('canvas-313');
+  canvas313Curve.push(getCanvasPoint313(canvas,e.touches[0]));
+  drawCanvas313();
+}
+function canvas313TouchendHandler() { canvas313Drawing=false; }
+
 function initCanvas313() {
   var canvas=document.getElementById('canvas-313');
-  if(!canvas||canvas._init313)return;
+  if(!canvas)return;
+  // Remove old listeners before adding new ones
+  canvas.removeEventListener('click', canvas313ClickHandler);
+  canvas.removeEventListener('mousedown', canvas313MousedownHandler);
+  canvas.removeEventListener('mousemove', canvas313MousemoveHandler);
+  canvas.removeEventListener('mouseup', canvas313MouseupHandler);
+  canvas.removeEventListener('mouseleave', canvas313MouseupHandler);
+  canvas.removeEventListener('touchstart', canvas313TouchstartHandler);
+  canvas.removeEventListener('touchmove', canvas313TouchmoveHandler);
+  canvas.removeEventListener('touchend', canvas313TouchendHandler);
   canvas._init313=true;
-  graph313Points=[]; canvas313Curve=[];
   drawCanvas313();
-  var canvas313WasDrawing = false;
-
-  canvas.addEventListener('click', function(e){
-    // Ignore click if we just finished drawing
-    if(canvas313WasDrawing){canvas313WasDrawing=false;return;}
-    var dw=document.getElementById('canvas-313-draw-wrap');
-    if(dw&&dw.style.display!=='none')return; // Points locked after draw phase shown
-    if(opg313PointsDone)return; // Points locked after correct
-    var pt=getCanvasPoint313(canvas,e);
-    var mx=Math.round(pt[0]*2)/2, my=Math.round(pt[1]*2)/2;
-    var existing=graph313Points.findIndex(function(p){return Math.abs(p[0]-mx)<0.3&&Math.abs(p[1]-my)<0.3;});
-    if(existing>=0)graph313Points.splice(existing,1);
-    else graph313Points.push([mx,my]);
-    drawCanvas313();
-  });
-  canvas.addEventListener('mousedown',function(e){
-    var dw=document.getElementById('canvas-313-draw-wrap');
-    if(!dw||dw.style.display==='none')return;
-    canvas313Drawing=true; canvas313WasDrawing=false; canvas313Curve=[];
-    canvas313Curve.push(getCanvasPoint313(canvas,e));
-  });
-  canvas.addEventListener('mousemove',function(e){
-    if(!canvas313Drawing)return;
-    canvas313Curve.push(getCanvasPoint313(canvas,e));
-    drawCanvas313();
-  });
-  canvas.addEventListener('mouseup',function(){
-    if(canvas313Drawing) canvas313WasDrawing=true;
-    canvas313Drawing=false; drawCanvas313();
-  });
-  canvas.addEventListener('mouseleave',function(){canvas313Drawing=false;});
-  canvas.addEventListener('touchstart',function(e){
-    var dw=document.getElementById('canvas-313-draw-wrap');
-    if(!dw||dw.style.display==='none')return;
-    e.preventDefault(); canvas313Drawing=true; canvas313Curve=[];
-    canvas313Curve.push(getCanvasPoint313(canvas,e.touches[0]));
-  },{passive:false});
-  canvas.addEventListener('touchmove',function(e){
-    if(!canvas313Drawing)return; e.preventDefault();
-    canvas313Curve.push(getCanvasPoint313(canvas,e.touches[0]));
-    drawCanvas313();
-  },{passive:false});
-  canvas.addEventListener('touchend',function(){canvas313Drawing=false;});
+  canvas.addEventListener('click', canvas313ClickHandler);
+  canvas.addEventListener('mousedown', canvas313MousedownHandler);
+  canvas.addEventListener('mousemove', canvas313MousemoveHandler);
+  canvas.addEventListener('mouseup', canvas313MouseupHandler);
+  canvas.addEventListener('mouseleave', canvas313MouseupHandler);
+  canvas.addEventListener('touchstart', canvas313TouchstartHandler, {passive:false});
+  canvas.addEventListener('touchmove', canvas313TouchmoveHandler, {passive:false});
+  canvas.addEventListener('touchend', canvas313TouchendHandler);
 }
+
 
 function getCanvasPoint313(canvas,e){
   var rect=canvas.getBoundingClientRect();
@@ -2672,8 +2691,9 @@ function restartOpgaver313(){
   });
   var cw=document.getElementById('canvas-313-wrap'); if(cw)cw.style.display='none';
   var dw=document.getElementById('canvas-313-draw-wrap'); if(dw)dw.style.display='none';
+  var ptBtns=document.getElementById('canvas-313-point-btns'); if(ptBtns)ptBtns.style.display='flex';
   graph313Points=[]; canvas313Curve=[];
-  var canvas=document.getElementById('canvas-313'); if(canvas){canvas._init313=false;}
+  var canvas=document.getElementById('canvas-313'); if(canvas){canvas._init313=undefined;}
   var slider=document.getElementById('energy-slider-313'); if(slider)slider.value=1;
   var state=document.getElementById('energy-state-313'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
 }
