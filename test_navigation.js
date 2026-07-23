@@ -782,6 +782,109 @@ setTimeout(() => {
   test('Restart: opg315BronzeDone nulstillet', !w.opg315BronzeDone);
   test('Restart: opg315MedalShown nulstillet', !w.opg315MedalShown);
 
+  // ── 3.1.6 EGENSKABER VED GRAFER ─────────────────────────────────────────────
+  console.log('\nNavigation og struktur 3.1.6');
+  w.showPage('3-1-6');
+  test('showPage(3-1-6)', isVisible(d.getElementById('page-3-1-6')));
+  test('3 tab-knapper i 3.1.6', d.querySelectorAll('#page-3-1-6 .tab-btn').length === 3);
+  test('3.1.6 i emneData', html.includes("'3.1.6'") && html.includes("'chk-316-bog'"));
+  test('3.1.6 har kun ét materiale-kort (ingen YouTube)', d.querySelectorAll('#t316-mat .simple-card').length === 1);
+
+  console.log('\nQuiz 3.1.6 – positive tests');
+  d.querySelectorAll('#page-3-1-6 .tab-btn')[1].click();
+  const q316answers = [2,1,0,1,1,1]; // korrekte options (0-indekseret): C,B,A,B,B,B
+  q316answers.forEach((idx,i) => {
+    const opts = d.querySelectorAll('#qq316-'+(i+1)+' .quiz-option');
+    opts[idx].click();
+    test(`3.1.6 Q${i+1}: korrekt svar → correct`, opts[idx].classList.contains('correct'));
+  });
+  test('3.1.6 quiz score: 6/6', d.getElementById('quiz-score-316-title').textContent.includes('6/6'));
+
+  console.log('\nQuiz 3.1.6 – negative tests');
+  w.quizRetry316();
+  d.querySelectorAll('#page-3-1-6 .tab-btn')[1].click();
+  const q316_1b = d.querySelectorAll('#qq316-1 .quiz-option');
+  q316_1b[0].click(); // A = wrong
+  test('3.1.6 Q1: A → wrong', q316_1b[0].classList.contains('wrong'));
+  test('3.1.6 Q1: feedback err', d.getElementById('qf316-1').classList.contains('err'));
+  test('3.1.6 Q1: C ikke afsløret', !q316_1b[2].classList.contains('reveal-correct'));
+
+  console.log('\ntoggleLige');
+  var ligeBtn = d.getElementById('lige-316s1');
+  test('lige-toggle default state = lige', ligeBtn.dataset.state === 'lige');
+  w.toggleLige(ligeBtn);
+  test('toggleLige: lige → ikke-lige', ligeBtn.dataset.state === 'ikke-lige' && ligeBtn.textContent === 'Ikke lige');
+  w.toggleLige(ligeBtn);
+  test('toggleLige: ikke-lige → lige', ligeBtn.dataset.state === 'lige' && ligeBtn.textContent === 'Lige');
+
+  function setVal316(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect316(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+  function setLige316(toggleId, state){ var btn=d.getElementById(toggleId); if(btn.dataset.state!==state) w.toggleLige(btn); }
+  function isLigeCorrect316(toggleId){ return d.getElementById(toggleId).classList.contains('correct'); }
+
+  console.log('\nBronze 3.1.6 – find nulpunkter, vilkårlig rækkefølge');
+  w.showPage('3-1-6'); w.restartOpgaver316(); w.startOpgaver316();
+  setVal316('316b1','2'); setVal316('316b2','-3'); setVal316('316b3','0'); setVal316('316b4','-1'); // vilkårlig rækkefølge
+  w.checkBronze316();
+  test('Bronze: alle fire nulpunkter (ombyttet) → correct', ['316b1','316b2','316b3','316b4'].every(id=>isCorrect316(id)));
+  test('Bronze: opg316BronzeDone=true', w.opg316BronzeDone);
+
+  console.log('\nBronze 3.1.6 – negative test: duplikat afvises');
+  w.restartOpgaver316(); w.startOpgaver316();
+  setVal316('316b1','-3'); setVal316('316b2','-3'); setVal316('316b3','0'); setVal316('316b4','2'); // -3 to gange
+  w.checkBronze316();
+  test('Bronze: duplikat nulpunkt → not correct', !isCorrect316('316b1'));
+  test('Bronze: duplikat → opg316BronzeDone forbliver false', !w.opg316BronzeDone);
+  w.restartOpgaver316(); w.startOpgaver316();
+  setVal316('316b1','-3'); setVal316('316b2','-1'); setVal316('316b3','0'); setVal316('316b4','99'); // reelt forkert
+  w.checkBronze316();
+  test('Bronze: reelt forkert nulpunkt → not correct', !isCorrect316('316b1'));
+
+  console.log('\nSølv 3.1.6 – lige funktioner');
+  w.restartOpgaver316(); w.opg316Level=2; w.startOpgaver316();
+  setLige316('lige-316s1','lige'); setLige316('lige-316s2','lige');
+  w.checkSilver316();
+  test('Sølv: f(x)=2x²+10 lige → correct', isLigeCorrect316('lige-316s1'));
+  test('Sølv: g(x)=-3x²+4 lige → correct', isLigeCorrect316('lige-316s2'));
+  test('Sølv: opg316SilverDone=true', w.opg316SilverDone);
+  w.restartOpgaver316(); w.opg316Level=2; w.startOpgaver316();
+  setLige316('lige-316s1','ikke-lige'); setLige316('lige-316s2','lige'); // forkert på s1
+  w.checkSilver316();
+  test('Sølv: forkert svar → not correct', !isLigeCorrect316('lige-316s1'));
+  test('Sølv: forkert → opg316SilverDone forbliver false', !w.opg316SilverDone);
+
+  console.log('\nGuld 3.1.6 – lige/ikke lige med flere led');
+  w.restartOpgaver316(); w.opg316Level=3; w.startOpgaver316();
+  setLige316('lige-316g1','ikke-lige'); // h(x)=x³
+  setLige316('lige-316g2','ikke-lige'); // f(x)=2x⁴+4x
+  setLige316('lige-316g3','lige');      // g(x)=3x⁴+x²
+  w.checkGold316();
+  test('Guld: h(x)=x³ ikke lige → correct', isLigeCorrect316('lige-316g1'));
+  test('Guld: f(x)=2x⁴+4x ikke lige → correct', isLigeCorrect316('lige-316g2'));
+  test('Guld: g(x)=3x⁴+x² lige → correct', isLigeCorrect316('lige-316g3'));
+  test('Guld: opg316GoldDone=true', w.opg316GoldDone);
+  w.restartOpgaver316(); w.opg316Level=3; w.startOpgaver316();
+  setLige316('lige-316g1','lige'); // forkert — h(x)=x³ er ulige
+  setLige316('lige-316g2','ikke-lige');
+  setLige316('lige-316g3','lige');
+  w.checkGold316();
+  test('Guld: forkert svar → not correct', !isLigeCorrect316('lige-316g1'));
+  test('Guld: forkert → opg316GoldDone forbliver false', !w.opg316GoldDone);
+
+  console.log('\nMedalje og restart-flow 3.1.6');
+  w.restartOpgaver316(); w.opg316Level=1; w.startOpgaver316();
+  setVal316('316b1','-3'); setVal316('316b2','-1'); setVal316('316b3','0'); setVal316('316b4','2');
+  w.checkBronze316();
+  test('Bronze niveau: medalje gemmes', w.opg316MedalShown);
+  w.restartOpgaver316();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-316').style.display==='block');
+  test('Restart: restart-btn skjult', d.getElementById('restart-btn-316').style.display==='none');
+  test('Restart: input nulstillet', d.getElementById('ow-316b1').value==='');
+  test('Restart: lige-toggle nulstillet til Lige', d.getElementById('lige-316s1').dataset.state==='lige');
+  test('Restart: opgave-widgets skjules', d.getElementById('opg316-low').classList.contains('opgave-hidden'));
+  test('Restart: opg316BronzeDone nulstillet', !w.opg316BronzeDone);
+  test('Restart: opg316MedalShown nulstillet', !w.opg316MedalShown);
+
   // ── RESULTAT ──────────────────────────────────────────────────────────────────
   console.log(`\n${'='.repeat(40)}`);
   console.log(`Resultat: ${passed}/${passed+failed} tests bestået`);

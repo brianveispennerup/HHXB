@@ -430,6 +430,11 @@ a { text-decoration: none; color: inherit; }
 .mono-toggle[data-state="aftagende"] { color: #dc2626; border-color: #dc2626; }
 .mono-toggle.correct { background: #f0fdf4; }
 .mono-toggle.wrong { background: #fef2f2; animation: shake 0.3s; }
+.lige-toggle { padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 20px; background: var(--surface); font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.lige-toggle[data-state="lige"] { color: #16a34a; border-color: #16a34a; }
+.lige-toggle[data-state="ikke-lige"] { color: #dc2626; border-color: #dc2626; }
+.lige-toggle.correct { background: #f0fdf4; }
+.lige-toggle.wrong { background: #fef2f2; animation: shake 0.3s; }
 @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
 
 .fremgang-page { padding: 0; }
@@ -1643,7 +1648,186 @@ document.addEventListener("DOMContentLoaded", function() {
 
   </div>
 </div>
-<div id="page-3-1-6" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.1.6</span><h1>Egenskaber ved grafer</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-1-7" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.1.7</span><h1>Omvendt funktion</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.1</span><h1>Grundbegreber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.2</span><h1>Forskrift ud fra to punkter</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-3" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.3</span><h1>Vækstegenskaber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-4" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.4</span><h1>Stykkevis lineære funktioner</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-5" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.5</span><h1>Skæring mellem lineære grafer</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.1</span><h1>Mindste kvadraters metode</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.2</span><h1>Korrelationskoefficienten</h1><p>Indhold tilføjes snart.</p></div></div>
+<div id="page-3-1-6" class="page-hidden">
+  <a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a>
+  <div class="emne-header">
+    <span class="tag">3.1.6</span>
+    <h1>Egenskaber ved grafer</h1>
+    <p>Lær om skæringspunkter med akserne, nulpunkter og symmetri for en funktions graf.</p>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="t316-mat">Materiale</button>
+    <button class="tab-btn" data-tab="t316-quiz">Tjekspørgsmål</button>
+    <button class="tab-btn" data-tab="t316-opg">Opgaver</button>
+  </div>
+
+  <div id="t316-mat" class="tab-panel active">
+    <div class="simple-resource-list">
+      <div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=253','_blank')">
+        <input type="checkbox" class="card-check" id="chk-316-bog" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">Kapitel 3.1.6</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div id="t316-quiz" class="tab-panel">
+    <div class="quiz-question" id="qq316-1">
+      <div class="quiz-q-text">1. En graf for en funktion kan skære y-aksen i hvor mange punkter?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer316(1,'wrong',event)">A) Uendeligt mange</button>
+        <button class="quiz-option" onclick="quizAnswer316(1,'wrong',event)">B) To</button>
+        <button class="quiz-option" onclick="quizAnswer316(1,'correct',event)">C) Ét</button>
+        <button class="quiz-option" onclick="quizAnswer316(1,'wrong',event)">D) Det afhænger altid af graden af funktionen</button>
+      </div>
+      <div class="quiz-feedback" id="qf316-1"></div>
+    </div>
+    <div class="quiz-question" id="qq316-2">
+      <div class="quiz-q-text">2. Hvad kaldes løsningerne til ligningen f(x) = 0?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer316(2,'wrong',event)">A) Funktionens y-værdier</button>
+        <button class="quiz-option" onclick="quizAnswer316(2,'correct',event)">B) Funktionens nulpunkter</button>
+        <button class="quiz-option" onclick="quizAnswer316(2,'wrong',event)">C) Funktionens symmetriakse</button>
+        <button class="quiz-option" onclick="quizAnswer316(2,'wrong',event)">D) Funktionens skæringspunkt med y-aksen</button>
+      </div>
+      <div class="quiz-feedback" id="qf316-2"></div>
+    </div>
+    <div class="quiz-question" id="qq316-3">
+      <div class="quiz-q-text">3. Hvornår kalder vi en funktion "lige" (symmetrisk om y-aksen)?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer316(3,'correct',event)">A) Når f(x) = f(-x) for alle x</button>
+        <button class="quiz-option" onclick="quizAnswer316(3,'wrong',event)">B) Når f(x) = -f(x) for alle x</button>
+        <button class="quiz-option" onclick="quizAnswer316(3,'wrong',event)">C) Når f(0) = 0</button>
+        <button class="quiz-option" onclick="quizAnswer316(3,'wrong',event)">D) Når grafen skærer x-aksen i tre punkter</button>
+      </div>
+      <div class="quiz-feedback" id="qf316-3"></div>
+    </div>
+    <div class="quiz-question" id="qq316-4">
+      <div class="quiz-q-text">4. Grafen for et tredjegradspolynomium har tre nulpunkter. Hvad fortæller det os om ligningen f(x) = 0?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer316(4,'wrong',event)">A) At ligningen slet ikke kan løses</button>
+        <button class="quiz-option" onclick="quizAnswer316(4,'correct',event)">B) At ligningen har tre løsninger</button>
+        <button class="quiz-option" onclick="quizAnswer316(4,'wrong',event)">C) At funktionen er lige</button>
+        <button class="quiz-option" onclick="quizAnswer316(4,'wrong',event)">D) At grafen ikke skærer y-aksen</button>
+      </div>
+      <div class="quiz-feedback" id="qf316-4"></div>
+    </div>
+    <div class="quiz-question" id="qq316-5">
+      <div class="quiz-q-text">5. Hvordan finder man algebraisk grafens skæringspunkt med y-aksen for en funktion f?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer316(5,'wrong',event)">A) Man løser ligningen f(x) = 0</button>
+        <button class="quiz-option" onclick="quizAnswer316(5,'correct',event)">B) Man udregner f(0)</button>
+        <button class="quiz-option" onclick="quizAnswer316(5,'wrong',event)">C) Man finder x, hvor f(x) er størst</button>
+        <button class="quiz-option" onclick="quizAnswer316(5,'wrong',event)">D) Man sætter y = x</button>
+      </div>
+      <div class="quiz-feedback" id="qf316-5"></div>
+    </div>
+    <div class="quiz-question" id="qq316-6">
+      <div class="quiz-q-text">6. Hvordan finder man algebraisk grafens skæringspunkt(er) med x-aksen?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer316(6,'wrong',event)">A) Man udregner f(0)</button>
+        <button class="quiz-option" onclick="quizAnswer316(6,'correct',event)">B) Man løser ligningen f(x) = 0</button>
+        <button class="quiz-option" onclick="quizAnswer316(6,'wrong',event)">C) Man aflæser det direkte på grafen uden beregning</button>
+        <button class="quiz-option" onclick="quizAnswer316(6,'wrong',event)">D) Man sætter x = 0 og y = 0 samtidig</button>
+      </div>
+      <div class="quiz-feedback" id="qf316-6"></div>
+    </div>
+    <div class="quiz-score" id="quiz-score-316" style="display:none">
+      <h3 id="quiz-score-316-title"></h3>
+      <p id="quiz-score-316-text"></p>
+      <button class="quiz-retry" onclick="quizRetry316()">Prøv igen</button>
+    </div>
+  </div>
+
+  <div id="t316-opg" class="tab-panel">
+    <div class="energy-wrap">
+      <div class="energy-header">
+        <span class="energy-question">Hvor meget energi har du i dag?</span>
+        <span class="energy-state" id="energy-state-316" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span>
+      </div>
+      <div class="energy-slider-track">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span>
+        <input type="range" class="energy-slider" id="energy-slider-316" min="0" max="100" value="1" oninput="updateEnergy316(this.value)">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span>
+      </div>
+    </div>
+    <div class="ready-btn-wrap" id="ready-btn-wrap-316" style="display:block">
+      <button class="ready-btn" onclick="startOpgaver316()">
+        <div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div>
+        <span class="ready-btn-cta">Ja, klar!</span>
+      </button>
+    </div>
+    <button class="restart-btn" id="restart-btn-316" onclick="restartOpgaver316()" style="display:none">↩ Vælg nyt niveau</button>
+
+    <!-- BRONZE -->
+    <div class="opgave-widget opgave-hidden" id="opg316-low">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Find nulpunkterne</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:12px">Følgende funktion har fire nulpunkter. Aflæs dem på grafen og angiv alle fire — rækkefølgen er ligegyldig.</div>
+      <img src="https://brianveispennerup.github.io/HHXB/Figur1_316_1.png" style="max-width:100%;border-radius:8px;margin-bottom:16px">
+      <div class="ow-input-row" style="flex-wrap:wrap;margin-bottom:12px">
+        <span style="font-size:0.88rem">Funktionens fire nulpunkter er</span>
+        <input class="ow-input" id="ow-316b1" type="text" placeholder="?" style="width:55px;text-align:center" oninput="infReplace(this)" onkeydown="infShortcut(event,this)">,
+        <input class="ow-input" id="ow-316b2" type="text" placeholder="?" style="width:55px;text-align:center" oninput="infReplace(this)" onkeydown="infShortcut(event,this)">,
+        <input class="ow-input" id="ow-316b3" type="text" placeholder="?" style="width:55px;text-align:center" oninput="infReplace(this)" onkeydown="infShortcut(event,this)"> og
+        <input class="ow-input" id="ow-316b4" type="text" placeholder="?" style="width:55px;text-align:center" oninput="infReplace(this)" onkeydown="infShortcut(event,this)">
+      </div>
+      <button onclick="checkBronze316()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button>
+      <div class="ow-result" id="ow-r-316-low" style="margin-top:10px"></div>
+    </div>
+
+    <!-- SØLV -->
+    <div class="opgave-widget opgave-hidden" id="opg316-mid">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Er funktionen lige?</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:12px">Afgør om følgende funktioner er lige (symmetriske om y-aksen).</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
+        <div class="ow-input-row" style="flex-wrap:wrap">
+          <span style="font-size:0.9rem">Er \(f(x) = 2x^2 + 10\) lige?</span>
+          <button type="button" class="lige-toggle" id="lige-316s1" data-state="lige" onclick="toggleLige(this)">Lige</button>
+        </div>
+        <div class="ow-input-row" style="flex-wrap:wrap">
+          <span style="font-size:0.9rem">Er \(g(x) = -3x^2 + 4\) lige?</span>
+          <button type="button" class="lige-toggle" id="lige-316s2" data-state="lige" onclick="toggleLige(this)">Lige</button>
+        </div>
+      </div>
+      <button onclick="checkSilver316()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button>
+      <div class="ow-result" id="ow-r-316-mid" style="margin-top:10px"></div>
+    </div>
+
+    <!-- GULD -->
+    <div class="opgave-widget opgave-hidden" id="opg316-high">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Er funktionen lige? – flere led</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:12px">Afgør om følgende funktioner er lige (symmetriske om y-aksen).</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
+        <div class="ow-input-row" style="flex-wrap:wrap">
+          <span style="font-size:0.9rem">Er \(h(x) = x^3\) lige?</span>
+          <button type="button" class="lige-toggle" id="lige-316g1" data-state="lige" onclick="toggleLige(this)">Lige</button>
+        </div>
+        <div class="ow-input-row" style="flex-wrap:wrap">
+          <span style="font-size:0.9rem">Er \(f(x) = 2x^4 + 4x\) lige?</span>
+          <button type="button" class="lige-toggle" id="lige-316g2" data-state="lige" onclick="toggleLige(this)">Lige</button>
+        </div>
+        <div class="ow-input-row" style="flex-wrap:wrap">
+          <span style="font-size:0.9rem">Er \(g(x) = 3x^4 + x^2\) lige?</span>
+          <button type="button" class="lige-toggle" id="lige-316g3" data-state="lige" onclick="toggleLige(this)">Lige</button>
+        </div>
+      </div>
+      <button onclick="checkGold316()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button>
+      <div class="ow-result" id="ow-r-316-high" style="margin-top:10px"></div>
+    </div>
+
+  </div>
+
+</div>
+<div id="page-3-1-7" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.1.7</span><h1>Omvendt funktion</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.1</span><h1>Grundbegreber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.2</span><h1>Forskrift ud fra to punkter</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-3" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.3</span><h1>Vækstegenskaber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-4" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.4</span><h1>Stykkevis lineære funktioner</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-5" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.5</span><h1>Skæring mellem lineære grafer</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.1</span><h1>Mindste kvadraters metode</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.2</span><h1>Korrelationskoefficienten</h1><p>Indhold tilføjes snart.</p></div></div>
 <div id="page-fremgang" class="page-hidden">
 <a class="back-link" onclick="showPage('home')">← Alle forløb</a>
 <div class="fremgang-header">
@@ -3335,6 +3519,200 @@ function restartOpgaver315() {
   var state=document.getElementById('energy-state-315'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
 }
 
+// ── 3.1.6 EGENSKABER VED GRAFER ─────────────────────────────────────────────
+var quiz316Answered = {}, quiz316Correct = 0, quiz316Total = 6;
+
+function quizAnswer316(qnum, result, evt) {
+  if (quiz316Answered[qnum]) return;
+  quiz316Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq316-' + qnum);
+  var fb = document.getElementById('qf316-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz316Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  if (Object.keys(quiz316Answered).length >= quiz316Total) {
+    var box=document.getElementById('quiz-score-316'); box.style.display='block';
+    document.getElementById('quiz-score-316-title').textContent = quiz316Correct===quiz316Total ? 'Perfekt – '+quiz316Correct+'/'+quiz316Total+'!' : quiz316Correct+'/'+quiz316Total+' rigtige';
+    document.getElementById('quiz-score-316-text').textContent = quiz316Correct===quiz316Total ? 'Du har styr på egenskaber ved grafer!' : 'Se de markerede svar og prøv igen.';
+  }
+}
+
+function quizRetry316() {
+  quiz316Answered={}; quiz316Correct=0;
+  [1,2,3,4,5,6].forEach(function(n){
+    var qq=document.getElementById('qq316-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.classList.remove('correct','wrong');});
+    var fb=document.getElementById('qf316-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-316').style.display='none';
+}
+
+var opg316Level = 1, opg316Started = false, opg316MedalShown = false;
+var opg316BronzeDone = false, opg316SilverDone = false, opg316GoldDone = false;
+
+function toggleLige(btn) {
+  var next = btn.dataset.state === 'lige' ? 'ikke-lige' : 'lige';
+  btn.dataset.state = next;
+  btn.textContent = next === 'lige' ? 'Lige' : 'Ikke lige';
+}
+
+// Tjekker fire nulpunkt-felter mod facit, uanset rækkefølge — men afviser duplikater
+function checkNulpunkterGroup(ids, correctValues, resultId) {
+  var inputs = ids.map(function(id){ return document.getElementById('ow-' + id); });
+  var raws = inputs.map(function(inp){ return inp.value.replace(',','.').trim(); });
+  var r = document.getElementById(resultId);
+
+  if (raws.some(function(raw){ return raw === '' || isNaN(Number(raw)); })) {
+    inputs.forEach(function(inp){ inp.classList.add('wrong'); });
+    setTimeout(function(){ inputs.forEach(function(inp){ inp.classList.remove('wrong'); }); }, 1200);
+    if (r) { r.className='ow-result err'; r.textContent='Udfyld alle fire felter med tal.'; }
+    return false;
+  }
+
+  var vals = raws.map(Number);
+  var hasDuplicate = vals.some(function(v, i){
+    return vals.some(function(v2, j){ return i !== j && Math.abs(v - v2) < 0.05; });
+  });
+  if (hasDuplicate) {
+    inputs.forEach(function(inp){ inp.classList.add('wrong'); });
+    setTimeout(function(){ inputs.forEach(function(inp){ inp.classList.remove('wrong'); }); }, 1200);
+    if (r) { r.className='ow-result err'; r.textContent='Du har skrevet det samme tal flere gange — der skal være fire forskellige nulpunkter.'; }
+    return false;
+  }
+
+  var usedCorrect = correctValues.map(function(){ return false; });
+  var allMatch = vals.every(function(v){
+    var idx = -1;
+    usedCorrect.forEach(function(used, i){ if (idx===-1 && !used && Math.abs(v - correctValues[i]) < 0.05) idx = i; });
+    if (idx === -1) return false;
+    usedCorrect[idx] = true;
+    return true;
+  });
+
+  if (allMatch) {
+    inputs.forEach(function(inp){ inp.classList.add('correct'); });
+    return true;
+  } else {
+    inputs.forEach(function(inp){ inp.classList.add('wrong'); });
+    setTimeout(function(){ inputs.forEach(function(inp){ inp.classList.remove('wrong'); }); }, 1200);
+    if (r) { r.className='ow-result err'; r.textContent='Ikke alle nulpunkter er korrekte — prøv igen.'; }
+    return false;
+  }
+}
+
+// Tjekker en gruppe af lige/ikke-lige-udsagn (fast rækkefølge, hvert udsagn har sin egen funktion)
+function checkLigeGroup(ids, correctStates, resultId) {
+  var allCorrect = true;
+  ids.forEach(function(id, idx) {
+    var btn = document.getElementById(id);
+    if (btn.dataset.state === correctStates[idx]) {
+      btn.classList.remove('wrong'); btn.classList.add('correct');
+    } else {
+      allCorrect = false;
+      btn.classList.add('wrong');
+      setTimeout(function(){ btn.classList.remove('wrong'); }, 1200);
+    }
+  });
+  if (!allCorrect) {
+    var r = document.getElementById(resultId);
+    if (r) { r.className='ow-result err'; r.textContent='Ikke alle svar er korrekte — prøv igen.'; }
+  }
+  return allCorrect;
+}
+
+function checkBronze316() {
+  var ok = checkNulpunkterGroup(['316b1','316b2','316b3','316b4'], [-3,-1,0,2], 'ow-r-316-low');
+  if (ok) {
+    opg316BronzeDone = true;
+    var r = document.getElementById('ow-r-316-low');
+    if (r) { r.className='ow-result ok'; r.textContent='Alle nulpunkter er korrekte!'; }
+    runOpgaveSparkle(document.getElementById('opg316-low'));
+    check316Medal();
+  }
+}
+
+function checkSilver316() {
+  var ok = checkLigeGroup(['lige-316s1','lige-316s2'], ['lige','lige'], 'ow-r-316-mid');
+  if (ok) {
+    opg316SilverDone = true;
+    var r = document.getElementById('ow-r-316-mid');
+    if (r) { r.className='ow-result ok'; r.textContent='Alle svar er korrekte!'; }
+    runOpgaveSparkle(document.getElementById('opg316-mid'));
+    check316Medal();
+  }
+}
+
+function checkGold316() {
+  var ok = checkLigeGroup(['lige-316g1','lige-316g2','lige-316g3'], ['ikke-lige','ikke-lige','lige'], 'ow-r-316-high');
+  if (ok) {
+    opg316GoldDone = true;
+    var r = document.getElementById('ow-r-316-high');
+    if (r) { r.className='ow-result ok'; r.textContent='Alle svar er korrekte!'; }
+    runOpgaveSparkle(document.getElementById('opg316-high'));
+    check316Medal();
+  }
+}
+
+function check316Medal() {
+  if (opg316MedalShown) return;
+  var ok = false;
+  if (opg316Level === 1) ok = opg316BronzeDone;
+  else if (opg316Level === 2) ok = opg316BronzeDone && opg316SilverDone;
+  else if (opg316Level === 3) ok = opg316BronzeDone && opg316SilverDone && opg316GoldDone;
+  if (ok) {
+    opg316MedalShown = true;
+    var prev = parseInt(loadProgress('medal_316',0));
+    if (opg316Level > prev) saveProgress('medal_316', opg316Level);
+    setTimeout(function(){ showMedal(opg316Level); }, 400);
+  }
+}
+
+function updateEnergy316(val) {
+  if (opg316Started) return;
+  val = parseInt(val);
+  var state = document.getElementById('energy-state-316');
+  if (val < 40) { opg316Level=1; state.textContent='Træt – 1 sæt'; state.style.color='#dc2626'; }
+  else if (val < 75) { opg316Level=2; state.textContent='Klar – 2 sæt'; state.style.color='#ca8a04'; }
+  else { opg316Level=3; state.textContent='On fire! – 3 sæt'; state.style.color='#16a34a'; }
+  ['opg316-low','opg316-mid','opg316-high'].forEach(function(id){
+    var w=document.getElementById(id); if(w){w.classList.add('opgave-hidden');w.style.display='';}
+  });
+  document.getElementById('ready-btn-wrap-316').style.display='block';
+}
+
+function startOpgaver316() {
+  opg316Started=true; opg316MedalShown=false;
+  opg316BronzeDone=false; opg316SilverDone=false; opg316GoldDone=false;
+  document.getElementById('ready-btn-wrap-316').style.display='none';
+  document.getElementById('restart-btn-316').style.display='block';
+  var ew=document.querySelector('#t316-opg .energy-wrap'); if(ew)ew.classList.add('slider-locked');
+  if(opg316Level>=1) showWidget(document.getElementById('opg316-low'));
+  if(opg316Level>=2) showWidget(document.getElementById('opg316-mid'));
+  if(opg316Level>=3) showWidget(document.getElementById('opg316-high'));
+}
+
+function restartOpgaver316() {
+  opg316Started=false; opg316Level=1; opg316MedalShown=false;
+  opg316BronzeDone=false; opg316SilverDone=false; opg316GoldDone=false;
+  var ew=document.querySelector('#t316-opg .energy-wrap'); if(ew)ew.classList.remove('slider-locked');
+  document.getElementById('restart-btn-316').style.display='none';
+  document.getElementById('ready-btn-wrap-316').style.display='block';
+  ['opg316-low','opg316-mid','opg316-high'].forEach(function(id){
+    var w=document.getElementById(id); if(!w)return;
+    w.classList.add('opgave-hidden'); w.style.display=''; w.style.background=''; w.style.borderColor='';
+    w.querySelectorAll('.ow-input').forEach(function(inp){inp.value='';inp.className='ow-input';});
+    w.querySelectorAll('.lige-toggle').forEach(function(btn){btn.dataset.state='lige';btn.textContent='Lige';btn.classList.remove('correct','wrong');});
+    w.querySelectorAll('.ow-result').forEach(function(r){r.className='ow-result';r.textContent='';});
+  });
+  var slider=document.getElementById('energy-slider-316'); if(slider)slider.value=1;
+  var state=document.getElementById('energy-state-316'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
+}
+
 function closeMedal() {
 
   document.getElementById('medal-overlay').classList.remove('show');
@@ -3372,6 +3750,7 @@ var emneData = {
   '3.1.3': { navn: 'Regneforskrift og graf',             opgaver: [],                     materiale: ['chk-313-bog','chk-313-yt'] },
   '3.1.4': { navn: 'Grafiske løsninger',                 opgaver: [],                     materiale: ['chk-314-bog','chk-314-yt'] },
   '3.1.5': { navn: 'Monotoniforhold',                    opgaver: [],                     materiale: ['chk-315-bog','chk-315-yt'] },
+  '3.1.6': { navn: 'Egenskaber ved grafer',               opgaver: [],                     materiale: ['chk-316-bog'] },
 };
 
 // ── FREMGANG SIDE ─────────────────────────────────────────────────────────
