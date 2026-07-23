@@ -664,6 +664,124 @@ setTimeout(() => {
   test('Restart: opg314BronzeDone nulstillet', !w.opg314BronzeDone);
   test('Restart: opg314MedalShown nulstillet', !w.opg314MedalShown);
 
+  // ── 3.1.5 MONOTONIFORHOLD ───────────────────────────────────────────────────
+  console.log('\nNavigation og struktur 3.1.5');
+  w.showPage('3-1-5');
+  test('showPage(3-1-5)', isVisible(d.getElementById('page-3-1-5')));
+  test('3 tab-knapper i 3.1.5', d.querySelectorAll('#page-3-1-5 .tab-btn').length === 3);
+  test('3.1.5 i emneData', html.includes("'3.1.5'") && html.includes("'chk-315-bog'"));
+
+  console.log('\ntoggleMono');
+  var testBtn = d.getElementById('mono-315b1');
+  test('mono-toggle default state = voksende', testBtn.dataset.state === 'voksende');
+  w.toggleMono(testBtn);
+  test('toggleMono: voksende → aftagende', testBtn.dataset.state === 'aftagende' && testBtn.textContent === 'aftagende');
+  w.toggleMono(testBtn);
+  test('toggleMono: aftagende → voksende', testBtn.dataset.state === 'voksende' && testBtn.textContent === 'voksende');
+
+  console.log('\nQuiz 3.1.5 – positive tests');
+  d.querySelectorAll('#page-3-1-5 .tab-btn')[1].click();
+  const q315_1 = d.querySelectorAll('#qq315-1 .quiz-option');
+  q315_1[1].click(); // B = correct
+  test('3.1.5 Q1: B → correct', q315_1[1].classList.contains('correct'));
+  const q315_2 = d.querySelectorAll('#qq315-2 .quiz-option');
+  q315_2[2].click(); // C = correct
+  test('3.1.5 Q2: C → correct', q315_2[2].classList.contains('correct'));
+  const q315_3 = d.querySelectorAll('#qq315-3 .quiz-option');
+  q315_3[1].click(); // B = correct
+  test('3.1.5 Q3: B → correct', q315_3[1].classList.contains('correct'));
+  test('3.1.5 quiz score: 3/3', d.getElementById('quiz-score-315-title').textContent.includes('3/3'));
+
+  console.log('\nQuiz 3.1.5 – negative tests');
+  w.quizRetry315();
+  d.querySelectorAll('#page-3-1-5 .tab-btn')[1].click();
+  const q315_1b = d.querySelectorAll('#qq315-1 .quiz-option');
+  q315_1b[0].click(); // A = wrong
+  test('3.1.5 Q1: A → wrong', q315_1b[0].classList.contains('wrong'));
+  test('3.1.5 Q1: feedback err', d.getElementById('qf315-1').classList.contains('err'));
+  test('3.1.5 Q1: B ikke afsløret', !q315_1b[1].classList.contains('reveal-correct'));
+
+  function setMono315(toggleId, state, inputId, val) {
+    var btn = d.getElementById(toggleId);
+    if (btn.dataset.state !== state) w.toggleMono(btn);
+    var inp = d.getElementById('ow-'+inputId);
+    if (inp) inp.value = val;
+  }
+  function isMonoCorrect(toggleId, inputId) {
+    var btn = d.getElementById(toggleId);
+    var inp = d.getElementById('ow-'+inputId);
+    return btn.classList.contains('correct') && inp.classList.contains('correct');
+  }
+
+  console.log('\nBronze 3.1.5 – konstant voksende funktion');
+  w.showPage('3-1-5'); w.restartOpgaver315(); w.startOpgaver315();
+  setMono315('mono-315b1','voksende','315b1-int',']-uendelig;uendelig[');
+  w.checkBronze315();
+  test('Bronze: voksende på ]-∞;∞[ → correct', isMonoCorrect('mono-315b1','315b1-int'));
+  test('Bronze: opg315BronzeDone=true', w.opg315BronzeDone);
+  w.restartOpgaver315(); w.startOpgaver315();
+  setMono315('mono-315b1','aftagende','315b1-int',']-uendelig;uendelig['); // forkert retning
+  w.checkBronze315();
+  test('Bronze: forkert retning → not correct', !isMonoCorrect('mono-315b1','315b1-int'));
+  test('Bronze: forkert → opg315BronzeDone forbliver false', !w.opg315BronzeDone);
+
+  console.log('\nSølv 3.1.5 – to intervaller, korrekt rækkefølge');
+  w.restartOpgaver315(); w.opg315Level=2; w.startOpgaver315();
+  setMono315('mono-315s1','aftagende','315s1-int',']-uendelig;0]');
+  setMono315('mono-315s2','voksende','315s2-int','[0;uendelig[');
+  w.checkSilver315();
+  test('Sølv: korrekt rækkefølge → begge correct', isMonoCorrect('mono-315s1','315s1-int') && isMonoCorrect('mono-315s2','315s2-int'));
+  test('Sølv: opg315SilverDone=true', w.opg315SilverDone);
+
+  console.log('\nSølv 3.1.5 – ombyttet rækkefølge skal også accepteres');
+  w.restartOpgaver315(); w.opg315Level=2; w.startOpgaver315();
+  setMono315('mono-315s1','voksende','315s1-int','[0;uendelig[');
+  setMono315('mono-315s2','aftagende','315s2-int',']-uendelig;0]');
+  w.checkSilver315();
+  test('Sølv: ombyttet rækkefølge → stadig correct', isMonoCorrect('mono-315s1','315s1-int') && isMonoCorrect('mono-315s2','315s2-int'));
+  test('Sølv: ombyttet → opg315SilverDone=true', w.opg315SilverDone);
+  w.restartOpgaver315(); w.opg315Level=2; w.startOpgaver315();
+  setMono315('mono-315s1','voksende','315s1-int',']-uendelig;0]'); // retning matcher ikke interval
+  setMono315('mono-315s2','voksende','315s2-int','[0;uendelig[');
+  w.checkSilver315();
+  test('Sølv: forkert retning-interval match → not correct', !isMonoCorrect('mono-315s1','315s1-int'));
+  test('Sølv: forkert match → opg315SilverDone forbliver false', !w.opg315SilverDone);
+
+  console.log('\nGuld 3.1.5 – to intervaller, ombyttet rækkefølge');
+  w.restartOpgaver315(); w.opg315Level=3; w.startOpgaver315();
+  setMono315('mono-315g1','aftagende','315g1-int','[-150;315]');
+  setMono315('mono-315g2','voksende','315g2-int','[315;350]');
+  w.checkGold315();
+  test('Guld: korrekt rækkefølge → begge correct', isMonoCorrect('mono-315g1','315g1-int') && isMonoCorrect('mono-315g2','315g2-int'));
+  test('Guld: opg315GoldDone=true', w.opg315GoldDone);
+  w.restartOpgaver315(); w.opg315Level=3; w.startOpgaver315();
+  setMono315('mono-315g1','voksende','315g1-int','[315;350]'); // ombyttet
+  setMono315('mono-315g2','aftagende','315g2-int','[-150;315]');
+  w.checkGold315();
+  test('Guld: ombyttet rækkefølge → stadig correct', isMonoCorrect('mono-315g1','315g1-int') && isMonoCorrect('mono-315g2','315g2-int'));
+  test('Guld: ombyttet → opg315GoldDone=true', w.opg315GoldDone);
+  w.restartOpgaver315(); w.opg315Level=3; w.startOpgaver315();
+  setMono315('mono-315g1','aftagende','315g1-int','[-150;300]'); // forkert interval
+  setMono315('mono-315g2','voksende','315g2-int','[315;350]');
+  w.checkGold315();
+  test('Guld: forkert interval → not correct', !isMonoCorrect('mono-315g1','315g1-int'));
+  test('Guld: forkert → opg315GoldDone forbliver false', !w.opg315GoldDone);
+
+  console.log('\nMedalje og restart-flow 3.1.5');
+  w.restartOpgaver315(); w.opg315Level=1; w.startOpgaver315();
+  setMono315('mono-315b1','voksende','315b1-int',']-uendelig;uendelig[');
+  w.checkBronze315();
+  test('Bronze niveau: medalje gemmes', w.opg315MedalShown);
+  w.restartOpgaver315();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-315').style.display==='block');
+  test('Restart: restart-btn skjult', d.getElementById('restart-btn-315').style.display==='none');
+  test('Restart: interval-input nulstillet', d.getElementById('ow-315b1-int').value==='');
+  test('Restart: toggle-knap nulstillet til voksende', d.getElementById('mono-315b1').dataset.state==='voksende');
+  test('Restart: toggle-knap korrekt/wrong fjernet', !d.getElementById('mono-315b1').classList.contains('correct'));
+  test('Restart: opgave-widgets skjules', d.getElementById('opg315-low').classList.contains('opgave-hidden'));
+  test('Restart: opg315BronzeDone nulstillet', !w.opg315BronzeDone);
+  test('Restart: opg315MedalShown nulstillet', !w.opg315MedalShown);
+
   // ── RESULTAT ──────────────────────────────────────────────────────────────────
   console.log(`\n${'='.repeat(40)}`);
   console.log(`Resultat: ${passed}/${passed+failed} tests bestået`);

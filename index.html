@@ -425,6 +425,11 @@ a { text-decoration: none; color: inherit; }
 .ow-result { font-size: 0.82rem; margin-top: 6px; display: none; padding: 6px 10px; border-radius: 6px; }
 .ow-result.ok { display: block; background: #f0fdf4; color: #15803d; }
 .ow-result.err { display: block; background: #fef2f2; color: #dc2626; }
+.mono-toggle { padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 20px; background: var(--surface); font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.mono-toggle[data-state="voksende"] { color: #16a34a; border-color: #16a34a; }
+.mono-toggle[data-state="aftagende"] { color: #dc2626; border-color: #dc2626; }
+.mono-toggle.correct { background: #f0fdf4; }
+.mono-toggle.wrong { background: #fef2f2; animation: shake 0.3s; }
 @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
 
 .fremgang-page { padding: 0; }
@@ -1480,7 +1485,165 @@ document.addEventListener("DOMContentLoaded", function() {
 
   </div>
 </div>
-<div id="page-3-1-5" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.1.5</span><h1>Monotoniforhold</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-1-6" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.1.6</span><h1>Egenskaber ved grafer</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-1-7" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.1.7</span><h1>Omvendt funktion</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.1</span><h1>Grundbegreber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.2</span><h1>Forskrift ud fra to punkter</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-3" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.3</span><h1>Vækstegenskaber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-4" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.4</span><h1>Stykkevis lineære funktioner</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-5" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.5</span><h1>Skæring mellem lineære grafer</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.1</span><h1>Mindste kvadraters metode</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.2</span><h1>Korrelationskoefficienten</h1><p>Indhold tilføjes snart.</p></div></div>
+<div id="page-3-1-5" class="page-hidden">
+  <a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a>
+  <div class="emne-header">
+    <span class="tag">3.1.5</span>
+    <h1>Monotoniforhold</h1>
+    <p>Lær at bestemme monotoniforhold for en funktion – dvs. hvor grafen vokser, og hvor den aftager.</p>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="t315-mat">Materiale</button>
+    <button class="tab-btn" data-tab="t315-quiz">Tjekspørgsmål</button>
+    <button class="tab-btn" data-tab="t315-opg">Opgaver</button>
+  </div>
+
+  <div id="t315-mat" class="tab-panel active">
+    <div class="simple-resource-list">
+      <div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=252','_blank')">
+        <input type="checkbox" class="card-check" id="chk-315-bog" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">Kapitel 3.1.5</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+      <div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=rQm4l_VWfIY','_blank')">
+        <input type="checkbox" class="card-check" id="chk-315-yt" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Monotoniforhold</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div id="t315-quiz" class="tab-panel">
+    <div class="quiz-question" id="qq315-1">
+      <div class="quiz-q-text">1. Hvad betyder det, at en funktion f er voksende i et interval?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer315(1,'wrong',event)">A) Funktionsværdierne bliver mindre, når x vokser</button>
+        <button class="quiz-option" onclick="quizAnswer315(1,'correct',event)">B) Funktionsværdierne bliver større, når x vokser</button>
+        <button class="quiz-option" onclick="quizAnswer315(1,'wrong',event)">C) Funktionsværdierne er konstante i intervallet</button>
+        <button class="quiz-option" onclick="quizAnswer315(1,'wrong',event)">D) Funktionen skærer x-aksen i intervallet</button>
+      </div>
+      <div class="quiz-feedback" id="qf315-1"></div>
+    </div>
+    <div class="quiz-question" id="qq315-2">
+      <div class="quiz-q-text">2. Hvad kaldes en funktion, der udelukkende er voksende eller udelukkende aftagende i hele sin definitionsmængde?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer315(2,'wrong',event)">A) Kontinuert</button>
+        <button class="quiz-option" onclick="quizAnswer315(2,'wrong',event)">B) Symmetrisk</button>
+        <button class="quiz-option" onclick="quizAnswer315(2,'correct',event)">C) Monoton</button>
+        <button class="quiz-option" onclick="quizAnswer315(2,'wrong',event)">D) Lineær</button>
+      </div>
+      <div class="quiz-feedback" id="qf315-2"></div>
+    </div>
+    <div class="quiz-question" id="qq315-3">
+      <div class="quiz-q-text">3. Når en funktions værdier både vokser og aftager forskellige steder, hvad gør man for at angive funktionens monotoniforhold?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer315(3,'wrong',event)">A) Man beregner funktionens gennemsnitlige hældning</button>
+        <button class="quiz-option" onclick="quizAnswer315(3,'correct',event)">B) Man deler definitionsmængden op i intervaller, hvor funktionen enten kun vokser eller kun aftager</button>
+        <button class="quiz-option" onclick="quizAnswer315(3,'wrong',event)">C) Man deler værdimængden op i lige store stykker</button>
+        <button class="quiz-option" onclick="quizAnswer315(3,'wrong',event)">D) Man finder funktionens skæringspunkter med akserne</button>
+      </div>
+      <div class="quiz-feedback" id="qf315-3"></div>
+    </div>
+    <div class="quiz-score" id="quiz-score-315" style="display:none">
+      <h3 id="quiz-score-315-title"></h3>
+      <p id="quiz-score-315-text"></p>
+      <button class="quiz-retry" onclick="quizRetry315()">Prøv igen</button>
+    </div>
+  </div>
+
+  <div id="t315-opg" class="tab-panel">
+    <div class="energy-wrap">
+      <div class="energy-header">
+        <span class="energy-question">Hvor meget energi har du i dag?</span>
+        <span class="energy-state" id="energy-state-315" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span>
+      </div>
+      <div class="energy-slider-track">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span>
+        <input type="range" class="energy-slider" id="energy-slider-315" min="0" max="100" value="1" oninput="updateEnergy315(this.value)">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span>
+      </div>
+    </div>
+    <div class="ready-btn-wrap" id="ready-btn-wrap-315" style="display:block">
+      <button class="ready-btn" onclick="startOpgaver315()">
+        <div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div>
+        <span class="ready-btn-cta">Ja, klar!</span>
+      </button>
+    </div>
+    <button class="restart-btn" id="restart-btn-315" onclick="restartOpgaver315()" style="display:none">↩ Vælg nyt niveau</button>
+
+    <!-- BRONZE -->
+    <div class="opgave-widget opgave-hidden" id="opg315-low">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Aflæs monotoniforhold</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:12px">Aflæs monotoniforhold for følgende graf.</div>
+      <img src="https://brianveispennerup.github.io/HHXB/Figur1_315_1.png" style="max-width:100%;border-radius:8px;margin-bottom:16px">
+      <div class="ow-input-row" style="flex-wrap:wrap;margin-bottom:12px">
+        <span style="font-size:0.88rem">Grafen er</span>
+        <button type="button" class="mono-toggle" id="mono-315b1" data-state="voksende" onclick="toggleMono(this)">voksende</button>
+        <span style="font-size:0.88rem">på intervallet</span>
+        <input class="ow-input" id="ow-315b1-int" type="text" placeholder="fx ]-∞;∞[" style="width:160px" oninput="infReplace(this)" onkeydown="infShortcut(event,this)">
+      </div>
+      <button onclick="checkBronze315()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button>
+      <div class="ow-result" id="ow-r-315-low" style="margin-top:10px"></div>
+    </div>
+
+    <!-- SØLV -->
+    <div class="opgave-widget opgave-hidden" id="opg315-mid">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Monotoniforhold med to intervaller</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:12px">Aflæs monotoniforhold for følgende graf. Rækkefølgen af de to udsagn er ligegyldig, men intervallerne skal matche korrekt.</div>
+      <img src="https://brianveispennerup.github.io/HHXB/Figur1_315_2.png" style="max-width:100%;border-radius:8px;margin-bottom:16px">
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
+        <div class="ow-input-row" style="flex-wrap:wrap">
+          <span style="font-size:0.88rem">Grafen er</span>
+          <button type="button" class="mono-toggle" id="mono-315s1" data-state="voksende" onclick="toggleMono(this)">voksende</button>
+          <span style="font-size:0.88rem">på intervallet</span>
+          <input class="ow-input" id="ow-315s1-int" type="text" placeholder="?" style="width:160px" oninput="infReplace(this)" onkeydown="infShortcut(event,this)">
+        </div>
+        <div class="ow-input-row" style="flex-wrap:wrap">
+          <span style="font-size:0.88rem">Grafen er</span>
+          <button type="button" class="mono-toggle" id="mono-315s2" data-state="voksende" onclick="toggleMono(this)">voksende</button>
+          <span style="font-size:0.88rem">på intervallet</span>
+          <input class="ow-input" id="ow-315s2-int" type="text" placeholder="?" style="width:160px" oninput="infReplace(this)" onkeydown="infShortcut(event,this)">
+        </div>
+      </div>
+      <button onclick="checkSilver315()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button>
+      <div class="ow-result" id="ow-r-315-mid" style="margin-top:10px"></div>
+    </div>
+
+    <!-- GULD -->
+    <div class="opgave-widget opgave-hidden" id="opg315-high">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Monotoniforhold – større tal</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:12px">Aflæs monotoniforhold for følgende graf. Rækkefølgen af de to udsagn er ligegyldig, men intervallerne skal matche korrekt.</div>
+      <img src="https://brianveispennerup.github.io/HHXB/Figur1_315_3.png" style="max-width:100%;border-radius:8px;margin-bottom:16px">
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
+        <div class="ow-input-row" style="flex-wrap:wrap">
+          <span style="font-size:0.88rem">Grafen er</span>
+          <button type="button" class="mono-toggle" id="mono-315g1" data-state="voksende" onclick="toggleMono(this)">voksende</button>
+          <span style="font-size:0.88rem">på intervallet</span>
+          <input class="ow-input" id="ow-315g1-int" type="text" placeholder="?" style="width:160px" oninput="infReplace(this)" onkeydown="infShortcut(event,this)">
+        </div>
+        <div class="ow-input-row" style="flex-wrap:wrap">
+          <span style="font-size:0.88rem">Grafen er</span>
+          <button type="button" class="mono-toggle" id="mono-315g2" data-state="voksende" onclick="toggleMono(this)">voksende</button>
+          <span style="font-size:0.88rem">på intervallet</span>
+          <input class="ow-input" id="ow-315g2-int" type="text" placeholder="?" style="width:160px" oninput="infReplace(this)" onkeydown="infShortcut(event,this)">
+        </div>
+      </div>
+      <button onclick="checkGold315()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button>
+      <div class="ow-result" id="ow-r-315-high" style="margin-top:10px"></div>
+    </div>
+
+  </div>
+</div>
+<div id="page-3-1-6" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.1.6</span><h1>Egenskaber ved grafer</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-1-7" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.1.7</span><h1>Omvendt funktion</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.1</span><h1>Grundbegreber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.2</span><h1>Forskrift ud fra to punkter</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-3" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.3</span><h1>Vækstegenskaber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-4" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.4</span><h1>Stykkevis lineære funktioner</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-5" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.5</span><h1>Skæring mellem lineære grafer</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.1</span><h1>Mindste kvadraters metode</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.2</span><h1>Korrelationskoefficienten</h1><p>Indhold tilføjes snart.</p></div></div>
 <div id="page-fremgang" class="page-hidden">
 <a class="back-link" onclick="showPage('home')">← Alle forløb</a>
 <div class="fremgang-header">
@@ -3000,6 +3163,178 @@ function restartOpgaver314() {
   var state=document.getElementById('energy-state-314'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
 }
 
+// ── 3.1.5 MONOTONIFORHOLD ───────────────────────────────────────────────────
+var quiz315Answered = {}, quiz315Correct = 0, quiz315Total = 3;
+var opg315Level = 1, opg315Started = false, opg315MedalShown = false;
+var opg315BronzeDone = false, opg315SilverDone = false, opg315GoldDone = false;
+
+function toggleMono(btn) {
+  var next = btn.dataset.state === 'voksende' ? 'aftagende' : 'voksende';
+  btn.dataset.state = next;
+  btn.textContent = next;
+}
+
+// Tjekker en gruppe af (voksende/aftagende + interval)-udsagn, uanset rækkefølge
+function checkMonoGroup(statements, correctPairs, resultId) {
+  var studentKeys = statements.map(function(s) {
+    var btn = document.getElementById(s.toggle);
+    var inp = document.getElementById('ow-' + s.input);
+    return btn.dataset.state + '|' + normalizeInterval(inp.value);
+  });
+  var correctKeys = correctPairs.map(function(p) {
+    return p[0] + '|' + normalizeInterval(p[1]);
+  });
+  var match = studentKeys.length === correctKeys.length &&
+    studentKeys.slice().sort().join(',') === correctKeys.slice().sort().join(',');
+
+  statements.forEach(function(s) {
+    var btn = document.getElementById(s.toggle);
+    var inp = document.getElementById('ow-' + s.input);
+    if (match) {
+      btn.classList.remove('wrong'); btn.classList.add('correct');
+      inp.classList.remove('wrong'); inp.classList.add('correct');
+    } else {
+      btn.classList.add('wrong'); inp.classList.add('wrong');
+      setTimeout(function(){ btn.classList.remove('wrong'); inp.classList.remove('wrong'); }, 1200);
+    }
+  });
+  if (!match) {
+    var r = document.getElementById(resultId);
+    if (r) { r.className='ow-result err'; r.textContent='Tjek både voksende/aftagende og intervallerne — prøv igen.'; }
+  }
+  return match;
+}
+
+function quizAnswer315(qnum, result, evt) {
+  if (quiz315Answered[qnum]) return;
+  quiz315Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq315-' + qnum);
+  var fb = document.getElementById('qf315-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz315Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  if (Object.keys(quiz315Answered).length >= quiz315Total) {
+    var box=document.getElementById('quiz-score-315'); box.style.display='block';
+    document.getElementById('quiz-score-315-title').textContent = quiz315Correct===quiz315Total ? 'Perfekt – '+quiz315Correct+'/'+quiz315Total+'!' : quiz315Correct+'/'+quiz315Total+' rigtige';
+    document.getElementById('quiz-score-315-text').textContent = quiz315Correct===quiz315Total ? 'Du har styr på monotoniforhold!' : 'Se de markerede svar og prøv igen.';
+  }
+}
+
+function quizRetry315() {
+  quiz315Answered={}; quiz315Correct=0;
+  [1,2,3].forEach(function(n){
+    var qq=document.getElementById('qq315-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.classList.remove('correct','wrong');});
+    var fb=document.getElementById('qf315-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-315').style.display='none';
+}
+
+function checkBronze315() {
+  var ok = checkMonoGroup(
+    [{toggle:'mono-315b1', input:'315b1-int'}],
+    [['voksende', ']-∞;∞[']],
+    'ow-r-315-low'
+  );
+  if (ok) {
+    opg315BronzeDone = true;
+    var r = document.getElementById('ow-r-315-low');
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg315-low'));
+    check315Medal();
+  }
+}
+
+function checkSilver315() {
+  var ok = checkMonoGroup(
+    [{toggle:'mono-315s1', input:'315s1-int'}, {toggle:'mono-315s2', input:'315s2-int'}],
+    [['aftagende', ']-∞;0]'], ['voksende', '[0;∞[']],
+    'ow-r-315-mid'
+  );
+  if (ok) {
+    opg315SilverDone = true;
+    var r = document.getElementById('ow-r-315-mid');
+    if (r) { r.className='ow-result ok'; r.textContent='Alle svar er korrekte!'; }
+    runOpgaveSparkle(document.getElementById('opg315-mid'));
+    check315Medal();
+  }
+}
+
+function checkGold315() {
+  var ok = checkMonoGroup(
+    [{toggle:'mono-315g1', input:'315g1-int'}, {toggle:'mono-315g2', input:'315g2-int'}],
+    [['aftagende', '[-150;315]'], ['voksende', '[315;350]']],
+    'ow-r-315-high'
+  );
+  if (ok) {
+    opg315GoldDone = true;
+    var r = document.getElementById('ow-r-315-high');
+    if (r) { r.className='ow-result ok'; r.textContent='Alle svar er korrekte!'; }
+    runOpgaveSparkle(document.getElementById('opg315-high'));
+    check315Medal();
+  }
+}
+
+function check315Medal() {
+  if (opg315MedalShown) return;
+  var ok = false;
+  if (opg315Level === 1) ok = opg315BronzeDone;
+  else if (opg315Level === 2) ok = opg315BronzeDone && opg315SilverDone;
+  else if (opg315Level === 3) ok = opg315BronzeDone && opg315SilverDone && opg315GoldDone;
+  if (ok) {
+    opg315MedalShown = true;
+    var prev = parseInt(loadProgress('medal_315',0));
+    if (opg315Level > prev) saveProgress('medal_315', opg315Level);
+    setTimeout(function(){ showMedal(opg315Level); }, 400);
+  }
+}
+
+function updateEnergy315(val) {
+  if (opg315Started) return;
+  val = parseInt(val);
+  var state = document.getElementById('energy-state-315');
+  if (val < 40) { opg315Level=1; state.textContent='Træt – 1 sæt'; state.style.color='#dc2626'; }
+  else if (val < 75) { opg315Level=2; state.textContent='Klar – 2 sæt'; state.style.color='#ca8a04'; }
+  else { opg315Level=3; state.textContent='On fire! – 3 sæt'; state.style.color='#16a34a'; }
+  ['opg315-low','opg315-mid','opg315-high'].forEach(function(id){
+    var w=document.getElementById(id); if(w){w.classList.add('opgave-hidden');w.style.display='';}
+  });
+  document.getElementById('ready-btn-wrap-315').style.display='block';
+}
+
+function startOpgaver315() {
+  opg315Started=true; opg315MedalShown=false;
+  opg315BronzeDone=false; opg315SilverDone=false; opg315GoldDone=false;
+  document.getElementById('ready-btn-wrap-315').style.display='none';
+  document.getElementById('restart-btn-315').style.display='block';
+  var ew=document.querySelector('#t315-opg .energy-wrap'); if(ew)ew.classList.add('slider-locked');
+  if(opg315Level>=1) showWidget(document.getElementById('opg315-low'));
+  if(opg315Level>=2) showWidget(document.getElementById('opg315-mid'));
+  if(opg315Level>=3) showWidget(document.getElementById('opg315-high'));
+}
+
+function restartOpgaver315() {
+  opg315Started=false; opg315Level=1; opg315MedalShown=false;
+  opg315BronzeDone=false; opg315SilverDone=false; opg315GoldDone=false;
+  var ew=document.querySelector('#t315-opg .energy-wrap'); if(ew)ew.classList.remove('slider-locked');
+  document.getElementById('restart-btn-315').style.display='none';
+  document.getElementById('ready-btn-wrap-315').style.display='block';
+  ['opg315-low','opg315-mid','opg315-high'].forEach(function(id){
+    var w=document.getElementById(id); if(!w)return;
+    w.classList.add('opgave-hidden'); w.style.display=''; w.style.background=''; w.style.borderColor='';
+    w.querySelectorAll('.ow-input').forEach(function(inp){inp.value='';inp.className='ow-input';});
+    w.querySelectorAll('.mono-toggle').forEach(function(btn){btn.dataset.state='voksende';btn.textContent='voksende';btn.classList.remove('correct','wrong');});
+    w.querySelectorAll('.ow-result').forEach(function(r){r.className='ow-result';r.textContent='';});
+  });
+  var slider=document.getElementById('energy-slider-315'); if(slider)slider.value=1;
+  var state=document.getElementById('energy-state-315'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
+}
+
 function closeMedal() {
 
   document.getElementById('medal-overlay').classList.remove('show');
@@ -3036,6 +3371,7 @@ var emneData = {
   '3.1.2': { navn: 'Funktion givet ved graf',             opgaver: [],                     materiale: ['chk-312-bog'] },
   '3.1.3': { navn: 'Regneforskrift og graf',             opgaver: [],                     materiale: ['chk-313-bog','chk-313-yt'] },
   '3.1.4': { navn: 'Grafiske løsninger',                 opgaver: [],                     materiale: ['chk-314-bog','chk-314-yt'] },
+  '3.1.5': { navn: 'Monotoniforhold',                    opgaver: [],                     materiale: ['chk-315-bog','chk-315-yt'] },
 };
 
 // ── FREMGANG SIDE ─────────────────────────────────────────────────────────
