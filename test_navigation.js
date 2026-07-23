@@ -885,6 +885,130 @@ setTimeout(() => {
   test('Restart: opg316BronzeDone nulstillet', !w.opg316BronzeDone);
   test('Restart: opg316MedalShown nulstillet', !w.opg316MedalShown);
 
+  // ── 3.1.7 OMVENDT FUNKTION ──────────────────────────────────────────────────
+  console.log('\nNavigation og struktur 3.1.7');
+  w.showPage('3-1-7');
+  test('showPage(3-1-7)', isVisible(d.getElementById('page-3-1-7')));
+  test('3 tab-knapper i 3.1.7', d.querySelectorAll('#page-3-1-7 .tab-btn').length === 3);
+  test('3.1.7 i emneData', html.includes("'3.1.7'") && html.includes("'chk-317-bog'"));
+  test('3.1.7 har to YouTube-kort', d.querySelectorAll('#t317-mat .simple-card').length === 3);
+
+  console.log('\nQuiz 3.1.7 – positive tests');
+  d.querySelectorAll('#page-3-1-7 .tab-btn')[1].click();
+  const q317answers = [1,2,1,1,2,1,1]; // korrekte options (0-indekseret): B,C,B,B,C,B,B
+  q317answers.forEach((idx,i) => {
+    const opts = d.querySelectorAll('#qq317-'+(i+1)+' .quiz-option');
+    opts[idx].click();
+    test(`3.1.7 Q${i+1}: korrekt svar → correct`, opts[idx].classList.contains('correct'));
+  });
+  test('3.1.7 quiz score: 7/7', d.getElementById('quiz-score-317-title').textContent.includes('7/7'));
+
+  console.log('\nQuiz 3.1.7 – negative tests');
+  w.quizRetry317();
+  d.querySelectorAll('#page-3-1-7 .tab-btn')[1].click();
+  const q317_1b = d.querySelectorAll('#qq317-1 .quiz-option');
+  q317_1b[0].click(); // A = wrong
+  test('3.1.7 Q1: A → wrong', q317_1b[0].classList.contains('wrong'));
+  test('3.1.7 Q1: feedback err', d.getElementById('qf317-1').classList.contains('err'));
+  test('3.1.7 Q1: B ikke afsløret', !q317_1b[1].classList.contains('reveal-correct'));
+
+  console.log('\nsafeEvalFormula');
+  test('(x+2)/3 og x/3+2/3 er ækvivalente', Math.abs(w.safeEvalFormula('(x+2)/3',7) - w.safeEvalFormula('x/3+2/3',7)) < 0.001);
+  test('x^2 og x*x er ækvivalente', w.safeEvalFormula('x^2',5) === w.safeEvalFormula('x*x',5));
+  test('implicit multiplikation: 50000-10x = 50000-10*x', w.safeEvalFormula('50000-10x',100) === w.safeEvalFormula('50000-10*x',100));
+  test('sqrt(x) og √x er ækvivalente', w.safeEvalFormula('sqrt(x)',9) === w.safeEvalFormula('√x',9));
+  test('ondsindet input afvises: alert(1)', isNaN(w.safeEvalFormula('alert(1)',0)));
+  test('ondsindet input afvises: window.location', isNaN(w.safeEvalFormula('window.location',0)));
+  test('tomt input afvises', isNaN(w.safeEvalFormula('',0)));
+
+  function setVal317(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect317(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+
+  console.log('\nBronze 3.1.7 – omvendt funktion til f(x)=3x-2');
+  w.showPage('3-1-7'); w.restartOpgaver317(); w.startOpgaver317();
+  setVal317('317b1','(x+2)/3');
+  w.checkBronze317();
+  test('Bronze: (x+2)/3 → correct', isCorrect317('317b1'));
+  test('Bronze: opg317BronzeDone=true', w.opg317BronzeDone);
+  w.restartOpgaver317(); w.startOpgaver317();
+  setVal317('317b1','(2+x)/3'); // anden paranteseret men ækvivalent formulering
+  w.checkBronze317();
+  test('Bronze: ækvivalent parenteseret formulering (2+x)/3 → correct', isCorrect317('317b1'));
+  w.restartOpgaver317(); w.startOpgaver317();
+  setVal317('317b1','(x+2)/4'); // reelt forkert, men har parenteser
+  w.checkBronze317();
+  test('Bronze: forkert formel (med parentes) → not correct', !isCorrect317('317b1'));
+  test('Bronze: forkert → opg317BronzeDone forbliver false', !w.opg317BronzeDone);
+
+  console.log('\nBronze 3.1.7 – manglende parentes afvises, selvom tallene passer');
+  w.restartOpgaver317(); w.startOpgaver317();
+  setVal317('317b1','1/3*x+2/3'); // numerisk identisk med (x+2)/3, men uden parentes
+  w.checkBronze317();
+  test('Bronze: 1/3*x+2/3 (ingen parentes) → not correct', !isCorrect317('317b1'));
+  test('Bronze: manglende parentes → specifik fejlbesked', d.getElementById('ow-r-317-low').textContent.includes('parentes'));
+  test('Bronze: manglende parentes → opg317BronzeDone forbliver false', !w.opg317BronzeDone);
+  w.restartOpgaver317(); w.startOpgaver317();
+  setVal317('317b1','x/3+2/3'); // også numerisk korrekt, men ingen parentes
+  w.checkBronze317();
+  test('Bronze: x/3+2/3 (ingen parentes) → not correct', !isCorrect317('317b1'));
+
+  console.log('\nSølv 3.1.7 – omvendt funktion til f(x)=sqrt(x)');
+  w.restartOpgaver317(); w.opg317Level=2; w.startOpgaver317();
+  setVal317('317s1','x^2');
+  w.checkSilver317();
+  test('Sølv: x^2 → correct', isCorrect317('317s1'));
+  test('Sølv: opg317SilverDone=true', w.opg317SilverDone);
+  w.restartOpgaver317(); w.opg317Level=2; w.startOpgaver317();
+  setVal317('317s1','x*x'); // ækvivalent formulering
+  w.checkSilver317();
+  test('Sølv: ækvivalent formulering (x*x) → correct', isCorrect317('317s1'));
+  w.restartOpgaver317(); w.opg317Level=2; w.startOpgaver317();
+  setVal317('317s1','x^3'); // reelt forkert
+  w.checkSilver317();
+  test('Sølv: forkert formel → not correct', !isCorrect317('317s1'));
+
+  console.log('\nGuld 3.1.7 – prisfunktion (elektronikvirksomhed)');
+  w.restartOpgaver317(); w.opg317Level=3; w.startOpgaver317();
+  setVal317('317g1','6000');
+  setVal317('317g2','40000-5*x');
+  setVal317('317g5','[0;40000]');
+  setVal317('317g4','25000');
+  w.checkGold317();
+  test('Guld: pris ved 10000 enheder → correct', isCorrect317('317g1'));
+  test('Guld: omvendt funktion → correct', isCorrect317('317g2'));
+  test('Guld: definitionsmængde → correct', isCorrect317('317g5'));
+  test('Guld: salg ved 3000 kr. → correct', isCorrect317('317g4'));
+  test('Guld: opg317GoldDone=true', w.opg317GoldDone);
+  test('Guld: ingen forklaringsfelt findes længere', !d.getElementById('ow-317g3'));
+  w.restartOpgaver317(); w.opg317Level=3; w.startOpgaver317();
+  setVal317('317g1','9999'); // reelt forkert
+  setVal317('317g2','40000-5*x');
+  setVal317('317g5','[0;40000]');
+  setVal317('317g4','25000');
+  w.checkGold317();
+  test('Guld: forkert prisberegning → not correct', !isCorrect317('317g1'));
+  w.restartOpgaver317(); w.opg317Level=3; w.startOpgaver317();
+  setVal317('317g1','6000');
+  setVal317('317g2','40000-5*x');
+  setVal317('317g5','[0;30000]'); // forkert definitionsmængde
+  setVal317('317g4','25000');
+  w.checkGold317();
+  test('Guld: forkert definitionsmængde → not correct', !isCorrect317('317g5'));
+  test('Guld: forkert definitionsmængde → opg317GoldDone forbliver false', !w.opg317GoldDone);
+
+  console.log('\nMedalje og restart-flow 3.1.7');
+  w.restartOpgaver317(); w.opg317Level=1; w.startOpgaver317();
+  setVal317('317b1','(x+2)/3');
+  w.checkBronze317();
+  test('Bronze niveau: medalje gemmes', w.opg317MedalShown);
+  w.restartOpgaver317();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-317').style.display==='block');
+  test('Restart: restart-btn skjult', d.getElementById('restart-btn-317').style.display==='none');
+  test('Restart: formel-input nulstillet', d.getElementById('ow-317b1').value==='');
+  test('Restart: opgave-widgets skjules', d.getElementById('opg317-low').classList.contains('opgave-hidden'));
+  test('Restart: opg317BronzeDone nulstillet', !w.opg317BronzeDone);
+  test('Restart: opg317MedalShown nulstillet', !w.opg317MedalShown);
+
   // ── RESULTAT ──────────────────────────────────────────────────────────────────
   console.log(`\n${'='.repeat(40)}`);
   console.log(`Resultat: ${passed}/${passed+failed} tests bestået`);

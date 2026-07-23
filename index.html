@@ -1827,7 +1827,209 @@ document.addEventListener("DOMContentLoaded", function() {
   </div>
 
 </div>
-<div id="page-3-1-7" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.1.7</span><h1>Omvendt funktion</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.1</span><h1>Grundbegreber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.2</span><h1>Forskrift ud fra to punkter</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-3" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.3</span><h1>Vækstegenskaber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-4" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.4</span><h1>Stykkevis lineære funktioner</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-5" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.5</span><h1>Skæring mellem lineære grafer</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.1</span><h1>Mindste kvadraters metode</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.2</span><h1>Korrelationskoefficienten</h1><p>Indhold tilføjes snart.</p></div></div>
+<div id="page-3-1-7" class="page-hidden">
+  <a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a>
+  <div class="emne-header">
+    <span class="tag">3.1.7</span>
+    <h1>Omvendt funktion</h1>
+    <p>Lær om vandret-kriteriet, spejling i linjen y = x, og hvordan man finder den omvendte funktion.</p>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="t317-mat">Materiale</button>
+    <button class="tab-btn" data-tab="t317-quiz">Tjekspørgsmål</button>
+    <button class="tab-btn" data-tab="t317-opg">Opgaver</button>
+  </div>
+
+  <div id="t317-mat" class="tab-panel active">
+    <div class="simple-resource-list">
+      <div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=254','_blank')">
+        <input type="checkbox" class="card-check" id="chk-317-bog" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">Kapitel 3.1.7</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+      <div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=3Au4KXx4nuI','_blank')">
+        <input type="checkbox" class="card-check" id="chk-317-yt1" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Omvendt funktion</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+      <div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=xkj_7z0ndi4','_blank')">
+        <input type="checkbox" class="card-check" id="chk-317-yt2" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Vandret-kriteriet</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div id="t317-quiz" class="tab-panel">
+    <div class="quiz-question" id="qq317-1">
+      <div class="quiz-q-text">1. Hvad kaldes det kriterium, en graf skal opfylde, for at funktionen er injektiv?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer317(1,'wrong',event)">A) Lodret-kriteriet</button>
+        <button class="quiz-option" onclick="quizAnswer317(1,'correct',event)">B) Vandret-kriteriet</button>
+        <button class="quiz-option" onclick="quizAnswer317(1,'wrong',event)">C) Skæringskriteriet</button>
+        <button class="quiz-option" onclick="quizAnswer317(1,'wrong',event)">D) Symmetrikriteriet</button>
+      </div>
+      <div class="quiz-feedback" id="qf317-1"></div>
+    </div>
+    <div class="quiz-question" id="qq317-2">
+      <div class="quiz-q-text">2. Grafen for den omvendte funktion fremkommer ved at spejle grafen for f(x) i:</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer317(2,'wrong',event)">A) x-aksen</button>
+        <button class="quiz-option" onclick="quizAnswer317(2,'wrong',event)">B) y-aksen</button>
+        <button class="quiz-option" onclick="quizAnswer317(2,'correct',event)">C) linjen y = x</button>
+        <button class="quiz-option" onclick="quizAnswer317(2,'wrong',event)">D) origo</button>
+      </div>
+      <div class="quiz-feedback" id="qf317-2"></div>
+    </div>
+    <div class="quiz-question" id="qq317-3">
+      <div class="quiz-q-text">3. Hvis punktet (a, b) ligger på grafen for f, hvilket punkt ligger så på grafen for f⁻¹?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer317(3,'wrong',event)">A) (a, b)</button>
+        <button class="quiz-option" onclick="quizAnswer317(3,'correct',event)">B) (b, a)</button>
+        <button class="quiz-option" onclick="quizAnswer317(3,'wrong',event)">C) (-a, b)</button>
+        <button class="quiz-option" onclick="quizAnswer317(3,'wrong',event)">D) (a, -b)</button>
+      </div>
+      <div class="quiz-feedback" id="qf317-3"></div>
+    </div>
+    <div class="quiz-question" id="qq317-4">
+      <div class="quiz-q-text">4. Hvorfor har funktionen f(x) = x² (for alle reelle x) IKKE en omvendt funktion, medmindre definitionsmængden begrænses?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer317(4,'wrong',event)">A) Fordi den ikke er kontinuert</button>
+        <button class="quiz-option" onclick="quizAnswer317(4,'correct',event)">B) Fordi grafen ikke opfylder vandret-kriteriet (den er ikke injektiv)</button>
+        <button class="quiz-option" onclick="quizAnswer317(4,'wrong',event)">C) Fordi den ikke har en værdimængde</button>
+        <button class="quiz-option" onclick="quizAnswer317(4,'wrong',event)">D) Fordi den er en ulige funktion</button>
+      </div>
+      <div class="quiz-feedback" id="qf317-4"></div>
+    </div>
+    <div class="quiz-question" id="qq317-5">
+      <div class="quiz-q-text">5. Hvis f(x) = x² for x ≥ 0, hvad er den omvendte funktion f⁻¹(x)?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer317(5,'wrong',event)">A) f⁻¹(x) = x²</button>
+        <button class="quiz-option" onclick="quizAnswer317(5,'wrong',event)">B) f⁻¹(x) = -x²</button>
+        <button class="quiz-option" onclick="quizAnswer317(5,'correct',event)">C) f⁻¹(x) = √x</button>
+        <button class="quiz-option" onclick="quizAnswer317(5,'wrong',event)">D) f⁻¹(x) = 1/x²</button>
+      </div>
+      <div class="quiz-feedback" id="qf317-5"></div>
+    </div>
+    <div class="quiz-question" id="qq317-6">
+      <div class="quiz-q-text">6. Hvad betyder det helt konkret, at en graf opfylder vandret-kriteriet?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer317(6,'wrong',event)">A) Grafen skærer x-aksen højst én gang</button>
+        <button class="quiz-option" onclick="quizAnswer317(6,'correct',event)">B) Enhver vandret linje skærer grafen højst én gang</button>
+        <button class="quiz-option" onclick="quizAnswer317(6,'wrong',event)">C) Grafen er symmetrisk om y-aksen</button>
+        <button class="quiz-option" onclick="quizAnswer317(6,'wrong',event)">D) Grafen har kun ét toppunkt</button>
+      </div>
+      <div class="quiz-feedback" id="qf317-6"></div>
+    </div>
+    <div class="quiz-question" id="qq317-7">
+      <div class="quiz-q-text">7. En vandret linje skærer grafen for en funktion f to gange. Hvad kan man konkludere?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer317(7,'wrong',event)">A) f er injektiv, og f⁻¹ findes</button>
+        <button class="quiz-option" onclick="quizAnswer317(7,'correct',event)">B) f opfylder ikke vandret-kriteriet, så f har ingen omvendt funktion (på hele definitionsmængden)</button>
+        <button class="quiz-option" onclick="quizAnswer317(7,'wrong',event)">C) f er en lineær funktion</button>
+        <button class="quiz-option" onclick="quizAnswer317(7,'wrong',event)">D) f er ikke en funktion</button>
+      </div>
+      <div class="quiz-feedback" id="qf317-7"></div>
+    </div>
+    <div class="quiz-score" id="quiz-score-317" style="display:none">
+      <h3 id="quiz-score-317-title"></h3>
+      <p id="quiz-score-317-text"></p>
+      <button class="quiz-retry" onclick="quizRetry317()">Prøv igen</button>
+    </div>
+  </div>
+
+  <div id="t317-opg" class="tab-panel">
+    <div class="energy-wrap">
+      <div class="energy-header">
+        <span class="energy-question">Hvor meget energi har du i dag?</span>
+        <span class="energy-state" id="energy-state-317" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span>
+      </div>
+      <div class="energy-slider-track">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span>
+        <input type="range" class="energy-slider" id="energy-slider-317" min="0" max="100" value="1" oninput="updateEnergy317(this.value)">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span>
+      </div>
+    </div>
+    <div class="ready-btn-wrap" id="ready-btn-wrap-317" style="display:block">
+      <button class="ready-btn" onclick="startOpgaver317()">
+        <div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div>
+        <span class="ready-btn-cta">Ja, klar!</span>
+      </button>
+    </div>
+    <button class="restart-btn" id="restart-btn-317" onclick="restartOpgaver317()" style="display:none">↩ Vælg nyt niveau</button>
+
+    <!-- BRONZE -->
+    <div class="opgave-widget opgave-hidden" id="opg317-low">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Bestem den omvendte funktion</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:8px">Bestem den omvendte funktion til den følgende injektive funktion.</div>
+      <div style="font-size:0.95rem;margin-bottom:12px">\(f(x) = 3x - 2\), &nbsp;hvor x ∈ ℝ (alle reelle tal)</div>
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:10px">Skriv formlen med x som variabel på formen ax+b — brug + − * / for regneark og ^ for potens</div>
+      <div class="ow-input-row" style="margin-bottom:12px">
+        <span style="font-size:0.9rem">f⁻¹(x) =</span>
+        <input class="ow-input" id="ow-317b1" type="text" placeholder="fx ax+b" style="width:180px">
+      </div>
+      <button onclick="checkBronze317()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button>
+      <div class="ow-result" id="ow-r-317-low" style="margin-top:10px"></div>
+    </div>
+
+    <!-- SØLV -->
+    <div class="opgave-widget opgave-hidden" id="opg317-mid">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Omvendt funktion – kvadratrod</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:8px">Bestem den omvendte funktion til den følgende injektive funktion.</div>
+      <div style="font-size:0.95rem;margin-bottom:12px">\(f(x) = \sqrt{x}\), &nbsp;hvor x ≥ 0</div>
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:10px">Skriv formlen med x som variabel — brug ^ for potens</div>
+      <div class="ow-input-row" style="margin-bottom:12px">
+        <span style="font-size:0.9rem">f⁻¹(x) =</span>
+        <input class="ow-input" id="ow-317s1" type="text" placeholder="?" style="width:180px">
+      </div>
+      <button onclick="checkSilver317()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button>
+      <div class="ow-result" id="ow-r-317-mid" style="margin-top:10px"></div>
+    </div>
+
+    <!-- GULD -->
+    <div class="opgave-widget opgave-hidden" id="opg317-high">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Prisfunktion og omvendt funktion</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:12px">
+        En elektronikvirksomhed har konstateret, at der er en sammenhæng mellem den pris de sætter på et af deres produkter, og hvor mange enheder de sælger af produktet. Jo højere pris, jo lavere salg. Sammenhængen mellem pris og salg kan beskrives ved den lineære funktion \(p(x) = -0{,}2x + 8000\), hvor \(x\) = antal solgte enheder, og \(p(x)\) = prisen i kr. ved et salg på \(x\) enheder.
+      </div>
+
+      <div class="ow-input-row" style="margin-bottom:12px">
+        <span style="font-size:0.88rem;min-width:260px">Prisen ved et salg på 10.000 enheder er</span>
+        <input class="ow-input" id="ow-317g1" type="text" placeholder="?" style="width:100px;text-align:center"> kr.
+      </div>
+
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:6px">Skriv formlen med x som variabel på formen ax+b — brug + − * / for regneark</div>
+      <div class="ow-input-row" style="margin-bottom:12px">
+        <span style="font-size:0.9rem">p⁻¹(x) =</span>
+        <input class="ow-input" id="ow-317g2" type="text" placeholder="fx ax+b" style="width:180px">
+      </div>
+
+      <div class="ow-input-row" style="margin-bottom:12px">
+        <span style="font-size:0.88rem;min-width:260px">Definitionsmængden til p(x) er</span>
+        <input class="ow-input" id="ow-317g5" type="text" placeholder="" style="width:150px" oninput="infReplace(this)" onkeydown="infShortcut(event,this)">
+      </div>
+
+      <div class="ow-input-row" style="margin-bottom:12px">
+        <span style="font-size:0.88rem;min-width:260px">Salget ved en pris på 3.000 kr. er</span>
+        <input class="ow-input" id="ow-317g4" type="text" placeholder="?" style="width:100px;text-align:center"> enheder.
+      </div>
+
+      <button onclick="checkGold317()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button>
+      <div class="ow-result" id="ow-r-317-high" style="margin-top:10px"></div>
+    </div>
+
+  </div>
+</div>
+<div id="page-3-2-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.1</span><h1>Grundbegreber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.2</span><h1>Forskrift ud fra to punkter</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-3" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.3</span><h1>Vækstegenskaber</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-4" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.4</span><h1>Stykkevis lineære funktioner</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-2-5" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.5</span><h1>Skæring mellem lineære grafer</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.1</span><h1>Mindste kvadraters metode</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.2</span><h1>Korrelationskoefficienten</h1><p>Indhold tilføjes snart.</p></div></div>
 <div id="page-fremgang" class="page-hidden">
 <a class="back-link" onclick="showPage('home')">← Alle forløb</a>
 <div class="fremgang-header">
@@ -3713,6 +3915,212 @@ function restartOpgaver316() {
   var state=document.getElementById('energy-state-316'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
 }
 
+// ── 3.1.7 OMVENDT FUNKTION ──────────────────────────────────────────────────
+var quiz317Answered = {}, quiz317Correct = 0, quiz317Total = 7;
+
+function quizAnswer317(qnum, result, evt) {
+  if (quiz317Answered[qnum]) return;
+  quiz317Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq317-' + qnum);
+  var fb = document.getElementById('qf317-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz317Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  if (Object.keys(quiz317Answered).length >= quiz317Total) {
+    var box=document.getElementById('quiz-score-317'); box.style.display='block';
+    document.getElementById('quiz-score-317-title').textContent = quiz317Correct===quiz317Total ? 'Perfekt – '+quiz317Correct+'/'+quiz317Total+'!' : quiz317Correct+'/'+quiz317Total+' rigtige';
+    document.getElementById('quiz-score-317-text').textContent = quiz317Correct===quiz317Total ? 'Du har styr på omvendte funktioner!' : 'Se de markerede svar og prøv igen.';
+  }
+}
+
+function quizRetry317() {
+  quiz317Answered={}; quiz317Correct=0;
+  [1,2,3,4,5,6,7].forEach(function(n){
+    var qq=document.getElementById('qq317-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.classList.remove('correct','wrong');});
+    var fb=document.getElementById('qf317-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-317').style.display='none';
+}
+
+var opg317Level = 1, opg317Started = false, opg317MedalShown = false;
+var opg317BronzeDone = false, opg317SilverDone = false, opg317GoldDone = false;
+
+// Evaluerer et elev-indtastet udtryk (kun tal, x, + - * / ^ ( ) . , sqrt/√) ved x = xVal
+function safeEvalFormula(expr, xVal) {
+  var e = (expr || '').trim();
+  if (e === '') return NaN;
+  var forValidation = e.replace(/sqrt/gi, '').replace(/√/g, '');
+  if (!/^[0-9x+\-*/().,\s^]*$/i.test(forValidation)) return NaN;
+  var jsExpr = e
+    .replace(/,/g, '.')
+    .replace(/√/g, 'sqrt')
+    .replace(/sqrt\s*\(/gi, 'Math.sqrt(')
+    .replace(/sqrt\s*([0-9x.]+)/gi, 'Math.sqrt($1)')
+    .replace(/\^/g, '**')
+    .replace(/(\d)(x)/gi, '$1*$2')
+    .replace(/(\d)(\()/g, '$1*$2')
+    .replace(/x/gi, '(' + xVal + ')');
+  try {
+    var val = Function('"use strict"; return (' + jsExpr + ');')();
+    return (typeof val === 'number' && isFinite(val)) ? val : NaN;
+  } catch (err) { return NaN; }
+}
+
+// Tjekker et formel-inputfelt mod en facit-formel ved at sammenligne værdier for en række x
+function checkFormulaField(id, correctFormula, testXValues, tolerance) {
+  tolerance = tolerance || 0.05;
+  var input = document.getElementById('ow-' + id);
+  if (!input) return false;
+  var raw = input.value.trim();
+  var ok = raw !== '' && testXValues.every(function(xv) {
+    var uv = safeEvalFormula(raw, xv);
+    var cv = safeEvalFormula(correctFormula, xv);
+    return isFinite(uv) && isFinite(cv) && Math.abs(uv - cv) < tolerance;
+  });
+  if (ok) { input.classList.remove('wrong'); input.classList.add('correct'); }
+  else { input.classList.add('wrong'); setTimeout(function(){ input.classList.remove('wrong'); }, 1200); }
+  return ok;
+}
+
+// Tjekker et enkelt numerisk felt
+function checkSingleNumericField(id, correct, tolerance) {
+  tolerance = tolerance || 0.5;
+  var input = document.getElementById('ow-' + id);
+  if (!input) return false;
+  var raw = input.value.replace(',', '.').trim();
+  if (raw === '' || isNaN(Number(raw))) {
+    input.classList.add('wrong');
+    setTimeout(function(){ input.classList.remove('wrong'); }, 1200);
+    return false;
+  }
+  var ok = Math.abs(parseFloat(raw) - correct) < tolerance;
+  if (ok) { input.classList.remove('wrong'); input.classList.add('correct'); }
+  else { input.classList.add('wrong'); setTimeout(function(){ input.classList.remove('wrong'); }, 1200); }
+  return ok;
+}
+
+// Tjekker et fritekst-refleksionsfelt (kan ikke facit-tjekkes, kun om det er udfyldt)
+function checkTextField(id) {
+  var input = document.getElementById('ow-' + id);
+  if (!input) return false;
+  var ok = input.value.trim().length > 0;
+  if (ok) { input.classList.remove('wrong'); input.classList.add('correct'); }
+  else { input.classList.add('wrong'); }
+  return ok;
+}
+
+function checkBronze317() {
+  var input = document.getElementById('ow-317b1');
+  var raw = input.value.trim();
+  var r = document.getElementById('ow-r-317-low');
+
+  if (raw !== '' && (raw.indexOf('(') === -1 || raw.indexOf(')') === -1)) {
+    input.classList.add('wrong');
+    setTimeout(function(){ input.classList.remove('wrong'); }, 1200);
+    if (r) { r.className='ow-result err'; r.textContent='Der mangler en parentes — husk at hele tælleren skal stå i parentes når du dividerer, fx (a+b)/c.'; }
+    return;
+  }
+
+  var ok = checkFormulaField('317b1', '(x+2)/3', [-5,-1,0,2,7,13]);
+  if (ok) {
+    opg317BronzeDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg317-low'));
+    check317Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek din formel og prøv igen.';
+  }
+}
+
+function checkSilver317() {
+  var ok = checkFormulaField('317s1', 'x^2', [0,1,4,9,16]);
+  var r = document.getElementById('ow-r-317-mid');
+  if (ok) {
+    opg317SilverDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg317-mid'));
+    check317Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek din formel og prøv igen.';
+  }
+}
+
+function checkGold317() {
+  var priceOk = checkSingleNumericField('317g1', 6000, 1);
+  var formulaOk = checkFormulaField('317g2', '40000-5*x', [0,2000,4000,6000,8000], 1);
+  var dmOk = checkIntervalGroup(['317g5'], ['[0;40000]'], 'ow-r-317-high');
+  var quantOk = checkSingleNumericField('317g4', 25000, 1);
+  var r = document.getElementById('ow-r-317-high');
+  if (priceOk && formulaOk && dmOk && quantOk) {
+    opg317GoldDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Alle svar er korrekte!'; }
+    runOpgaveSparkle(document.getElementById('opg317-high'));
+    check317Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke alle svar er korrekte endnu — tjek de røde felter.';
+  }
+}
+
+function check317Medal() {
+  if (opg317MedalShown) return;
+  var ok = false;
+  if (opg317Level === 1) ok = opg317BronzeDone;
+  else if (opg317Level === 2) ok = opg317BronzeDone && opg317SilverDone;
+  else if (opg317Level === 3) ok = opg317BronzeDone && opg317SilverDone && opg317GoldDone;
+  if (ok) {
+    opg317MedalShown = true;
+    var prev = parseInt(loadProgress('medal_317',0));
+    if (opg317Level > prev) saveProgress('medal_317', opg317Level);
+    setTimeout(function(){ showMedal(opg317Level); }, 400);
+  }
+}
+
+function updateEnergy317(val) {
+  if (opg317Started) return;
+  val = parseInt(val);
+  var state = document.getElementById('energy-state-317');
+  if (val < 40) { opg317Level=1; state.textContent='Træt – 1 sæt'; state.style.color='#dc2626'; }
+  else if (val < 75) { opg317Level=2; state.textContent='Klar – 2 sæt'; state.style.color='#ca8a04'; }
+  else { opg317Level=3; state.textContent='On fire! – 3 sæt'; state.style.color='#16a34a'; }
+  ['opg317-low','opg317-mid','opg317-high'].forEach(function(id){
+    var w=document.getElementById(id); if(w){w.classList.add('opgave-hidden');w.style.display='';}
+  });
+  document.getElementById('ready-btn-wrap-317').style.display='block';
+}
+
+function startOpgaver317() {
+  opg317Started=true; opg317MedalShown=false;
+  opg317BronzeDone=false; opg317SilverDone=false; opg317GoldDone=false;
+  document.getElementById('ready-btn-wrap-317').style.display='none';
+  document.getElementById('restart-btn-317').style.display='block';
+  var ew=document.querySelector('#t317-opg .energy-wrap'); if(ew)ew.classList.add('slider-locked');
+  if(opg317Level>=1) showWidget(document.getElementById('opg317-low'));
+  if(opg317Level>=2) showWidget(document.getElementById('opg317-mid'));
+  if(opg317Level>=3) showWidget(document.getElementById('opg317-high'));
+}
+
+function restartOpgaver317() {
+  opg317Started=false; opg317Level=1; opg317MedalShown=false;
+  opg317BronzeDone=false; opg317SilverDone=false; opg317GoldDone=false;
+  var ew=document.querySelector('#t317-opg .energy-wrap'); if(ew)ew.classList.remove('slider-locked');
+  document.getElementById('restart-btn-317').style.display='none';
+  document.getElementById('ready-btn-wrap-317').style.display='block';
+  ['opg317-low','opg317-mid','opg317-high'].forEach(function(id){
+    var w=document.getElementById(id); if(!w)return;
+    w.classList.add('opgave-hidden'); w.style.display=''; w.style.background=''; w.style.borderColor='';
+    w.querySelectorAll('.ow-input').forEach(function(inp){inp.value='';inp.className='ow-input';});
+    w.querySelectorAll('.ow-result').forEach(function(r){r.className='ow-result';r.textContent='';});
+  });
+  var slider=document.getElementById('energy-slider-317'); if(slider)slider.value=1;
+  var state=document.getElementById('energy-state-317'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
+}
+
 function closeMedal() {
 
   document.getElementById('medal-overlay').classList.remove('show');
@@ -3751,6 +4159,7 @@ var emneData = {
   '3.1.4': { navn: 'Grafiske løsninger',                 opgaver: [],                     materiale: ['chk-314-bog','chk-314-yt'] },
   '3.1.5': { navn: 'Monotoniforhold',                    opgaver: [],                     materiale: ['chk-315-bog','chk-315-yt'] },
   '3.1.6': { navn: 'Egenskaber ved grafer',               opgaver: [],                     materiale: ['chk-316-bog'] },
+  '3.1.7': { navn: 'Omvendt funktion',                    opgaver: [],                     materiale: ['chk-317-bog','chk-317-yt1','chk-317-yt2'] },
 };
 
 // ── FREMGANG SIDE ─────────────────────────────────────────────────────────
