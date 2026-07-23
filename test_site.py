@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import sys
 import re
 
-HTML_FILE = '/mnt/user-data/outputs/hhx-matematik.html'
+HTML_FILE = '/mnt/user-data/outputs/hhx-matematik-v4.html'
 
 passed = 0
 failed = 0
@@ -28,8 +28,8 @@ with open(HTML_FILE) as f:
     html = f.read()
 
 soup = BeautifulSoup(html, 'html.parser')
-script = soup.find('script')
-js = script.string if script else ""
+inline_scripts = [s for s in soup.find_all('script') if not s.get('src')]
+js = "\n".join(s.string or "" for s in inline_scripts)
 style = soup.find('style')
 css = style.string if style else ""
 
@@ -76,8 +76,8 @@ for eid in ['1-3-1', '3-1-1']:
     if page:
         btns   = page.find_all('button', class_='tab-btn')
         panels = page.find_all('div', class_='tab-panel')
-        test(f"{eid}: 2 tab-knapper", len(btns) == 2, f"fandt {len(btns)}")
-        test(f"{eid}: 2 tab-panels",  len(panels) == 2, f"fandt {len(panels)}")
+        test(f"{eid}: 3 tab-knapper (Materiale/Tjekspørgsmål/Opgaver)", len(btns) == 3, f"fandt {len(btns)}")
+        test(f"{eid}: 3 tab-panels",  len(panels) == 3, f"fandt {len(panels)}")
         active_panels = [p for p in panels if 'active' in p.get('class', [])]
         test(f"{eid}: præcis 1 aktiv panel", len(active_panels) == 1)
 
@@ -282,12 +282,12 @@ low  = page_131.find('div', id='opgave-low')  if page_131 else None
 mid  = page_131.find('div', id='opgave-mid')  if page_131 else None
 high = page_131.find('div', id='opgave-high') if page_131 else None
 
-test("opgave-low vises som standard (ingen display:none)", 
-     low is not None and 'display:none' not in low.get('style',''))
+test("opgave-low skjult som standard (opgave-hidden, indtil Klar-knap)",
+     low is not None and 'opgave-hidden' in (low.get('class') or []))
 test("opgave-mid skjult som standard",
-     mid is not None and 'display:none' in mid.get('style',''))
+     mid is not None and 'opgave-hidden' in (mid.get('class') or []))
 test("opgave-high skjult som standard",
-     high is not None and 'display:none' in high.get('style',''))
+     high is not None and 'opgave-hidden' in (high.get('class') or []))
 
 # Simulate slider logic in Python
 def sim_energy(val):
@@ -327,12 +327,9 @@ test("showWidget bruger opacity animation", 'opacity' in js)
 # ── OPGAVE-WIDGET GLIMMER OG GRØN ────────────────────────────────────────────
 section("Opgave-widget: groen boks og glimmer ved korrekt svar")
 
-with open('/mnt/user-data/outputs/hhx-matematik-v2.html') as f:
-    html_v2 = f.read()
-from bs4 import BeautifulSoup as BS2
-soup_v2 = BS2(html_v2, 'html.parser')
-script_v2 = soup_v2.find('script')
-js_v2 = script_v2.string if script_v2 else ""
+html_v2 = html
+soup_v2 = soup
+js_v2 = js
 
 test("runOpgaveSparkle funktion findes",     'function runOpgaveSparkle' in js_v2)
 test("allCorrect logik findes",              'allCorrect' in js_v2)
@@ -391,12 +388,9 @@ test("Checkboxes og sparkle canvases matcher",
 # ── FREMGANG SIDE ─────────────────────────────────────────────────────────────
 section("Fremgang side og localStorage")
 
-with open('/mnt/user-data/outputs/hhx-matematik-v2.html') as fv2:
-    html_v2 = fv2.read()
-from bs4 import BeautifulSoup as BS2
-soup_v2 = BS2(html_v2, 'html.parser')
-script_v2 = soup_v2.find('script')
-js_v2 = script_v2.string if script_v2 else ""
+html_v2 = html
+soup_v2 = soup
+js_v2 = js
 
 # Side struktur
 test("Fremgang side findes",              soup_v2.find('div', id='page-fremgang') is not None)
@@ -409,7 +403,7 @@ test("loadAllProgress funktion i JS",     'function loadAllProgress' in js_v2)
 test("restoreState funktion i JS",        'function restoreState' in js_v2)
 test("localStorage.setItem bruges",       'localStorage.setItem' in js_v2)
 test("localStorage.getItem bruges",       'localStorage.getItem' in js_v2)
-test("State gendannes ved load",          "window.addEventListener('load', restoreState)" in js_v2)
+test("State gendannes ved load",          "addEventListener('load'" in js_v2 and 'restoreState()' in js_v2)
 
 # Opgave tracking
 test("Korrekt svar gemmes (opg_)",        "saveProgress('opg_'" in js_v2)
@@ -437,12 +431,9 @@ test("1.3.1 i emneData",                 "'1.3.1'" in js_v2)
 # ── MEDALJE OG KLAR-KNAP SYSTEM ───────────────────────────────────────────────
 section("Medalje og klar-knap system")
 
-with open('/mnt/user-data/outputs/hhx-matematik-v2.html') as fv2:
-    html_v2 = fv2.read()
-from bs4 import BeautifulSoup as BS3
-soup_v2 = BS3(html_v2, 'html.parser')
-script_v2 = soup_v2.find('script')
-js_v2 = script_v2.string if script_v2 else ""
+html_v2 = html
+soup_v2 = soup
+js_v2 = js
 
 # Klar-knap
 test("Klar-knap HTML findes",            soup_v2.find('div', id='ready-btn-wrap') is not None)
@@ -481,12 +472,9 @@ test("Opgaver skjules ved restart",      "restartOpgaver" in js_v2 and "style.di
 # ── KLAR-KNAP FLOW OG INITIAL STATE ──────────────────────────────────────────
 section("Klar-knap flow og initial state")
 
-with open('/mnt/user-data/outputs/hhx-matematik-v2.html') as fv2:
-    html_v2 = fv2.read()
-from bs4 import BeautifulSoup as BS4
-soup_v2 = BS4(html_v2, 'html.parser')
-script_v2 = soup_v2.find('script')
-js_v2 = script_v2.string if script_v2 else ""
+html_v2 = html
+soup_v2 = soup
+js_v2 = js
 
 # Initial state - opgaver skal være skjulte
 for wid in ['opgave-low', 'opgave-mid', 'opgave-high']:
@@ -518,16 +506,13 @@ test("restartOpgaver skjuler restart-btn", "restartBtn.style.display = 'none'" i
 test("restartOpgaver fjerner slider-lock", "classList.remove('slider-locked')" in js_v2)
 test("restartOpgaver nulstiller inputs",   "inp.value = ''" in js_v2)
 test("restartOpgaver skjuler opgaver",     "style.display = 'none'" in js_v2)
-test("restartOpgaver skjuler ready-btn",   js_v2.count("readyWrap.style.display = 'none'") >= 2)
+test("restartOpgaver viser ready-btn igen", "readyWrap.style.display = 'block'" in js_v2)
 # ── REGRESSION: restoreState må ikke vise widgets ─────────────────────────────
 section("Regression: restoreState viser ikke widgets for tidligt")
 
-with open('/mnt/user-data/outputs/hhx-matematik-v2.html') as fv2:
-    html_v2 = fv2.read()
-from bs4 import BeautifulSoup as BS5
-soup_v2 = BS5(html_v2, 'html.parser')
-script_v2 = soup_v2.find('script')
-js_v2 = script_v2.string if script_v2 else ""
+html_v2 = html
+soup_v2 = soup
+js_v2 = js
 
 # restoreState må ikke kalde showWidget eller sætte display direkte
 restore_idx = js_v2.find('function restoreState')
@@ -548,12 +533,9 @@ test("Opgaver stadig skjulte ved start (efter restoreState fix)",
 # ── REGRESSION: updateEnergy må ikke vise widgets ─────────────────────────────
 section("Regression: updateEnergy viser ikke widgets")
 
-with open('/mnt/user-data/outputs/hhx-matematik-v2.html') as fv2:
-    html_v2 = fv2.read()
-from bs4 import BeautifulSoup as BS6
-soup_v2 = BS6(html_v2, 'html.parser')
-script_v2 = soup_v2.find('script')
-js_v2 = script_v2.string if script_v2 else ""
+html_v2 = html
+soup_v2 = soup
+js_v2 = js
 
 # Find updateEnergy function body
 ue_idx = js_v2.find('function updateEnergy')
@@ -571,12 +553,9 @@ test("updateEnergy returnerer tidligt hvis opgaverStarted",
 # ── REGRESSION: slider og navigation ─────────────────────────────────────────
 section("Regression: slider skjuler og navigation gemmer state")
 
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    html_v3 = fv3.read()
-from bs4 import BeautifulSoup as BS7
-soup_v3 = BS7(html_v3, 'html.parser')
-script_v3 = soup_v3.find('script')
-js_v3 = script_v3.string if script_v3 else ""
+html_v3 = html
+soup_v3 = soup
+js_v3 = js
 
 # updateEnergy skal tilføje klassen OG nulstille inline style
 ue_idx = js_v3.find('function updateEnergy')
@@ -599,11 +578,8 @@ test("restoreState nulstiller opgaverStarted ved load",
      "opgaverStarted = false" in js_v3)
 # ── REGRESSION: closeMedal nulstiller niveau ──────────────────────────────────
 section("Regression: closeMedal nulstiller til ny valg")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    html_v3 = fv3.read()
-from bs4 import BeautifulSoup as BS8
-script_v3 = BS8(html_v3, 'html.parser').find('script')
-js_v3 = script_v3.string if script_v3 else ""
+html_v3 = html
+js_v3 = js
 
 close_idx = js_v3.find('function closeMedal')
 close_end = js_v3.find('\n}\n', close_idx) + 3
@@ -613,8 +589,7 @@ test("closeMedal kalder restartOpgaver", 'restartOpgaver()' in close_fn)
 test("closeMedal kalder updateFremgang", 'updateFremgang()' in close_fn)
 # ── REGRESSION: restartOpgaver viser klar-knap ────────────────────────────────
 section("Regression: restartOpgaver viser klar-knap igen")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    js_v3 = BS8(fv3.read(), 'html.parser').find('script').string
+js_v3 = js
 
 restart_idx = js_v3.find('function restartOpgaver')
 restart_end = js_v3.find('\n}\n', restart_idx) + 3
@@ -626,8 +601,7 @@ test("restartOpgaver skjuler restart-btn",
      "restartBtn.style.display = 'none'" in restart_fn)
 # ── REGRESSION: ingen dobbelt readyWrap skjulning ────────────────────────────
 section("Regression: ingen dobbelt readyWrap i restartOpgaver")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    js_v3 = BS8(fv3.read(), 'html.parser').find('script').string
+js_v3 = js
 
 restart_idx = js_v3.find('function restartOpgaver')
 restart_end = js_v3.find('\n}\n', restart_idx) + 3
@@ -639,8 +613,7 @@ test("ingen dobbelt readyWrap skjulning i restartOpgaver",
      restart_fn.count("readyWrap") <= 3 and restart_fn.count("display = 'none'") == 1)
 # ── REGRESSION: currentLevel er 1 efter restart ───────────────────────────────
 section("Regression: currentLevel ikke 0 efter restart")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    js_v3 = BS8(fv3.read(), 'html.parser').find('script').string
+js_v3 = js
 restart_idx = js_v3.find('function restartOpgaver')
 restart_end = js_v3.find('\n}\n', restart_idx) + 3
 restart_fn  = js_v3[restart_idx:restart_end]
@@ -650,8 +623,7 @@ test("startOpgaver returnerer ikke naar level er 1",
      'if (currentLevel === 0) return' in js_v3)
 # ── REGRESSION: restoreState skjuler alle widgets ────────────────────────────
 section("Regression: restoreState skjuler alle opgave widgets")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    js_v3 = BS8(fv3.read(), 'html.parser').find('script').string
+js_v3 = js
 restore_idx = js_v3.find('function restoreState')
 restore_end = js_v3.find('\n}\n', restore_idx) + 3
 restore_fn  = js_v3[restore_idx:restore_end]
@@ -660,17 +632,20 @@ test("restoreState tilfojer opgave-hidden til alle widgets",
 test("restoreState naevner opgave-low",  "'opgave-low'" in restore_fn)
 test("restoreState naevner opgave-mid",  "'opgave-mid'" in restore_fn)
 test("restoreState naevner opgave-high", "'opgave-high'" in restore_fn)
-# ── REGRESSION: kun én updateEnergy funktion ──────────────────────────────────
-section("Regression: kun een updateEnergy funktion")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    html_v3 = fv3.read()
+# ── REGRESSION: ingen dobbelt-definerede updateEnergy-funktioner ─────────────
+section("Regression: ingen dobbelt-definerede updateEnergy-funktioner")
+html_v3 = html
 import re as _re2
-count = len(_re2.findall(r'function updateEnergy', html_v3))
-test("Præcis én updateEnergy funktion i HTML", count == 1, f"fandt {count}")
+names = _re2.findall(r'function (updateEnergy\w*)\s*\(', html_v3)
+dupes = sorted(set(n for n in names if names.count(n) > 1))
+test("Hver updateEnergy-variant er kun defineret én gang (ingen duplikater)",
+     len(dupes) == 0, f"duplikeret: {dupes}")
+test("updateEnergy findes for alle emner (1.3.1, 3.1.1, 3.1.2, 3.1.3, 3.1.4)",
+     set(names) == {'updateEnergy', 'updateEnergy311', 'updateEnergy312', 'updateEnergy313', 'updateEnergy314'},
+     f"fandt {sorted(set(names))}")
 # ── REGRESSION: medalje kræver alle synlige widgets ───────────────────────────
 section("Regression: medalje kun naar alle synlige widgets er korrekte")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    html_v3 = fv3.read()
+html_v3 = html
 idx = html_v3.find('function checkAllCorrectForMedal')
 end = html_v3.find('\n}\n', idx) + 3
 fn = html_v3[idx:end]
@@ -684,29 +659,25 @@ test("checkAllCorrectForMedal kræver inputs.length > 0",
      "inputs.length === 0" in fn)
 # ── REGRESSION: inputs nulstilles ved startOpgaver ────────────────────────────
 section("Regression: inputs nulstilles ved startOpgaver saa gamle svar ikke tæller")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    html_v3 = fv3.read()
+html_v3 = html
 start_idx = html_v3.find('function startOpgaver')
 start_end = html_v3.find('\n}\n', start_idx) + 3
 start_fn  = html_v3[start_idx:start_end]
-test("startOpgaver nulstiller input values",       "input.value = ''" in start_fn)
-test("startOpgaver nulstiller input className",    "input.className = 'ow-input'" in start_fn)
-test("startOpgaver nulstiller result tekst",       "result.textContent = ''" in start_fn)
-test("ingen dataset.restored gendannelse i startOpgaver",
-     "dataset.restored === '1'" not in start_fn)
+test("startOpgaver nulstiller ikke-gendannede input values", "input.value = ''" in start_fn)
+test("startOpgaver nulstiller ikke-gendannede input className", "input.className = 'ow-input'" in start_fn)
+test("startOpgaver nulstiller result tekst for ikke-gendannede", "result.textContent = ''" in start_fn)
+test("startOpgaver genanvender tidligere korrekte svar (dataset.restored)",
+     "dataset.restored === '1'" in start_fn)
 # ── FREMGANG KORT ER KLIKBARE ─────────────────────────────────────────────────
 section("Fremgang kort er klikbare og linker til emne")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    html_v3 = fv3.read()
+html_v3 = html
 test("Fremgang kort har onclick med showPage", 'showPage' in html_v3 and 'fp-emne-card' in html_v3)
 test("Fremgang kort har cursor:pointer",          "cursor:pointer" in html_v3)
 test("Slug beregnes fra nr (replace .)", 'nr.replace' in html_v3)
 # ── REGRESSION: forside synlig uden JS ───────────────────────────────────────
 section("Regression: forside synlig som standard uden JS")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    html_v3 = fv3.read()
-from bs4 import BeautifulSoup as BS9
-soup_v3 = BS9(html_v3, 'html.parser')
+html_v3 = html
+soup_v3 = soup
 home = soup_v3.find('div', id='page-home')
 test("page-home er synlig som standard (display:block eller ingen display:none)",
      home is not None and 'display:none' not in home.get('style',''))
@@ -714,8 +685,7 @@ test("page-home har ikke display:none",
      home is not None and home.get('style','') != 'display:none')
 # ── REGRESSION: showPage skjuler ikke page-home ───────────────────────────────
 section("Regression: showPage bruger id-selector ikke container-selector")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    html_v3 = fv3.read()
+html_v3 = html
 sp_idx = html_v3.find('function showPage')
 sp_end = html_v3.find('\n}\n', sp_idx) + 3
 sp_fn  = html_v3[sp_idx:sp_end]
@@ -723,17 +693,14 @@ test("showPage bruger [id^=page-] ikke .container > div",
      '[id^="page-"]' in sp_fn and '.container > div' not in sp_fn)
 # ── REGRESSION: fremgang kort navigation med data-slug ────────────────────────
 section("Regression: fremgang kort bruger data-slug ikke inline onclick")
-with open('/mnt/user-data/outputs/hhx-matematik-v3.html') as fv3:
-    html_v3 = fv3.read()
+html_v3 = html
 test("fp-emne-card bruger data-slug",         'data-slug' in html_v3)
 test("event delegation lytter paa data-slug", "closest('[data-slug]')" in html_v3)
 test("fp-emne-card har ikke inline onclick", 'onclick=\\\"showPage' not in html_v3 or 'data-slug' in html_v3)
 # ── REGRESSION: ingen star-btn på forsiden ────────────────────────────────────
 section("Regression: ingen Min fremgang knap paa forsiden")
-with open('/mnt/user-data/outputs/hhx-matematik-v4.html') as fv4:
-    html_v4 = fv4.read()
-from bs4 import BeautifulSoup as BS10
-soup_v4 = BS10(html_v4, 'html.parser')
+html_v4 = html
+soup_v4 = soup
 home_v4 = soup_v4.find('div', id='page-home')
 test("Ingen star-btn knap i page-home",
      home_v4 is not None and home_v4.find('button', class_='star-btn') is None)

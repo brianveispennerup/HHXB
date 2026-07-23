@@ -557,6 +557,113 @@ setTimeout(() => {
   correctCurve313(); w.checkCurve313();
   test('Ryd+gentegn: kurve godkendt igen', w.opg313GraphDone);
 
+  // ── 3.1.4 GRAFISKE LØSNINGER ────────────────────────────────────────────────
+  console.log('\nNavigation og struktur 3.1.4');
+  w.showPage('3-1-4');
+  test('showPage(3-1-4)', isVisible(d.getElementById('page-3-1-4')));
+  test('3 tab-knapper i 3.1.4', d.querySelectorAll('#page-3-1-4 .tab-btn').length === 3);
+  test('3.1.4 i emneData', html.includes("'3.1.4'") && html.includes("'chk-314-bog'"));
+
+  console.log('\nQuiz 3.1.4 – positive tests');
+  d.querySelectorAll('#page-3-1-4 .tab-btn')[1].click();
+  const q314_1 = d.querySelectorAll('#qq314-1 .quiz-option');
+  q314_1[1].click(); // B = correct
+  test('3.1.4 Q1: B → correct', q314_1[1].classList.contains('correct'));
+  const q314_2 = d.querySelectorAll('#qq314-2 .quiz-option');
+  q314_2[1].click(); // B = correct
+  test('3.1.4 Q2: B → correct', q314_2[1].classList.contains('correct'));
+  const q314_3 = d.querySelectorAll('#qq314-3 .quiz-option');
+  q314_3[0].click(); // A = correct
+  test('3.1.4 Q3: A → correct', q314_3[0].classList.contains('correct'));
+  const q314_4 = d.querySelectorAll('#qq314-4 .quiz-option');
+  q314_4[1].click(); // B = correct
+  test('3.1.4 Q4: B → correct', q314_4[1].classList.contains('correct'));
+  const q314_5 = d.querySelectorAll('#qq314-5 .quiz-option');
+  q314_5[0].click(); // A = correct
+  test('3.1.4 Q5: A → correct', q314_5[0].classList.contains('correct'));
+  test('3.1.4 quiz score: 5/5', d.getElementById('quiz-score-314-title').textContent.includes('5/5'));
+
+  console.log('\nQuiz 3.1.4 – negative tests');
+  w.quizRetry314();
+  d.querySelectorAll('#page-3-1-4 .tab-btn')[1].click();
+  const q314_1b = d.querySelectorAll('#qq314-1 .quiz-option');
+  q314_1b[0].click(); // A = wrong
+  test('3.1.4 Q1: A → wrong', q314_1b[0].classList.contains('wrong'));
+  test('3.1.4 Q1: feedback err', d.getElementById('qf314-1').classList.contains('err'));
+  test('3.1.4 Q1: B ikke afsløret', !q314_1b[1].classList.contains('reveal-correct'));
+
+  console.log('\nBronze 3.1.4 – f(x)=3/4/1');
+  function setVal314(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect314(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+  w.showPage('3-1-4'); w.restartOpgaver314(); w.startOpgaver314();
+  setVal314('314b1','1'); setVal314('314b2','2'); setVal314('314b3','-1');
+  w.checkBronze314();
+  test('Bronze: alle tre korrekte', ['314b1','314b2','314b3'].every(id=>isCorrect314(id)));
+  test('Bronze: opg314BronzeDone=true', w.opg314BronzeDone);
+  w.restartOpgaver314(); w.startOpgaver314();
+  setVal314('314b1','99'); setVal314('314b2','2'); setVal314('314b3','-1');
+  w.checkBronze314();
+  test('Bronze: én forkert → opg314BronzeDone forbliver false', !w.opg314BronzeDone);
+  test('Bronze: forkert felt ikke correct', !isCorrect314('314b1'));
+  test('Bronze: øvrige korrekte felter markeres', isCorrect314('314b2'));
+
+  console.log('\nSølv 3.1.4 – to løsninger pr. ligning');
+  w.restartOpgaver314(); w.opg314Level=2; w.startOpgaver314();
+  setVal314('314s1a','-2'); setVal314('314s1b','2');
+  setVal314('314s2a','-1'); setVal314('314s2b','1');
+  w.checkSilver314();
+  test('Sølv: f(x)=4 løsninger korrekte', isCorrect314('314s1a') && isCorrect314('314s1b'));
+  test('Sølv: f(x)=1 løsninger korrekte', isCorrect314('314s2a') && isCorrect314('314s2b'));
+  test('Sølv: opg314SilverDone=true', w.opg314SilverDone);
+
+  console.log('\nSølv 3.1.4 – ombyttet rækkefølge skal også accepteres');
+  w.restartOpgaver314(); w.opg314Level=2; w.startOpgaver314();
+  setVal314('314s1a','2'); setVal314('314s1b','-2'); // ombyttet rækkefølge for f(x)=4
+  setVal314('314s2a','1'); setVal314('314s2b','-1'); // ombyttet rækkefølge for f(x)=1
+  w.checkSilver314();
+  test('Sølv: f(x)=4 ombyttet → stadig correct', isCorrect314('314s1a') && isCorrect314('314s1b'));
+  test('Sølv: f(x)=1 ombyttet → stadig correct', isCorrect314('314s2a') && isCorrect314('314s2b'));
+  test('Sølv: ombyttet rækkefølge → opg314SilverDone=true', w.opg314SilverDone);
+  w.restartOpgaver314(); w.opg314Level=2; w.startOpgaver314();
+  setVal314('314s1a','99'); setVal314('314s1b','2'); // reelt forkert, ikke bare ombyttet
+  setVal314('314s2a','-1'); setVal314('314s2b','1');
+  w.checkSilver314();
+  test('Sølv: reelt forkert svar → not correct', !isCorrect314('314s1a'));
+  test('Sølv: reelt forkert → opg314SilverDone forbliver false', !w.opg314SilverDone);
+
+  console.log('\nGuld 3.1.4 – uligheder med to separate intervalfelter');
+  w.restartOpgaver314(); w.opg314Level=3; w.startOpgaver314();
+  setVal314('314g1a','[-3;-2['); setVal314('314g1b',']2;3['); setVal314('314g2','[-1;1]');
+  w.checkGold314();
+  test('Guld: f(x)>4 begge intervaller korrekte', isCorrect314('314g1a') && isCorrect314('314g1b'));
+  test('Guld: f(x)≤1 → correct', isCorrect314('314g2'));
+  test('Guld: opg314GoldDone=true', w.opg314GoldDone);
+
+  console.log('\nGuld 3.1.4 – ombyttet rækkefølge skal også accepteres');
+  w.restartOpgaver314(); w.opg314Level=3; w.startOpgaver314();
+  setVal314('314g1a',']2;3['); setVal314('314g1b','[-3;-2['); setVal314('314g2','[-1;1]'); // ombyttet
+  w.checkGold314();
+  test('Guld: ombyttede intervaller → stadig correct', isCorrect314('314g1a') && isCorrect314('314g1b'));
+  test('Guld: ombyttet rækkefølge → opg314GoldDone=true', w.opg314GoldDone);
+  w.restartOpgaver314(); w.opg314Level=3; w.startOpgaver314();
+  setVal314('314g1a','[2;3]'); setVal314('314g1b',']2;3['); setVal314('314g2','[-1;1]'); // reelt forkert interval
+  w.checkGold314();
+  test('Guld: reelt forkert interval → not correct', !isCorrect314('314g1a'));
+  test('Guld: reelt forkert → opg314GoldDone forbliver false', !w.opg314GoldDone);
+
+  console.log('\nMedalje og restart-flow 3.1.4');
+  w.restartOpgaver314(); w.opg314Level=1; w.startOpgaver314();
+  setVal314('314b1','1'); setVal314('314b2','2'); setVal314('314b3','-1');
+  w.checkBronze314();
+  test('Bronze niveau: medalje gemmes', w.opg314MedalShown);
+  w.restartOpgaver314();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-314').style.display==='block');
+  test('Restart: restart-btn skjult', d.getElementById('restart-btn-314').style.display==='none');
+  test('Restart: inputs nulstillet', d.getElementById('ow-314b1').value==='');
+  test('Restart: opgave-widgets skjules', d.getElementById('opg314-low').classList.contains('opgave-hidden'));
+  test('Restart: opg314BronzeDone nulstillet', !w.opg314BronzeDone);
+  test('Restart: opg314MedalShown nulstillet', !w.opg314MedalShown);
+
   // ── RESULTAT ──────────────────────────────────────────────────────────────────
   console.log(`\n${'='.repeat(40)}`);
   console.log(`Resultat: ${passed}/${passed+failed} tests bestået`);
