@@ -1009,6 +1009,959 @@ setTimeout(() => {
   test('Restart: opg317BronzeDone nulstillet', !w.opg317BronzeDone);
   test('Restart: opg317MedalShown nulstillet', !w.opg317MedalShown);
 
+  // ── 3.2.1 GRUNDBEGREBER ─────────────────────────────────────────────────────
+  console.log('\nNavigation og struktur 3.2.1');
+  w.showPage('3-2-1');
+  test('showPage(3-2-1)', isVisible(d.getElementById('page-3-2-1')));
+  test('3 tab-knapper i 3.2.1', d.querySelectorAll('#page-3-2-1 .tab-btn').length === 3);
+  test('3.2.1 i emneData', html.includes("'3.2.1'") && html.includes("'chk-321-bog'"));
+
+  console.log('\nQuiz 3.2.1 – positive tests');
+  d.querySelectorAll('#page-3-2-1 .tab-btn')[1].click();
+  const q321answers = [1,1,2,1,1,0,2,1]; // korrekte options (0-indekseret): B,B,C,B,B,A,C,B
+  q321answers.forEach((idx,i) => {
+    const opts = d.querySelectorAll('#qq321-'+(i+1)+' .quiz-option');
+    opts[idx].click();
+    test(`3.2.1 Q${i+1}: korrekt svar → correct`, opts[idx].classList.contains('correct'));
+  });
+  test('3.2.1 quiz score: 8/8', d.getElementById('quiz-score-321-title').textContent.includes('8/8'));
+
+  console.log('\nQuiz 3.2.1 – negative tests');
+  w.quizRetry321();
+  d.querySelectorAll('#page-3-2-1 .tab-btn')[1].click();
+  const q321_1b = d.querySelectorAll('#qq321-1 .quiz-option');
+  q321_1b[0].click(); // A = wrong
+  test('3.2.1 Q1: A → wrong', q321_1b[0].classList.contains('wrong'));
+  test('3.2.1 Q1: feedback err', d.getElementById('qf321-1').classList.contains('err'));
+  test('3.2.1 Q1: B ikke afsløret', !q321_1b[1].classList.contains('reveal-correct'));
+
+  // ── BRONZE 3.2.1 — TEGN GRAF (genbrug af 3.1.3's tegne-mekanisme) ────────────
+  console.log('\nStruktur: navngivne canvas-handlers findes globalt (removeEventListener-krav)');
+  ['canvas321MousedownHandler','canvas321MousemoveHandler','canvas321MouseupHandler',
+   'canvas321TouchstartHandler','canvas321TouchmoveHandler','canvas321TouchendHandler',
+   'initCanvas321','getCanvasPoint321','drawCanvas321'].forEach(fn => {
+    test(`${fn} findes globalt`, typeof w[fn] === 'function');
+  });
+
+  console.log('\ncheckCurve321 — kurve for f(x) = -2x + 3');
+  w.showPage('3-2-1'); w.restartOpgaver321(); w.startOpgaver321();
+  const rCurve321 = d.getElementById('ow-r-321-curve');
+
+  function genLine321(noisy){
+    var pts=[];
+    for(var x=-2;x<=4;x+=0.1){pts.push([x, -2*x+3+(noisy?(Math.random()-0.5)*0.3:0)]);}
+    return pts;
+  }
+
+  w.canvas321Curve=genLine321(false); w.opg321BronzeCurveDone=false; w.checkCurve321();
+  test('Kurve: korrekt linje → done', w.opg321BronzeCurveDone);
+  test('Kurve: korrekt linje → ok-styling', rCurve321 && rCurve321.classList.contains('ok'));
+  test('Kurve: korrekt → endepunkt-sektion vises', d.getElementById('canvas-321-endpoints-wrap').style.display==='block');
+
+  w.restartOpgaver321(); w.startOpgaver321();
+  w.canvas321Curve=genLine321(true); w.opg321BronzeCurveDone=false; w.checkCurve321();
+  test('Kurve: med lille støj → stadig done', w.opg321BronzeCurveDone);
+
+  w.restartOpgaver321(); w.startOpgaver321();
+  var flatLine321=[]; for(var fx=-2;fx<=4;fx+=0.1) flatLine321.push([fx,0]);
+  w.canvas321Curve=flatLine321; w.opg321BronzeCurveDone=false; w.checkCurve321();
+  test('Kurve: forkert hældning (flad linje) → ikke done', !w.opg321BronzeCurveDone);
+  test('Kurve: forkert → err-styling', rCurve321 && rCurve321.classList.contains('err'));
+  test('Kurve: forkert → endepunkt-sektion vises IKKE', d.getElementById('canvas-321-endpoints-wrap').style.display!=='block');
+
+  w.canvas321Curve=[]; w.opg321BronzeCurveDone=false; w.checkCurve321();
+  test('Kurve: ingen kurve tegnet → err', rCurve321 && rCurve321.classList.contains('err'));
+
+  console.log('\ncheckCurve321 — skærpede krav: fuld dækning af domænet');
+  w.restartOpgaver321(); w.startOpgaver321();
+  var lineToX3=[]; for(var lx=-2;lx<=3;lx+=0.1) lineToX3.push([lx,-2*lx+3]);
+  w.canvas321Curve=lineToX3; w.opg321BronzeCurveDone=false; w.checkCurve321();
+  test('Kurve: stopper ved x=3 (når ikke x=4) → ikke done', !w.opg321BronzeCurveDone);
+  test('Kurve: stopper for tidligt → specifik fejlbesked om intervallet', rCurve321.textContent.includes('hele vejen'));
+  test('Kurve: stopper for tidligt → endepunkt-sektion vises IKKE', d.getElementById('canvas-321-endpoints-wrap').style.display!=='block');
+
+  w.restartOpgaver321(); w.startOpgaver321();
+  var lineFromXminus1=[]; for(var lx2=-1;lx2<=4;lx2+=0.1) lineFromXminus1.push([lx2,-2*lx2+3]);
+  w.canvas321Curve=lineFromXminus1; w.opg321BronzeCurveDone=false; w.checkCurve321();
+  test('Kurve: starter ved x=-1 (når ikke x=-2) → ikke done', !w.opg321BronzeCurveDone);
+
+  console.log('\ncheckCurve321 — skærpet tolerance (0.4 i stedet for 0.8)');
+  w.restartOpgaver321(); w.startOpgaver321();
+  var lineOffBy05=[]; for(var lx3=-2;lx3<=4;lx3+=0.1) lineOffBy05.push([lx3,-2*lx3+3+0.5]);
+  w.canvas321Curve=lineOffBy05; w.opg321BronzeCurveDone=false; w.checkCurve321();
+  test('Kurve: hele linjen forskudt 0,5 (ville bestå med gammel tolerance 0.8) → nu ikke done', !w.opg321BronzeCurveDone);
+
+  w.restartOpgaver321(); w.startOpgaver321();
+  var wrongIntercept=[]; for(var lx4=-2;lx4<=4;lx4+=0.1){
+    var yv=-2*lx4+3;
+    if(Math.abs(lx4)<0.35) yv=2; // fejl et bredt nok område omkring y-tilskæringen til at ramme flere samplepunkter
+    wrongIntercept.push([lx4,yv]);
+  }
+  w.canvas321Curve=wrongIntercept; w.opg321BronzeCurveDone=false; w.checkCurve321();
+  test('Kurve: forkert y-skæring (2 i stedet for 3) → ikke done', !w.opg321BronzeCurveDone);
+
+  console.log('\ntoggleEndpoint');
+  var epLeft = d.getElementById('endpoint-321-left'), epRight = d.getElementById('endpoint-321-right');
+  test('Venstre endepunkt default = åben', epLeft.dataset.state === 'aaben' && epLeft.textContent === 'Åben');
+  test('Højre endepunkt default = åben', epRight.dataset.state === 'aaben' && epRight.textContent === 'Åben');
+  w.toggleEndpoint(epLeft);
+  test('toggleEndpoint: åben → lukket', epLeft.dataset.state === 'lukket' && epLeft.textContent === 'Lukket');
+  w.toggleEndpoint(epLeft);
+  test('toggleEndpoint: lukket → åben', epLeft.dataset.state === 'aaben' && epLeft.textContent === 'Åben');
+
+  console.log('\ncheckEndpoints321 — x=-2 skal være åben, x=4 skal være lukket');
+  function setEndpoints321(leftState, rightState){
+    var l=d.getElementById('endpoint-321-left'), r=d.getElementById('endpoint-321-right');
+    if(l.dataset.state!==leftState) w.toggleEndpoint(l);
+    if(r.dataset.state!==rightState) w.toggleEndpoint(r);
+  }
+
+  w.restartOpgaver321(); w.startOpgaver321();
+  w.canvas321Curve=genLine321(false); w.checkCurve321(); // kurve skal være korrekt først
+  setEndpoints321('aaben','lukket');
+  w.checkEndpoints321();
+  test('Endepunkter: åben+lukket (korrekt) → begge correct', epLeft.classList.contains('correct') && epRight.classList.contains('correct'));
+  test('Endepunkter: korrekt → opg321BronzeEndpointsDone=true', w.opg321BronzeEndpointsDone);
+
+  w.restartOpgaver321(); w.startOpgaver321();
+  w.canvas321Curve=genLine321(false); w.checkCurve321();
+  setEndpoints321('lukket','aaben'); // byttet om
+  w.checkEndpoints321();
+  test('Endepunkter: byttet om (lukket+åben) → ikke korrekt', !w.opg321BronzeEndpointsDone);
+  test('Endepunkter: byttet om → venstre wrong', epLeft.classList.contains('wrong'));
+
+  w.restartOpgaver321(); w.startOpgaver321();
+  w.canvas321Curve=genLine321(false); w.checkCurve321();
+  setEndpoints321('aaben','aaben'); // begge åbne
+  w.checkEndpoints321();
+  test('Endepunkter: begge åbne → ikke korrekt', !w.opg321BronzeEndpointsDone);
+  test('Endepunkter: begge åbne → højre wrong (skal være lukket)', epRight.classList.contains('wrong'));
+
+  w.restartOpgaver321(); w.startOpgaver321();
+  w.canvas321Curve=genLine321(false); w.checkCurve321();
+  setEndpoints321('lukket','lukket'); // begge lukkede
+  w.checkEndpoints321();
+  test('Endepunkter: begge lukkede → ikke korrekt', !w.opg321BronzeEndpointsDone);
+  test('Endepunkter: begge lukkede → venstre wrong (skal være åben)', epLeft.classList.contains('wrong'));
+
+  console.log('\nMedalje kræver BÅDE korrekt kurve OG korrekte endepunkter');
+  w.restartOpgaver321(); w.opg321Level=1; w.startOpgaver321();
+  w.canvas321Curve=genLine321(false); w.checkCurve321(); // kun kurve, ikke endepunkter
+  test('Kun kurve korrekt → ingen medalje endnu', !w.opg321MedalShown);
+  setEndpoints321('aaben','lukket');
+  w.checkEndpoints321(); // nu begge dele
+  test('Kurve + endepunkter korrekte → medalje gemmes', w.opg321MedalShown);
+
+  console.log('\nclearCurve321');
+  w.restartOpgaver321(); w.startOpgaver321();
+  w.canvas321Curve=genLine321(false); w.checkCurve321();
+  test('Før ryd: kurve tegnet', w.canvas321Curve.length>0);
+  w.clearCurve321();
+  test('Ryd kurve: canvas321Curve tømt', w.canvas321Curve.length===0);
+  test('Ryd kurve: opg321BronzeCurveDone nulstillet', !w.opg321BronzeCurveDone);
+
+  console.log('\nRestart-flow 3.2.1');
+  w.restartOpgaver321(); w.startOpgaver321();
+  w.canvas321Curve=genLine321(false); w.checkCurve321();
+  setEndpoints321('aaben','lukket'); w.checkEndpoints321();
+  w.restartOpgaver321();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-321').style.display==='block');
+  test('Restart: restart-btn skjult', d.getElementById('restart-btn-321').style.display==='none');
+  test('Restart: canvas321Curve tømt', w.canvas321Curve.length===0);
+  test('Restart: endepunkt-sektion skjult igen', d.getElementById('canvas-321-endpoints-wrap').style.display==='none');
+  test('Restart: venstre endepunkt nulstillet til åben', d.getElementById('endpoint-321-left').dataset.state==='aaben');
+  test('Restart: højre endepunkt nulstillet til åben', d.getElementById('endpoint-321-right').dataset.state==='aaben');
+  test('Restart: endepunkt-styling fjernet', !d.getElementById('endpoint-321-left').classList.contains('correct'));
+  test('Restart: opgave-widget skjules', d.getElementById('opg321-low').classList.contains('opgave-hidden'));
+  test('Restart: opg321BronzeCurveDone nulstillet', !w.opg321BronzeCurveDone);
+  test('Restart: opg321BronzeEndpointsDone nulstillet', !w.opg321BronzeEndpointsDone);
+  test('Restart: opg321MedalShown nulstillet', !w.opg321MedalShown);
+
+  console.log('\nparseCoordinatePoint');
+  test('(5,0) parses til [5,0]', JSON.stringify(w.parseCoordinatePoint('(5,0)')) === JSON.stringify([5,0]));
+  test('5,0 (uden parenteser) parses til [5,0]', JSON.stringify(w.parseCoordinatePoint('5,0')) === JSON.stringify([5,0]));
+  test('( 5 , 0 ) med mellemrum parses korrekt', JSON.stringify(w.parseCoordinatePoint('( 5 , 0 )')) === JSON.stringify([5,0]));
+  test('ugyldigt input giver null', w.parseCoordinatePoint('abc') === null);
+  test('kun ét tal giver null', w.parseCoordinatePoint('(5)') === null);
+
+  console.log('\nSølv 3.2.1 – skæringspunkt med x-aksen for g(x)=-3x+15');
+  function setVal321(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect321(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+  w.showPage('3-2-1'); w.restartOpgaver321(); w.opg321Level=2; w.startOpgaver321();
+  setVal321('321s1','(5,0)');
+  w.checkSilver321();
+  test('Sølv: (5,0) → correct', isCorrect321('321s1'));
+  test('Sølv: opg321SilverDone=true', w.opg321SilverDone);
+  w.restartOpgaver321(); w.opg321Level=2; w.startOpgaver321();
+  setVal321('321s1','5,0'); // uden parenteser
+  w.checkSilver321();
+  test('Sølv: 5,0 (uden parenteser) → correct', isCorrect321('321s1'));
+  w.restartOpgaver321(); w.opg321Level=2; w.startOpgaver321();
+  setVal321('321s1','(0,5)'); // byttet om x og y
+  w.checkSilver321();
+  test('Sølv: (0,5) byttet om x/y → not correct', !isCorrect321('321s1'));
+  test('Sølv: forkert → opg321SilverDone forbliver false', !w.opg321SilverDone);
+  w.restartOpgaver321(); w.opg321Level=2; w.startOpgaver321();
+  setVal321('321s1','(3,0)'); // reelt forkert x-værdi
+  w.checkSilver321();
+  test('Sølv: (3,0) reelt forkert → not correct', !isCorrect321('321s1'));
+
+  console.log('\nGuld 3.2.1 – værdimængde for h(x)=2x-4, x∈[-3;5[');
+  w.restartOpgaver321(); w.opg321Level=3; w.startOpgaver321();
+  setVal321('321g1','[-10;6[');
+  w.checkGold321();
+  test('Guld: [-10;6[ → correct', isCorrect321('321g1'));
+  test('Guld: opg321GoldDone=true', w.opg321GoldDone);
+  w.restartOpgaver321(); w.opg321Level=3; w.startOpgaver321();
+  setVal321('321g1','[-10;6]'); // forkert parentestype i højre ende
+  w.checkGold321();
+  test('Guld: forkert parentestype → not correct', !isCorrect321('321g1'));
+  test('Guld: forkert → opg321GoldDone forbliver false', !w.opg321GoldDone);
+
+  console.log('\nFuld 3-niveau medaljeflow 3.2.1 (bronze+sølv+guld)');
+  w.restartOpgaver321(); w.opg321Level=3; w.startOpgaver321();
+  w.canvas321Curve=genLine321(false); w.checkCurve321();
+  setEndpoints321('aaben','lukket'); w.checkEndpoints321();
+  test('Niveau 3: kun bronze færdig → ingen medalje endnu', !w.opg321MedalShown);
+  setVal321('321s1','(5,0)'); w.checkSilver321();
+  test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opg321MedalShown);
+  setVal321('321g1','[-10;6['); w.checkGold321();
+  test('Niveau 3: alle tre færdige → medalje gemmes', w.opg321MedalShown);
+
+  // ── 3.2.2 FORSKRIFT UD FRA TO PUNKTER ───────────────────────────────────────
+  console.log('\nNavigation og struktur 3.2.2 (4 faner, inkl. ny Bevis-fane)');
+  w.showPage('3-2-2');
+  test('showPage(3-2-2)', isVisible(d.getElementById('page-3-2-2')));
+  test('4 tab-knapper i 3.2.2 (Materiale/Tjekspørgsmål/Bevis/Opgaver)', d.querySelectorAll('#page-3-2-2 .tab-btn').length === 4);
+  test('3.2.2 i emneData', html.includes("'3.2.2'") && html.includes("'chk-322-bog'"));
+  test('Bevis-fane findes og er tom indtil videre', d.getElementById('t322-bevis') !== null);
+
+  console.log('\nBevis-fanen på 3.2.2 påvirker ikke andre siders tab-antal');
+  test('3.1.1 har stadig kun 3 tabs', d.querySelectorAll('#page-3-1-1 .tab-btn').length === 3);
+  test('3.1.4 har stadig kun 3 tabs', d.querySelectorAll('#page-3-1-4 .tab-btn').length === 3);
+  test('3.2.1 har stadig kun 3 tabs', d.querySelectorAll('#page-3-2-1 .tab-btn').length === 3);
+
+  console.log('\nFane-skift på 3.2.2 er korrekt sidescopet');
+  const tabs322 = d.querySelectorAll('#page-3-2-2 .tab-btn');
+  tabs322[2].click(); // klik på "Bevis"
+  test('Klik på Bevis-fane aktiverer t322-bevis panel', d.getElementById('t322-bevis').classList.contains('active'));
+  test('Klik på Bevis-fane deaktiverer t322-mat panel', !d.getElementById('t322-mat').classList.contains('active'));
+  test('3.1.1s aktive fane hører stadig til 3.1.1 (ingen leakage fra 3.2.2)', d.querySelector('#page-3-1-1 .tab-btn.active').dataset.tab.startsWith('t311-'));
+
+  console.log('\nQuiz 3.2.2 – positive tests');
+  d.querySelectorAll('#page-3-2-2 .tab-btn')[1].click();
+  const q322answers = [1,1,1]; // korrekte options (0-indekseret): B,B,B
+  q322answers.forEach((idx,i) => {
+    const opts = d.querySelectorAll('#qq322-'+(i+1)+' .quiz-option');
+    opts[idx].click();
+    test(`3.2.2 Q${i+1}: korrekt svar → correct`, opts[idx].classList.contains('correct'));
+  });
+  test('3.2.2 quiz score: 3/3', d.getElementById('quiz-score-322-title').textContent.includes('3/3'));
+
+  console.log('\nQuiz 3.2.2 – negative tests');
+  w.quizRetry322();
+  d.querySelectorAll('#page-3-2-2 .tab-btn')[1].click();
+  const q322_1b = d.querySelectorAll('#qq322-1 .quiz-option');
+  q322_1b[0].click(); // A = wrong
+  test('3.2.2 Q1: A → wrong', q322_1b[0].classList.contains('wrong'));
+  test('3.2.2 Q1: feedback err', d.getElementById('qf322-1').classList.contains('err'));
+  test('3.2.2 Q1: B ikke afsløret', !q322_1b[1].classList.contains('reveal-correct'));
+
+  console.log('\nBevis 3.2.2 Del 1 – MC-spørgsmål om a og b');
+  d.querySelectorAll('#page-3-2-2 .tab-btn')[2].click(); // Bevis-fanen
+  test('Bevis-fane er nu aktiv', d.getElementById('t322-bevis').classList.contains('active'));
+  const bq322_1 = d.querySelectorAll('#bq322-1 .quiz-option');
+  test('4 svarmuligheder i Del 1', bq322_1.length === 4);
+  bq322_1[2].click(); // C = correct
+  test('Del 1: C → correct', bq322_1[2].classList.contains('correct'));
+  test('Del 1: feedback ok', d.getElementById('bqf322-1').classList.contains('ok'));
+
+  console.log('\nBevis 3.2.2 Del 1 – negativ test');
+  w.resetBevis322(); // simulerer at fanen genåbnes
+  const bq322_1b = d.querySelectorAll('#bq322-1 .quiz-option');
+  bq322_1b[0].click(); // A = wrong
+  test('Del 1: A → wrong', bq322_1b[0].classList.contains('wrong'));
+  test('Del 1: feedback err', d.getElementById('bqf322-1').classList.contains('err'));
+  test('Del 1: C ikke afsløret', !bq322_1b[2].classList.contains('reveal-correct'));
+  test('Del 1: kan ikke besvares to gange (disabled efter svar)', bq322_1b[1].disabled === true);
+
+  console.log('\nBevis 3.2.2 – fanen starter forfra ved genbesøg');
+  // Besvar spørgsmålet korrekt først
+  w.resetBevis322();
+  const bq322_1c = d.querySelectorAll('#bq322-1 .quiz-option');
+  bq322_1c[2].click(); // C = correct
+  test('Før genbesøg: spørgsmål er besvaret (correct)', bq322_1c[2].classList.contains('correct'));
+  test('Før genbesøg: knapper er disabled', bq322_1c[0].disabled === true);
+  // Forlad fanen og klik ind på Bevis-fanen igen — skal nulstille
+  d.querySelectorAll('#page-3-2-2 .tab-btn')[0].click(); // Materiale
+  d.querySelectorAll('#page-3-2-2 .tab-btn')[2].click(); // Bevis igen
+  const bq322_1d = d.querySelectorAll('#bq322-1 .quiz-option');
+  test('Genbesøg: ingen knapper er længere markeret correct', ![...bq322_1d].some(b=>b.classList.contains('correct')));
+  test('Genbesøg: ingen knapper er længere markeret wrong', ![...bq322_1d].some(b=>b.classList.contains('wrong')));
+  test('Genbesøg: alle knapper er igen klikbare', [...bq322_1d].every(b=>!b.disabled));
+  test('Genbesøg: feedback-tekst er tømt', d.getElementById('bqf322-1').textContent === '');
+  test('Genbesøg: spørgsmålet kan besvares igen', (bq322_1d[2].click(), bq322_1d[2].classList.contains('correct')));
+
+  // ── BEVIS 3.2.2 DEL 2 — BYGGEKLODS-BEVIS (TRÆK-OG-SLIP) ─────────────────────
+  console.log('\nDel 2 er skjult indtil Del 1 er besvaret korrekt');
+  w.showPage('3-2-2');
+  d.querySelectorAll('#page-3-2-2 .tab-btn')[2].click(); // Bevis-fanen
+  w.resetBevis322();
+  test('Del 2 er skjult ved fane-åbning', d.getElementById('t322-bevis-del2').style.display === 'none');
+  var bq322_gate = d.querySelectorAll('#bq322-1 .quiz-option');
+  bq322_gate[0].click(); // A = wrong
+  test('Del 2 forbliver skjult ved forkert svar på Del 1', d.getElementById('t322-bevis-del2').style.display === 'none');
+  w.resetBevis322();
+  var bq322_gate2 = d.querySelectorAll('#bq322-1 .quiz-option');
+  bq322_gate2[2].click(); // C = correct
+  test('Del 2 vises efter korrekt svar på Del 1', d.getElementById('t322-bevis-del2').style.display === 'block');
+
+  function proofTile(pid){ return d.getElementById('proof322-'+pid); }
+  function isInSequence(pid){ return proofTile(pid).parentElement.id === 'proof322-sequence'; }
+  function isInPool(pid){ return proofTile(pid).parentElement.id === 'proof322-pool'; }
+
+  console.log('\nproof322MoveToSequence / proof322MoveToPool — DOM-baseret træk-og-slip');
+  w.resetProof322Sequence();
+  test('Alle brikker starter i pool (grå, ikke en del af rækkefølgen)', w.proof322Pieces.every(pid => isInPool(pid)));
+  test('Pool-brik er ikke .in-sequence', !proofTile('b3').classList.contains('in-sequence'));
+
+  w.proof322MoveToSequence('b3');
+  test('b3 flyttet til sekvensen', isInSequence('b3'));
+  test('b3 får in-sequence-klasse (fjern-knap vises)', proofTile('b3').classList.contains('in-sequence'));
+  test('Sekvens-rækkefølge er b3', w.getProof322Sequence().join(',') === 'b3');
+
+  w.proof322MoveToSequence('b1');
+  test('Sekvens-rækkefølge er b3,b1', w.getProof322Sequence().join(',') === 'b3,b1');
+
+  w.proof322MoveToSequence('b4', 'b1'); // indsæt b4 FØR b1 → b3,b4,b1
+  test('Indsæt før specifik brik: rækkefølge er b3,b4,b1', w.getProof322Sequence().join(',') === 'b3,b4,b1');
+
+  console.log('\nproof322MoveToPool (fjern-knap) — brik bliver grå igen, ude af rækkefølgen');
+  w.proof322MoveToPool('b4');
+  test('Fjern b4: tilbage i pool', isInPool('b4'));
+  test('Fjern b4: ikke længere in-sequence', !proofTile('b4').classList.contains('in-sequence'));
+  test('Fjern b4: væk fra sekvensen', w.getProof322Sequence().join(',') === 'b3,b1');
+
+  console.log('\ncheckProof322 — korrekt rækkefølge (3→1→4→5→2)');
+  w.resetProof322Sequence();
+  ['b3','b1','b4','b5','b2'].forEach(pid => w.proof322MoveToSequence(pid));
+  test('Fuld korrekt sekvens sat op', w.getProof322Sequence().join(',') === 'b3,b1,b4,b5,b2');
+  w.checkProof322();
+  ['b3','b1','b4','b5','b2'].forEach(pid => {
+    test('Brik '+pid+' markeres correct', proofTile(pid).classList.contains('correct'));
+  });
+  test('opg322BevisDone=true', w.opg322BevisDone);
+  test('bevis_322 gemt i localStorage', w.loadProgress('bevis_322', false) === true);
+  test('Resultat: ok-styling', d.getElementById('ow-r-322-proof').classList.contains('ok'));
+
+  console.log('\nshowHeart/closeHeart — popup for fuldført bevis');
+  d.getElementById('heart-overlay').classList.remove('show'); // nulstil for ren test
+  w.showHeart();
+  test('showHeart(): overlay får show-klasse', d.getElementById('heart-overlay').classList.contains('show'));
+  w.closeHeart();
+  test('closeHeart(): overlay mister show-klasse', !d.getElementById('heart-overlay').classList.contains('show'));
+
+  console.log('\ncheckProof322 — forkert rækkefølge (byttet om)');
+  w.resetProof322Sequence(); w.opg322BevisDone = false;
+  ['b1','b3','b4','b5','b2'].forEach(pid => w.proof322MoveToSequence(pid)); // b1 og b3 byttet om
+  w.checkProof322();
+  test('Byttet rækkefølge: opg322BevisDone forbliver false', !w.opg322BevisDone);
+  test('Byttet rækkefølge: resultat err-styling', d.getElementById('ow-r-322-proof').classList.contains('err'));
+  test('Byttet rækkefølge: b4 (position 3, korrekt der) markeres correct', proofTile('b4').classList.contains('correct'));
+  test('Byttet rækkefølge: b1 (forkert position) markeres wrong', proofTile('b1').classList.contains('wrong'));
+
+  console.log('\ncheckProof322 — distraktor inkluderet i sekvensen');
+  w.resetProof322Sequence(); w.opg322BevisDone = false;
+  ['b3','b1','fA','b5','b2'].forEach(pid => w.proof322MoveToSequence(pid)); // fA i stedet for b4
+  w.checkProof322();
+  test('Distraktor i sekvens: opg322BevisDone forbliver false', !w.opg322BevisDone);
+  test('Distraktor fA markeres wrong', proofTile('fA').classList.contains('wrong'));
+  test('Korrekt placerede brikker (b3,b1) markeres stadig correct', proofTile('b3').classList.contains('correct') && proofTile('b1').classList.contains('correct'));
+
+  console.log('\ncheckProof322 — for få brikker valgt');
+  w.resetProof322Sequence(); w.opg322BevisDone = false;
+  ['b3','b1'].forEach(pid => w.proof322MoveToSequence(pid));
+  w.checkProof322();
+  test('Kun 2 af 5 brikker: opg322BevisDone forbliver false', !w.opg322BevisDone);
+
+  console.log('\nresetProof322Sequence');
+  w.resetProof322Sequence(); w.opg322BevisDone = false;
+  ['b3','b1','b4','b5','b2'].forEach(pid => w.proof322MoveToSequence(pid));
+  w.resetProof322Sequence();
+  test('Ryd: sekvensen er tom', w.getProof322Sequence().length === 0);
+  test('Ryd: alle brikker er tilbage i pool', w.proof322Pieces.every(pid => isInPool(pid)));
+  test('Ryd: ingen brikker er in-sequence', w.proof322Pieces.every(pid => !proofTile(pid).classList.contains('in-sequence')));
+
+  console.log('\nDragEvent-handlere — proof322DropOnSequence/DropOnPool virker via draggedId');
+  w.resetProof322Sequence();
+  w.proof322DraggedId = 'b3';
+  var fakeSeqDrop = { preventDefault: function(){}, target: d.getElementById('proof322-sequence'), dataTransfer: null };
+  w.proof322DropOnSequence(fakeSeqDrop);
+  test('DropOnSequence flytter den trukne brik til sekvensen', isInSequence('b3'));
+  w.proof322DraggedId = 'b3';
+  var fakePoolDrop = { preventDefault: function(){}, target: d.getElementById('proof322-pool'), dataTransfer: null };
+  w.proof322DropOnPool(fakePoolDrop);
+  test('DropOnPool flytter brikken tilbage i pool', isInPool('b3'));
+
+  console.log('\nVisuelt drop-placeholder (grå boks der viser hvor brikken lander)');
+  console.log('  NB: selve indsætnings-positionen afhænger af getBoundingClientRect, som jsdom ikke');
+  console.log('  layouter rigtigt — det testes derfor manuelt i browseren. Her testes kun show/hide-logikken.');
+  w.resetProof322Sequence();
+  var placeholderEl = d.getElementById('proof322-placeholder');
+  test('Placeholder findes og starter skjult', placeholderEl && placeholderEl.style.display === 'none');
+  test('Placeholder er altid barn af sekvens-containeren', placeholderEl.parentElement.id === 'proof322-sequence');
+
+  w.proof322DraggedId = 'b3';
+  var fakeDragOver = { preventDefault: function(){}, clientY: 0 };
+  w.proof322DragOverSequence(fakeDragOver);
+  test('dragover over sekvensen: placeholder bliver synlig', placeholderEl.style.display === 'block');
+
+  w.proof322DragOverPool({ preventDefault: function(){} });
+  test('dragover over puljen: placeholder skjules igen', placeholderEl.style.display === 'none');
+
+  w.proof322DragOverSequence(fakeDragOver);
+  test('placeholder synlig igen efter dragover på sekvensen', placeholderEl.style.display === 'block');
+  w.proof322DragLeaveSequence({ relatedTarget: null });
+  test('dragleave (forlader helt): placeholder skjules', placeholderEl.style.display === 'none');
+
+  w.proof322DragOverSequence(fakeDragOver);
+  w.proof322MoveToSequence('b1'); // sørg for at b1 rent faktisk er i sekvensen
+  var tileInSeq = d.getElementById('proof322-b1');
+  w.proof322DragLeaveSequence({ relatedTarget: tileInSeq });
+  test('dragleave til en brik INDENI sekvensen: placeholder forbliver synlig', placeholderEl.style.display === 'block');
+
+  w.proof322DragOverSequence(fakeDragOver);
+  w.proof322DragEnd();
+  test('dragend rydder op: placeholder skjules', placeholderEl.style.display === 'none');
+  test('dragend rydder op: proof322DraggedId nulstillet', w.proof322DraggedId === null);
+
+  console.log('\nDrop bruger placeholderens position, ikke det rå event-target');
+  w.resetProof322Sequence();
+  w.proof322MoveToSequence('b1'); // b1 ligger alene i sekvensen
+  // Flyt placeholderen manuelt foran b1 (simulerer at museren hang der under dragover)
+  var seqEl = d.getElementById('proof322-sequence');
+  var b1El = d.getElementById('proof322-b1');
+  placeholderEl.style.display = 'block';
+  seqEl.insertBefore(placeholderEl, b1El);
+  w.proof322DraggedId = 'b3';
+  w.proof322DropOnSequence({ preventDefault: function(){}, dataTransfer: null });
+  test('Drop indsætter brikken FØR den brik placeholderen stod foran', w.getProof322Sequence().join(',') === 'b3,b1');
+  test('Drop skjuler placeholderen bagefter', placeholderEl.style.display === 'none');
+
+  console.log('\nresetBevis322 — hele Bevis-fanen nulstilles ved genbesøg (men optjent hjerte bevares)');
+  w.resetProof322Sequence(); w.opg322BevisDone = false;
+  ['b3','b1','b4','b5','b2'].forEach(pid => w.proof322MoveToSequence(pid));
+  w.checkProof322();
+  test('Bevis fuldført igen: bevis_322 = true', w.loadProgress('bevis_322', false) === true);
+  d.querySelectorAll('#page-3-2-2 .tab-btn')[0].click(); // Materiale
+  d.querySelectorAll('#page-3-2-2 .tab-btn')[2].click(); // Bevis igen — trigger resetBevis322 via onclick
+  test('Genbesøg: Del 2 er skjult igen', d.getElementById('t322-bevis-del2').style.display === 'none');
+  test('Genbesøg: sekvensen er nulstillet', w.getProof322Sequence().length === 0);
+  test('Genbesøg: alle brikker tilbage i pool', w.proof322Pieces.every(pid => isInPool(pid)));
+  test('Genbesøg: ingen brikker markeret correct længere', w.proof322Pieces.every(pid => !proofTile(pid).classList.contains('correct')));
+  test('Genbesøg: optjent hjerte-flag i localStorage er BEVARET', w.loadProgress('bevis_322', false) === true);
+
+  console.log('\nF1-kort — hjerte vises KUN for emner i emnerMedBevis, rører intet andet');
+  w.showPage('f1');
+  const card322 = d.querySelector("[onclick=\"showPage('3-2-2')\"]");
+  test('3.2.2-kortet viser hjerte efter fuldført bevis', card322 && card322.innerHTML.includes('❤️'));
+  const card311 = d.querySelector("[onclick=\"showPage('3-1-1')\"]");
+  test('3.1.1-kortet viser ALDRIG hjerte (ikke i emnerMedBevis)', card311 && !card311.innerHTML.includes('❤️'));
+  const card321 = d.querySelector("[onclick=\"showPage('3-2-1')\"]");
+  test('3.2.1-kortet viser ALDRIG hjerte (ikke i emnerMedBevis)', card321 && !card321.innerHTML.includes('❤️'));
+  test('emnerMedBevis indeholder kun 3.2.2 indtil videre', w.emnerMedBevis.length === 1 && w.emnerMedBevis[0] === '3.2.2');
+
+  // ── 3.2.2 OPGAVER — FORSKRIFT UD FRA TO PUNKTER ─────────────────────────────
+  console.log('\nBronze 3.2.2 – h gennem (-1,8) og (4,-2) → h(x)=-2x+6');
+  function setVal322(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect322(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+  w.showPage('3-2-2');
+  d.querySelectorAll('#page-3-2-2 .tab-btn')[3].click(); // Opgaver-fanen
+  w.restartOpgaver322(); w.startOpgaver322();
+  setVal322('322b1','-2x+6');
+  w.checkBronze322();
+  test('Bronze: -2x+6 → correct', isCorrect322('322b1'));
+  test('Bronze: opg322BronzeDone=true', w.opg322BronzeDone);
+  w.restartOpgaver322(); w.startOpgaver322();
+  setVal322('322b1','6-2x'); // ækvivalent omskrivning
+  w.checkBronze322();
+  test('Bronze: ækvivalent formulering (6-2x) → correct', isCorrect322('322b1'));
+  w.restartOpgaver322(); w.startOpgaver322();
+  setVal322('322b1','-2x+8'); // forkert b
+  w.checkBronze322();
+  test('Bronze: forkert konstantled → not correct', !isCorrect322('322b1'));
+  test('Bronze: forkert → opg322BronzeDone forbliver false', !w.opg322BronzeDone);
+  w.restartOpgaver322(); w.startOpgaver322();
+  setVal322('322b1','2x+6'); // forkert fortegn på a
+  w.checkBronze322();
+  test('Bronze: forkert hældning (2x+6) → not correct', !isCorrect322('322b1'));
+
+  console.log('\nSølv 3.2.2 – a=4 gennem (2,-1) → f(x)=4x-9');
+  w.restartOpgaver322(); w.opg322Level=2; w.startOpgaver322();
+  setVal322('322s1','4x-9');
+  w.checkSilver322();
+  test('Sølv: 4x-9 → correct', isCorrect322('322s1'));
+  test('Sølv: opg322SilverDone=true', w.opg322SilverDone);
+  w.restartOpgaver322(); w.opg322Level=2; w.startOpgaver322();
+  setVal322('322s1','4*x-9'); // med eksplicit gangetegn
+  w.checkSilver322();
+  test('Sølv: 4*x-9 (eksplicit gange) → correct', isCorrect322('322s1'));
+  w.restartOpgaver322(); w.opg322Level=2; w.startOpgaver322();
+  setVal322('322s1','4x+9'); // forkert fortegn på b
+  w.checkSilver322();
+  test('Sølv: forkert konstantled (4x+9) → not correct', !isCorrect322('322s1'));
+
+  console.log('\nGuld 3.2.2 – g(3)=5, g(-1)=-7 → g(x)=3x-4');
+  w.restartOpgaver322(); w.opg322Level=3; w.startOpgaver322();
+  setVal322('322g1','3x-4');
+  w.checkGold322();
+  test('Guld: 3x-4 → correct', isCorrect322('322g1'));
+  test('Guld: opg322GoldDone=true', w.opg322GoldDone);
+  w.restartOpgaver322(); w.opg322Level=3; w.startOpgaver322();
+  setVal322('322g1','-4+3x'); // ækvivalent omskrivning
+  w.checkGold322();
+  test('Guld: ækvivalent formulering (-4+3x) → correct', isCorrect322('322g1'));
+  w.restartOpgaver322(); w.opg322Level=3; w.startOpgaver322();
+  setVal322('322g1','3x+4'); // forkert fortegn på b
+  w.checkGold322();
+  test('Guld: forkert konstantled → not correct', !isCorrect322('322g1'));
+  test('Guld: forkert → opg322GoldDone forbliver false', !w.opg322GoldDone);
+
+  console.log('\nFuld 3-niveau medaljeflow 3.2.2');
+  w.restartOpgaver322(); w.opg322Level=3; w.startOpgaver322();
+  setVal322('322b1','-2x+6'); w.checkBronze322();
+  test('Niveau 3: kun bronze færdig → ingen medalje endnu', !w.opg322MedalShown);
+  setVal322('322s1','4x-9'); w.checkSilver322();
+  test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opg322MedalShown);
+  setVal322('322g1','3x-4'); w.checkGold322();
+  test('Niveau 3: alle tre færdige → medalje gemmes', w.opg322MedalShown);
+  test('Niveau 3: medal_322 = 3 i localStorage', parseInt(w.loadProgress('medal_322',0)) === 3);
+
+  console.log('\nRestart-flow 3.2.2 opgaver');
+  w.restartOpgaver322();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-322').style.display==='block');
+  test('Restart: restart-btn skjult', d.getElementById('restart-btn-322').style.display==='none');
+  test('Restart: formel-input nulstillet', d.getElementById('ow-322b1').value==='');
+  test('Restart: opgave-widgets skjules', d.getElementById('opg322-low').classList.contains('opgave-hidden'));
+  test('Restart: opg322BronzeDone nulstillet', !w.opg322BronzeDone);
+  test('Restart: opg322MedalShown nulstillet', !w.opg322MedalShown);
+  test('Restart: optjent medalje i localStorage BEVARET', parseInt(w.loadProgress('medal_322',0)) === 3);
+
+  // ── 3.2.3 VÆKSTEGENSKABER ────────────────────────────────────────────────────
+  console.log('\nNavigation og struktur 3.2.3 (3 faner — INGEN Bevis-fane)');
+  w.showPage('3-2-3');
+  test('showPage(3-2-3)', isVisible(d.getElementById('page-3-2-3')));
+  test('3 tab-knapper i 3.2.3 (Materiale/Tjekspørgsmål/Opgaver)', d.querySelectorAll('#page-3-2-3 .tab-btn').length === 3);
+  test('Ingen Bevis-fane på 3.2.3', d.getElementById('t323-bevis') === null);
+  test('3.2.3 i emneData', html.includes("'3.2.3'") && html.includes("'chk-323-bog'"));
+
+  console.log('\nQuiz 3.2.3 – positive tests');
+  d.querySelectorAll('#page-3-2-3 .tab-btn')[1].click();
+  const q323answers = [1,1,2]; // korrekte options (0-indekseret): B,B,C
+  q323answers.forEach((idx,i) => {
+    const opts = d.querySelectorAll('#qq323-'+(i+1)+' .quiz-option');
+    opts[idx].click();
+    test(`3.2.3 Q${i+1}: korrekt svar → correct`, opts[idx].classList.contains('correct'));
+  });
+  test('3.2.3 quiz score: 3/3', d.getElementById('quiz-score-323-title').textContent.includes('3/3'));
+
+  console.log('\nQuiz 3.2.3 – negativ test');
+  w.quizRetry323();
+  d.querySelectorAll('#page-3-2-3 .tab-btn')[1].click();
+  const q323_1b = d.querySelectorAll('#qq323-1 .quiz-option');
+  q323_1b[0].click(); // A = wrong
+  test('3.2.3 Q1: A → wrong', q323_1b[0].classList.contains('wrong'));
+  test('3.2.3 Q1: feedback err', d.getElementById('qf323-1').classList.contains('err'));
+  test('3.2.3 Q1: B ikke afsløret', !q323_1b[1].classList.contains('reveal-correct'));
+
+  console.log('\nBronze 3.2.3 – a=4, Δx=5 → Δf=20');
+  function setVal323(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect323(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+  d.querySelectorAll('#page-3-2-3 .tab-btn')[2].click(); // Opgaver-fanen
+  w.restartOpgaver323(); w.startOpgaver323();
+  setVal323('323b1','20');
+  w.checkBronze323();
+  test('Bronze: 20 → correct', isCorrect323('323b1'));
+  test('Bronze: opg323BronzeDone=true', w.opg323BronzeDone);
+  w.restartOpgaver323(); w.startOpgaver323();
+  setVal323('323b1','24'); // reelt forkert
+  w.checkBronze323();
+  test('Bronze: forkert (24) → not correct', !isCorrect323('323b1'));
+  test('Bronze: forkert → opg323BronzeDone forbliver false', !w.opg323BronzeDone);
+
+  console.log('\nSølv 3.2.3 – a=4, Δf=24 → Δx=6');
+  w.restartOpgaver323(); w.opg323Level=2; w.startOpgaver323();
+  setVal323('323s1','6');
+  w.checkSilver323();
+  test('Sølv: 6 → correct', isCorrect323('323s1'));
+  test('Sølv: opg323SilverDone=true', w.opg323SilverDone);
+  w.restartOpgaver323(); w.opg323Level=2; w.startOpgaver323();
+  setVal323('323s1','96'); // reelt forkert (gangede i stedet for at dividere)
+  w.checkSilver323();
+  test('Sølv: forkert (96) → not correct', !isCorrect323('323s1'));
+
+  console.log('\nGuld 3.2.3 – a=4, Δx=10 → Δf=40');
+  w.restartOpgaver323(); w.opg323Level=3; w.startOpgaver323();
+  setVal323('323g1','40');
+  w.checkGold323();
+  test('Guld: 40 → correct', isCorrect323('323g1'));
+  test('Guld: opg323GoldDone=true', w.opg323GoldDone);
+  w.restartOpgaver323(); w.opg323Level=3; w.startOpgaver323();
+  setVal323('323g1','14'); // reelt forkert
+  w.checkGold323();
+  test('Guld: forkert (14) → not correct', !isCorrect323('323g1'));
+  test('Guld: forkert → opg323GoldDone forbliver false', !w.opg323GoldDone);
+
+  console.log('\nFuld 3-niveau medaljeflow 3.2.3');
+  w.restartOpgaver323(); w.opg323Level=3; w.startOpgaver323();
+  setVal323('323b1','20'); w.checkBronze323();
+  test('Niveau 3: kun bronze færdig → ingen medalje endnu', !w.opg323MedalShown);
+  setVal323('323s1','6'); w.checkSilver323();
+  test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opg323MedalShown);
+  setVal323('323g1','40'); w.checkGold323();
+  test('Niveau 3: alle tre færdige → medalje gemmes', w.opg323MedalShown);
+
+  console.log('\nRestart-flow 3.2.3');
+  w.restartOpgaver323();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-323').style.display==='block');
+  test('Restart: restart-btn skjult', d.getElementById('restart-btn-323').style.display==='none');
+  test('Restart: input nulstillet', d.getElementById('ow-323b1').value==='');
+  test('Restart: opgave-widgets skjules', d.getElementById('opg323-low').classList.contains('opgave-hidden'));
+  test('Restart: opg323BronzeDone nulstillet', !w.opg323BronzeDone);
+  test('Restart: opg323MedalShown nulstillet', !w.opg323MedalShown);
+
+  // ── 3.2.4 STYKKEVIS LINEÆRE FUNKTIONER ──────────────────────────────────────
+  console.log('\nNavigation og struktur 3.2.4 (3 faner — INGEN Bevis-fane)');
+  w.showPage('3-2-4');
+  test('showPage(3-2-4)', isVisible(d.getElementById('page-3-2-4')));
+  test('3 tab-knapper i 3.2.4 (Materiale/Tjekspørgsmål/Opgaver)', d.querySelectorAll('#page-3-2-4 .tab-btn').length === 3);
+  test('Ingen Bevis-fane på 3.2.4', d.getElementById('t324-bevis') === null);
+  test('3.2.4 i emneData', html.includes("'3.2.4'") && html.includes("'chk-324-bog'"));
+  test('2 YouTube-links i materiale', html.includes('_znI8fAP2eA') && html.includes('xNiot-_zy4U'));
+
+  console.log('\nQuiz 3.2.4 – positive tests');
+  d.querySelectorAll('#page-3-2-4 .tab-btn')[1].click();
+  const q324answers = [1,1,0]; // korrekte options (0-indekseret): B,B,A
+  q324answers.forEach((idx,i) => {
+    const opts = d.querySelectorAll('#qq324-'+(i+1)+' .quiz-option');
+    opts[idx].click();
+    test(`3.2.4 Q${i+1}: korrekt svar → correct`, opts[idx].classList.contains('correct'));
+  });
+  test('3.2.4 quiz score: 3/3', d.getElementById('quiz-score-324-title').textContent.includes('3/3'));
+
+  console.log('\nQuiz 3.2.4 – negativ test');
+  w.quizRetry324();
+  d.querySelectorAll('#page-3-2-4 .tab-btn')[1].click();
+  const q324_1b = d.querySelectorAll('#qq324-1 .quiz-option');
+  q324_1b[0].click(); // A = wrong
+  test('3.2.4 Q1: A → wrong', q324_1b[0].classList.contains('wrong'));
+  test('3.2.4 Q1: feedback err', d.getElementById('qf324-1').classList.contains('err'));
+  test('3.2.4 Q1: B ikke afsløret', !q324_1b[1].classList.contains('reveal-correct'));
+
+  // ── 3.2.4 OPGAVER ────────────────────────────────────────────────────────────
+  console.log('\nBronze 3.2.4 – stykkevis forskrift (gaffel med formel + ulighed pr. linje)');
+  function setVal324(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect324(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+  w.showPage('3-2-4');
+  d.querySelectorAll('#page-3-2-4 .tab-btn')[2].click(); // Opgaver-fanen
+  w.restartOpgaver324(); w.startOpgaver324();
+  setVal324('324b-f1','x+2');   setVal324('324b-u1','-10<x<-2');
+  setVal324('324b-f2','-2x');   setVal324('324b-u2','-2<=x<1');
+  setVal324('324b-f3','-2');    setVal324('324b-u3','x>1');
+  w.checkBronze324();
+  test('Bronze: alle 3 formler korrekte', isCorrect324('324b-f1') && isCorrect324('324b-f2') && isCorrect324('324b-f3'));
+  test('Bronze: alle 3 uligheder korrekte (eksakte facit)', isCorrect324('324b-u1') && isCorrect324('324b-u2') && isCorrect324('324b-u3'));
+  test('Bronze: opg324BronzeDone=true', w.opg324BronzeDone);
+
+  w.restartOpgaver324(); w.startOpgaver324();
+  setVal324('324b-f1','x+2');   setVal324('324b-u1','-10<x<-2');
+  setVal324('324b-f2','-2x');   setVal324('324b-u2','-2<=x<=1');  // alternativ ulighed for stykke 2
+  setVal324('324b-f3','-2');    setVal324('324b-u3','x>=1');    // alternativ ulighed for stykke 3
+  w.checkBronze324();
+  test('Bronze: alternativ ulighed stykke 2 (-2<=x<=1) → correct', isCorrect324('324b-u2'));
+  test('Bronze: alternativ ulighed stykke 3 (x>=1) → correct', isCorrect324('324b-u3'));
+  test('Bronze: begge alternativer samtidig → opg324BronzeDone=true', w.opg324BronzeDone);
+
+  console.log('\nBronze 3.2.4 – negative tests');
+  w.restartOpgaver324(); w.startOpgaver324();
+  setVal324('324b-f1','x+3');   setVal324('324b-u1','-10<x<-2'); // forkert formel
+  setVal324('324b-f2','-2x');   setVal324('324b-u2','-2<=x<1');
+  setVal324('324b-f3','-2');    setVal324('324b-u3','x>1');
+  w.checkBronze324();
+  test('Bronze: forkert formel stykke 1 → f1 not correct', !isCorrect324('324b-f1'));
+  test('Bronze: forkert formel → opg324BronzeDone forbliver false', !w.opg324BronzeDone);
+  test('Bronze: de øvrige (korrekte) felter påvirkes ikke', isCorrect324('324b-f2') && isCorrect324('324b-u2'));
+
+  w.restartOpgaver324(); w.startOpgaver324();
+  setVal324('324b-f1','x+2');   setVal324('324b-u1','-10<=x<-3'); // forkert ulighed
+  setVal324('324b-f2','-2x');   setVal324('324b-u2','-2<=x<1');
+  setVal324('324b-f3','-2');    setVal324('324b-u3','x>1');
+  w.checkBronze324();
+  test('Bronze: forkert ulighed (grænse) → u1 not correct', !isCorrect324('324b-u1'));
+  test('Bronze: formel stadig korrekt uafhængigt af ulighed', isCorrect324('324b-f1'));
+
+  console.log('\nSølv 3.2.4 — klik-baserede endepunkter for stykkevis funktion g(x)');
+  var expected324 = [[[-6,-2],[-3,1]], [[-3,7],[0,-2]], [[0,1],[3,1]]];
+  function setPoints324(pointsPerPiece){
+    w.canvas324Points = pointsPerPiece.map(p=>p.slice());
+    w.canvas324PointStates = pointsPerPiece.map(p=>p.map(()=>'aaben'));
+    w.canvas324CurrentPiece = 3;
+  }
+
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  const rCurve324 = d.getElementById('ow-r-324-curve');
+  setPoints324(expected324); w.opg324CurveDone=false; w.checkCurve324();
+  test('Endepunkter: alle 3 stykker korrekt sat → done', w.opg324CurveDone);
+  test('Endepunkter: ok-styling', rCurve324 && rCurve324.classList.contains('ok'));
+  test('Endepunkter: endepunkt-sektion (åben/lukket) vises', d.getElementById('canvas-324-endpoints-wrap').style.display==='block');
+
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  setPoints324([[[-6,-2],[-3,1]], [[-3,7],[0,-2]]]); // mangler stykke 3 helt
+  w.canvas324Points.push([]);
+  w.opg324CurveDone=false; w.checkCurve324();
+  test('Endepunkter: mangler et helt linjestykke → ikke done', !w.opg324CurveDone);
+  test('Endepunkter: mangler stykke → endepunkt-sektion vises IKKE', d.getElementById('canvas-324-endpoints-wrap').style.display!=='block');
+
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  setPoints324([[[-6,-2],[-3,1]], [[-3,7],[0,-2]], [[0,5],[3,1]]]); // forkert punkt på stykke 3 (0,5 i stedet for 0,1)
+  w.opg324CurveDone=false; w.checkCurve324();
+  test('Endepunkter: ét forkert punkt → ikke done', !w.opg324CurveDone);
+  test('Endepunkter: forkert punkt → err-styling', rCurve324 && rCurve324.classList.contains('err'));
+
+  console.log('\nEndepunkter må sættes i vilkårlig rækkefølge inden for hvert stykke');
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  setPoints324([[[-3,1],[-6,-2]], [[0,-2],[-3,7]], [[3,1],[0,1]]]); // byttet om inden for hvert par
+  w.opg324CurveDone=false; w.checkCurve324();
+  test('Endepunkter: byttet rækkefølge inden for stykke → stadig done', w.opg324CurveDone);
+
+  console.log('\nTolerance er nu stram (0,3) — kun tæt på men fejlplacerede punkter skal fejle');
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  setPoints324([[[-6.6,-2.6],[-3,1]], [[-3,7],[0,-2]], [[0,1],[3,1]]]); // stykke 1 forskudt 0.6 (over tolerance)
+  w.opg324CurveDone=false; w.checkCurve324();
+  test('Stram tolerance: punkt 0,6 fra facit → ikke done', !w.opg324CurveDone);
+
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  setPoints324([[[-6.15,-2.15],[-3,1]], [[-3,7],[0,-2]], [[0,1],[3,1]]]); // stykke 1 forskudt kun 0.15 (inden for tolerance)
+  w.opg324CurveDone=false; w.checkCurve324();
+  test('Stram tolerance: punkt 0,15 fra facit → stadig done', w.opg324CurveDone);
+
+  console.log('\ncanvas324ClickHandler — klik sætter punkter og rykker til næste stykke');
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  test('Start: canvas324CurrentPiece = 0', w.canvas324CurrentPiece === 0);
+  w.canvas324Points[0].push([-6,-2]);
+  test('Efter 1 punkt: stadig på stykke 0', w.canvas324CurrentPiece === 0);
+  // Simuler canvas324ClickHandler-logikken direkte via de underliggende funktioner
+  w.canvas324Points[0].push([-3,1]);
+  if (w.canvas324Points[0].length >= 2) w.canvas324CurrentPiece++;
+  test('Efter 2. punkt: rykket til stykke 1', w.canvas324CurrentPiece === 1);
+
+  console.log('\nRigtig klik-handler (canvas324ClickHandler) — ende-til-ende via getBoundingClientRect');
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  var canvasEl324 = d.getElementById('canvas-324');
+  canvasEl324.getBoundingClientRect = () => ({ left:0, top:0, width:320, height:300 });
+  w.canvas324LastPointTime = 0; // sørg for at debounce ikke blokerer denne første test
+  // Klik-position for datapunkt (-6,-2): px=((x+7)/11)*320, py=((9-y)/13)*300
+  function clickAt324(x,y){
+    var px = ((x+7)/11)*320, py = ((9-y)/13)*300;
+    w.canvas324ClickHandler({ clientX: px, clientY: py });
+  }
+  clickAt324(-6,-2);
+  test('Ægte klik: punkt registreret i stykke 0', w.canvas324Points[0].length === 1);
+  test('Ægte klik: koordinat er korrekt (-6,-2)', w.canvas324Points[0][0][0]===-6 && w.canvas324Points[0][0][1]===-2);
+  w.canvas324LastPointTime = 0;
+  clickAt324(-3,1);
+  test('Ægte klik nr. 2: rykket til stykke 1', w.canvas324CurrentPiece === 1);
+
+  console.log('\nDebounce-værn mod dobbelt-registrering (touchend + synthetic click for samme tryk)');
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  canvasEl324.getBoundingClientRect = () => ({ left:0, top:0, width:320, height:300 });
+  w.canvas324LastPointTime = 0;
+  clickAt324(-6,-2); // første "tryk"
+  var pointCountAfterFirst = w.canvas324Points[0].length;
+  clickAt324(-6,-2); // simulerer en synthetic click der fyrer LIGE efter (samme fysiske tryk)
+  test('Debounce: hurtigt gentaget klik (samme tryk) registreres KUN én gang', w.canvas324Points[0].length === pointCountAfterFirst);
+  w.canvas324LastPointTime = 0; // simuler at der er gået tid — nu ægte nyt klik
+  clickAt324(-3,1);
+  test('Debounce: efter tilstrækkelig tid registreres et NYT klik korrekt', w.canvas324Points[0].length === pointCountAfterFirst + 1);
+  test('Debounce: rykket korrekt til stykke 1 efter to ægte klik', w.canvas324CurrentPiece === 1);
+
+  console.log('\nclearCurve324 — rydder alle klikkede punkter');
+  setPoints324(expected324);
+  w.clearCurve324();
+  test('Ryd: alle punktlister er tomme', w.canvas324Points.every(pts => pts.length === 0));
+  test('Ryd: canvas324CurrentPiece nulstillet til 0', w.canvas324CurrentPiece === 0);
+  test('Ryd: opg324CurveDone nulstillet', !w.opg324CurveDone);
+
+  console.log('\ncheckEndpoints324 — grafisk åben/lukket (klik på punktet selv)');
+  function setPointStates324(states){ w.canvas324PointStates = states.map(s=>s.slice()); }
+
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  setPoints324(expected324); w.checkCurve324();
+  test('Efter korrekt kurve: endepunkt-sektionen vises', d.getElementById('canvas-324-endpoints-wrap').style.display==='block');
+  test('Alle punkter starter åbne (default)', w.canvas324PointStates.every(states => states.every(s => s==='aaben')));
+  setPointStates324([['aaben','lukket'], ['aaben','lukket'], ['aaben','lukket']]); // xMin-side åben, xMax-side lukket — korrekt for alle 3 stykker
+  w.checkEndpoints324();
+  test('Alle 6 korrekte (xMin=åben, xMax=lukket) → opg324EndpointsDone=true', w.opg324EndpointsDone);
+  test('Endepunkter: ok-styling', d.getElementById('ow-r-324-endpoints').classList.contains('ok'));
+
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  setPoints324(expected324); w.checkCurve324();
+  setPointStates324([['lukket','lukket'], ['aaben','lukket'], ['aaben','lukket']]); // stykke 1's venstre ende forkert (skal være åben)
+  w.checkEndpoints324();
+  test('Ét forkert endepunkt → opg324EndpointsDone forbliver false', !w.opg324EndpointsDone);
+  test('Forkert endepunkt → err-styling', d.getElementById('ow-r-324-endpoints').classList.contains('err'));
+
+  console.log('\nEndepunkt-tjek er uafhængigt af klikkerækkefølge (matcher på koordinat, ikke indeks)');
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  setPoints324([[[-3,1],[-6,-2]], [[0,-2],[-3,7]], [[3,1],[0,1]]]); // byttet rækkefølge for alle 3 stykker
+  w.checkCurve324();
+  setPointStates324([['lukket','aaben'], ['lukket','aaben'], ['lukket','aaben']]); // matcher de BYTTEDE punkters faktiske roller
+  w.checkEndpoints324();
+  test('Byttet rækkefølge + korrekt matchende tilstande → stadig korrekt', w.opg324EndpointsDone);
+
+  console.log('\ncanvas324ToggleNearestPoint — ægte klik-baseret skift af åben/lukket');
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  setPoints324(expected324); w.checkCurve324();
+  test('Før klik: (-6,-2) er åben', w.canvas324PointStates[0][0] === 'aaben');
+  // Klik direkte på punktet (-6,-2) for at skifte det
+  var canvasEl324b = d.getElementById('canvas-324');
+  canvasEl324b.getBoundingClientRect = () => ({ left:0, top:0, width:320, height:300 });
+  function clickAtPoint324(x,y){
+    var px = ((x+7)/11)*320, py = ((9-y)/13)*300;
+    w.canvas324LastPointTime = 0;
+    w.canvas324ClickHandler({ clientX: px, clientY: py });
+  }
+  clickAtPoint324(-6,-2);
+  test('Efter klik på punktet: (-6,-2) er nu lukket', w.canvas324PointStates[0][0] === 'lukket');
+  clickAtPoint324(-6,-2);
+  test('Klik igen: tilbage til åben (skifter frem og tilbage)', w.canvas324PointStates[0][0] === 'aaben');
+  clickAtPoint324(-100,-100); // klik langt fra alle punkter
+  test('Klik langt fra ethvert punkt: ingen ændring', w.canvas324PointStates[0][0] === 'aaben');
+
+  console.log('\nMedalje niveau 2 kræver bronze + (kurve OG endepunkter)');
+  w.restartOpgaver324(); w.opg324Level=2; w.startOpgaver324();
+  setVal324('324b-f1','x+2'); setVal324('324b-u1','-10<x<-2');
+  setVal324('324b-f2','-2x'); setVal324('324b-u2','-2<=x<1');
+  setVal324('324b-f3','-2');  setVal324('324b-u3','x>1');
+  w.checkBronze324();
+  test('Kun bronze → ingen medalje endnu', !w.opg324MedalShown);
+  setPoints324(expected324); w.checkCurve324();
+  test('Bronze+kurve (men ikke endepunkter) → stadig ingen medalje', !w.opg324MedalShown);
+  setPointStates324([['aaben','lukket'], ['aaben','lukket'], ['aaben','lukket']]);
+  w.checkEndpoints324();
+  test('Bronze+kurve+endepunkter → medalje gemmes', w.opg324MedalShown);
+
+  console.log('\nRestart-flow 3.2.4');
+  w.restartOpgaver324();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-324').style.display==='block');
+  test('Restart: canvas324Points tømt', w.canvas324Points.every(pts => pts.length === 0));
+  test('Restart: endepunkt-sektion skjult', d.getElementById('canvas-324-endpoints-wrap').style.display==='none');
+  test('Restart: alle punkt-tilstande nulstillet (tom)', w.canvas324PointStates.every(states => states.length === 0));
+  test('Restart: opg324BronzeDone nulstillet', !w.opg324BronzeDone);
+  test('Restart: opg324MedalShown nulstillet', !w.opg324MedalShown);
+
+  console.log('\nGuld 3.2.4 — trinvis beskatning (gaffelforskrift + opfølgende spørgsmål)');
+  function setVal324g(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect324g(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+  w.restartOpgaver324(); w.opg324Level=3; w.startOpgaver324();
+  setVal324g('324g-f1','0.12x');       setVal324g('324g-u1','0<=x<=60000');
+  setVal324g('324g-f2','0.38x-15600'); setVal324g('324g-u2','60000<x<=380000');
+  setVal324g('324g-f3','0.58x-91600'); setVal324g('324g-u3','x>380000');
+  setVal324g('324g-tax1','169400');
+  setVal324g('324g-income','443103.45');
+  w.checkGold324();
+  test('Guld: alle 3 formler korrekte', isCorrect324g('324g-f1') && isCorrect324g('324g-f2') && isCorrect324g('324g-f3'));
+  test('Guld: alle 3 uligheder korrekte', isCorrect324g('324g-u1') && isCorrect324g('324g-u2') && isCorrect324g('324g-u3'));
+  test('Guld: skat ved 450.000 → correct', isCorrect324g('324g-tax1'));
+  test('Guld: indkomst ved 165.400 kr. skat → correct', isCorrect324g('324g-income'));
+  test('Guld: opg324GoldDone=true', w.opg324GoldDone);
+
+  console.log('\nGuld 3.2.4 — negative tests');
+  w.restartOpgaver324(); w.opg324Level=3; w.startOpgaver324();
+  setVal324g('324g-f1','0.14x');       setVal324g('324g-u1','0<=x<=60000'); // forkert skatteprocent
+  setVal324g('324g-f2','0.38x-15600'); setVal324g('324g-u2','60000<x<=380000');
+  setVal324g('324g-f3','0.58x-91600'); setVal324g('324g-u3','x>380000');
+  setVal324g('324g-tax1','169400'); setVal324g('324g-income','443103.45');
+  w.checkGold324();
+  test('Guld: forkert sats i stk. 1 → f1 not correct', !isCorrect324g('324g-f1'));
+  test('Guld: forkert sats → opg324GoldDone forbliver false', !w.opg324GoldDone);
+
+  w.restartOpgaver324(); w.opg324Level=3; w.startOpgaver324();
+  setVal324g('324g-f1','0.12x');       setVal324g('324g-u1','0<=x<=60000');
+  setVal324g('324g-f2','0.38x-15600'); setVal324g('324g-u2','60000<x<=380000');
+  setVal324g('324g-f3','0.58x-91600'); setVal324g('324g-u3','x>380000');
+  setVal324g('324g-tax1','170000'); // forkert skatteberegning
+  setVal324g('324g-income','443103.45');
+  w.checkGold324();
+  test('Guld: forkert skattebeløb → tax1 not correct', !isCorrect324g('324g-tax1'));
+
+  w.restartOpgaver324(); w.opg324Level=3; w.startOpgaver324();
+  setVal324g('324g-f1','0.12x');       setVal324g('324g-u1','0<=x<=60000');
+  setVal324g('324g-f2','0.38x-15600'); setVal324g('324g-u2','60000<x<=380000');
+  setVal324g('324g-f3','0.58x-91600'); setVal324g('324g-u3','x>380000');
+  setVal324g('324g-tax1','169400');
+  setVal324g('324g-income','400000'); // forkert omvendt beregning
+  w.checkGold324();
+  test('Guld: forkert indkomst-tilbageregning → income not correct', !isCorrect324g('324g-income'));
+
+  console.log('\nFuld 3-niveau medaljeflow 3.2.4 (bronze+sølv+guld)');
+  w.restartOpgaver324(); w.opg324Level=3; w.startOpgaver324();
+  setVal324('324b-f1','x+2');   setVal324('324b-u1','-10<x<-2');
+  setVal324('324b-f2','-2x');   setVal324('324b-u2','-2<=x<1');
+  setVal324('324b-f3','-2');    setVal324('324b-u3','x>1');
+  w.checkBronze324();
+  test('Niveau 3: kun bronze → ingen medalje endnu', !w.opg324MedalShown);
+  setPoints324(expected324); w.checkCurve324();
+  setPointStates324([['aaben','lukket'], ['aaben','lukket'], ['aaben','lukket']]);
+  w.checkEndpoints324();
+  test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opg324MedalShown);
+  setVal324g('324g-f1','0.12x');       setVal324g('324g-u1','0<=x<=60000');
+  setVal324g('324g-f2','0.38x-15600'); setVal324g('324g-u2','60000<x<=380000');
+  setVal324g('324g-f3','0.58x-91600'); setVal324g('324g-u3','x>380000');
+  setVal324g('324g-tax1','169400'); setVal324g('324g-income','443103.45');
+  w.checkGold324();
+  test('Niveau 3: alle tre færdige → medalje gemmes', w.opg324MedalShown);
+  test('Niveau 3: medal_324 = 3 i localStorage', parseInt(w.loadProgress('medal_324',0)) === 3);
+
+  console.log('\nulighedReplace — live-konvertering af <= og >= til ≤/≥');
+  function fakeInput324(value, cursorPos){ return { value: value, selectionStart: cursorPos, selectionEnd: cursorPos }; }
+  var uiInp1 = fakeInput324('0<=x<=1', 7);
+  w.ulighedReplace(uiInp1);
+  test('ulighedReplace: <= bliver til ≤ (begge forekomster)', uiInp1.value === '0≤x≤1');
+  test('ulighedReplace: markør rykkes korrekt til enden', uiInp1.selectionStart === 5);
+  var uiInp2 = fakeInput324('60000>=x', 8);
+  w.ulighedReplace(uiInp2);
+  test('ulighedReplace: >= bliver til ≥', uiInp2.value === '60000≥x');
+  var uiInp3 = fakeInput324('ingenting', 3);
+  w.ulighedReplace(uiInp3);
+  test('ulighedReplace: ingen ændring hvis intet at erstatte', uiInp3.value === 'ingenting');
+
+  console.log('\nFelter med ≤/≥ (efter live-erstatning) tjekkes stadig korrekt');
+  w.restartOpgaver324(); w.opg324Level=3; w.startOpgaver324();
+  setVal324g('324g-f1','0.12x');       setVal324g('324g-u1','0≤x≤60000'); // simulerer allerede-erstattet visning
+  setVal324g('324g-f2','0.38x-15600'); setVal324g('324g-u2','60000<x≤380000');
+  setVal324g('324g-f3','0.58x-91600'); setVal324g('324g-u3','x>380000');
+  setVal324g('324g-tax1','169400'); setVal324g('324g-income','443103.45');
+  w.checkGold324();
+  test('Guld med ≤/≥ i felterne → stadig alle korrekte', isCorrect324g('324g-u1') && isCorrect324g('324g-u2'));
+
+  console.log('\nparseInequality324 — omvendt enkeltsidet form (tal først, fx "1<=x" = "x>=1")');
+  var exp324b3 = [{lower:1,lowerInclusive:false,upper:Infinity,upperInclusive:false},
+                  {lower:1,lowerInclusive:true, upper:Infinity,upperInclusive:false}];
+  test('1<=x accepteres som x>=1', w.inequalityMatchesAny324(w.parseInequality324('1<=x'), exp324b3));
+  test('1≤x (symbol) accepteres', w.inequalityMatchesAny324(w.parseInequality324('1≤x'), exp324b3));
+  test('1<x accepteres som x>1', w.inequalityMatchesAny324(w.parseInequality324('1<x'), exp324b3));
+  test('Sammensat form virker stadig upåvirket (-10<=x<-2)', w.inequalityMatchesAny324(w.parseInequality324('-10<x<-2'), [{lower:-10,lowerInclusive:false,upper:-2,upperInclusive:false}]));
+
+  console.log('\nBronze 3.2.4 — omvendt ulighed-form accepteres i det faktiske gaffel-tjek');
+  w.restartOpgaver324(); w.startOpgaver324();
+  setVal324('324b-f1','x+2');   setVal324('324b-u1','-10<x<-2');
+  setVal324('324b-f2','-2x');   setVal324('324b-u2','-2<=x<1');
+  setVal324('324b-f3','-2');    setVal324('324b-u3','1<=x'); // omvendt form for x>=1
+  w.checkBronze324();
+  test('Guld/bronze: omvendt form "1<=x" i felt 3 → correct', isCorrect324('324b-u3'));
+  test('Bronze: opg324BronzeDone=true med omvendt form', w.opg324BronzeDone);
+
   // ── RESULTAT ──────────────────────────────────────────────────────────────────
   console.log(`\n${'='.repeat(40)}`);
   console.log(`Resultat: ${passed}/${passed+failed} tests bestået`);
