@@ -1962,6 +1962,708 @@ setTimeout(() => {
   test('Guld/bronze: omvendt form "1<=x" i felt 3 → correct', isCorrect324('324b-u3'));
   test('Bronze: opg324BronzeDone=true med omvendt form', w.opg324BronzeDone);
 
+  // ── 3.2.5 SKÆRING MELLEM LINEÆRE GRAFER ─────────────────────────────────────
+  console.log('\nNavigation og struktur 3.2.5');
+  w.showPage('3-2-5');
+  test('showPage(3-2-5)', isVisible(d.getElementById('page-3-2-5')));
+  test('3 tab-knapper i 3.2.5', d.querySelectorAll('#page-3-2-5 .tab-btn').length === 3);
+  test('3.2.5 i emneData', html.includes("'3.2.5'") && html.includes("'chk-325-bog'"));
+
+  console.log('\nQuiz 3.2.5 – positive tests');
+  d.querySelectorAll('#page-3-2-5 .tab-btn')[1].click();
+  const q325answers = [1,2,1,1,2,2]; // korrekte options (0-indekseret): B,C,B,B,C,C
+  q325answers.forEach((idx,i) => {
+    const opts = d.querySelectorAll('#qq325-'+(i+1)+' .quiz-option');
+    opts[idx].click();
+    test(`3.2.5 Q${i+1}: korrekt svar → correct`, opts[idx].classList.contains('correct'));
+  });
+  test('3.2.5 quiz score: 6/6', d.getElementById('quiz-score-325-title').textContent.includes('6/6'));
+
+  console.log('\nQuiz 3.2.5 – negativ test');
+  w.quizRetry325();
+  d.querySelectorAll('#page-3-2-5 .tab-btn')[1].click();
+  const q325_1b = d.querySelectorAll('#qq325-1 .quiz-option');
+  q325_1b[0].click(); // A = wrong
+  test('3.2.5 Q1: A → wrong', q325_1b[0].classList.contains('wrong'));
+  test('3.2.5 Q1: feedback err', d.getElementById('qf325-1').classList.contains('err'));
+  test('3.2.5 Q1: B ikke afsløret', !q325_1b[1].classList.contains('reveal-correct'));
+
+  // ── 3.2.5 OPGAVER ────────────────────────────────────────────────────────────
+  console.log('\nBronze 3.2.5 – løs h(x)=k(x) → (3,1)');
+  function setVal325(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect325(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+  w.showPage('3-2-5');
+  d.querySelectorAll('#page-3-2-5 .tab-btn')[2].click(); // Opgaver-fanen
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)');
+  w.checkBronzeEq325();
+  test('Bronze eq: (3,1) → correct', isCorrect325('325-eq'));
+  test('Bronze eq: opg325EqDone=true', w.opg325EqDone);
+  test('Bronze eq: grafisk del vises efter korrekt svar', d.getElementById('t325-bronze-graph').style.display==='block');
+
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','3,1'); // uden parenteser
+  w.checkBronzeEq325();
+  test('Bronze eq: 3,1 (uden parenteser) → correct', isCorrect325('325-eq'));
+
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(1,3)'); // byttet om x og y
+  w.checkBronzeEq325();
+  test('Bronze eq: (1,3) byttet om → not correct', !isCorrect325('325-eq'));
+  test('Bronze eq: forkert → grafisk del vises IKKE', d.getElementById('t325-bronze-graph').style.display!=='block');
+  test('Bronze eq: forkert → opg325EqDone forbliver false', !w.opg325EqDone);
+
+  console.log('\nBronze 3.2.5 – indsæt skæringspunkt i koordinatsystem (stram tolerance)');
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  const rPoint325 = d.getElementById('ow-r-325-point');
+  w.canvas325IntersectionPoint = [3,1];
+  w.checkPoint325();
+  test('Punkt: (3,1) korrekt → opg325PointDone=true', w.opg325PointDone);
+  test('Punkt: ok-styling', rPoint325 && rPoint325.classList.contains('ok'));
+  test('Punkt: korrekt → linje-sektion vises', d.getElementById('t325-bronze-lines').style.display==='block');
+  test('Punkt: korrekt → stage skifter til "lines"', w.canvas325Stage === 'lines');
+
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325IntersectionPoint = [3.5,1.5]; // 0.5 fra facit — over tolerance (0.3)
+  w.opg325PointDone=false; w.checkPoint325();
+  test('Punkt: 0,5 fra facit → ikke done (for upræcist)', !w.opg325PointDone);
+
+  w.canvas325IntersectionPoint = [3.15,1.15]; // 0.15 fra facit — inden for tolerance
+  w.opg325PointDone=false; w.checkPoint325();
+  test('Punkt: 0,15 fra facit → stadig done', w.opg325PointDone);
+
+  console.log('\nBronze 3.2.5 – tegn h(x) og k(x) ved to punkter hver');
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
+  const rLines325 = d.getElementById('ow-r-325-lines');
+  w.canvas325Points = [[[-2,-9],[5,5]], [[-1,13],[4,-2]]]; // gyldige punkter på hhv. h og k
+  w.checkLines325();
+  test('Linjer: gyldige punkter på begge → opg325LinesDone=true', w.opg325LinesDone);
+  test('Linjer: ok-styling', rLines325 && rLines325.classList.contains('ok'));
+
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
+  w.canvas325Points = [[[-2,-9],[5,20]], [[-1,13],[4,-2]]]; // forkert punkt på h
+  w.opg325LinesDone=false; w.checkLines325();
+  test('Linjer: forkert punkt på h → ikke done', !w.opg325LinesDone);
+
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
+  w.canvas325Points = [[[3,1],[3.2,0.6]], [[-1,13],[4,-2]]]; // punkter for tæt på hinanden (degeneret)
+  w.opg325LinesDone=false; w.checkLines325();
+  test('Linjer: punkter for tæt på hinanden → ikke done', !w.opg325LinesDone);
+
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
+  w.canvas325Points = [[[-2,-9]], [[-1,13],[4,-2]]]; // kun ét punkt på h
+  w.opg325LinesDone=false; w.checkLines325();
+  test('Linjer: kun ét punkt på h → err-besked, ikke done', !w.opg325LinesDone && rLines325.classList.contains('err'));
+
+  console.log('\nRigtig klik-handler (canvas325ClickHandler) — ende-til-ende');
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  var canvasEl325 = d.getElementById('canvas-325');
+  canvasEl325.getBoundingClientRect = () => ({ left:0, top:0, width:320, height:300 });
+  function clickAt325(x,y){
+    var px = ((x+3)/11)*320, py = ((20-y)/35)*300;
+    w.canvas325LastClickTime = 0;
+    w.canvas325ClickHandler({ clientX: px, clientY: py });
+  }
+  clickAt325(3,1);
+  test('Ægte klik på (3,1): sætter skæringspunktet korrekt', w.canvas325IntersectionPoint[0]===3 && w.canvas325IntersectionPoint[1]===1);
+  w.checkPoint325();
+  test('Efter ægte klik + tjek: opg325PointDone=true', w.opg325PointDone);
+  clickAt325(-2,-9); clickAt325(5,5); // to punkter på h
+  test('To ægte klik: canvas325CurrentLine rykket til 1 (k)', w.canvas325CurrentLine === 1);
+  clickAt325(-1,13); clickAt325(4,-2); // to punkter på k
+  test('Fire ægte klik: canvas325CurrentLine rykket til 2 (færdig)', w.canvas325CurrentLine === 2);
+  w.checkLines325();
+  test('Efter fire ægte klik + tjek: opg325LinesDone=true', w.opg325LinesDone);
+
+  console.log('\nMedalje niveau 1 kræver alle tre dele af bronze (ligning + punkt + linjer)');
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  test('Kun ligning løst → ingen medalje endnu', !w.opg325MedalShown);
+  w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
+  test('Ligning+punkt (men ikke linjer) → stadig ingen medalje', !w.opg325MedalShown);
+  w.canvas325Points = [[[-2,-9],[5,5]], [[-1,13],[4,-2]]]; w.checkLines325();
+  test('Alle tre dele færdige → medalje gemmes', w.opg325MedalShown);
+
+  console.log('\nclearGraph325 og restart-flow');
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
+  w.clearGraph325();
+  test('Ryd: skæringspunkt nulstillet', w.canvas325IntersectionPoint === null);
+  test('Ryd: linje-punkter nulstillet', w.canvas325Points[0].length===0 && w.canvas325Points[1].length===0);
+  test('Ryd: stage tilbage til "point"', w.canvas325Stage === 'point');
+  test('Ryd: linje-sektion skjules igen', d.getElementById('t325-bronze-lines').style.display==='none');
+
+  w.restartOpgaver325();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-325').style.display==='block');
+  test('Restart: input nulstillet', d.getElementById('ow-325-eq').value==='');
+  test('Restart: grafisk del skjult igen', d.getElementById('t325-bronze-graph').style.display==='none');
+  test('Restart: opg325EqDone nulstillet', !w.opg325EqDone);
+  test('Restart: opg325MedalShown nulstillet', !w.opg325MedalShown);
+
+  console.log('\nZoom i koordinatsystemet (3.2.5 bronze)');
+  w.restartOpgaver325(); w.startOpgaver325();
+  test('Standard zoom = 1', w.canvas325Zoom === 1);
+  var view1 = w.getCanvas325View();
+  test('Standard visningsområde matcher grund-udsnittet', view1.xMin===-3 && view1.xMax===8 && view1.yMin===-15 && view1.yMax===20);
+
+  w.canvas325ZoomIn();
+  test('Zoom ind: zoom-niveau stiger', w.canvas325Zoom > 1);
+  var view2 = w.getCanvas325View();
+  test('Zoom ind: synligt område bliver smallere', (view2.xMax-view2.xMin) < (view1.xMax-view1.xMin));
+  test('Zoom ind: centrum forbliver det samme', Math.abs((view2.xMin+view2.xMax)/2 - (view1.xMin+view1.xMax)/2) < 0.01);
+
+  w.canvas325ZoomOut(); w.canvas325ZoomOut();
+  test('Zoom ud under 1: låst til minimum 1 (kan ikke zoome længere ud end standard)', w.canvas325Zoom === 1);
+
+  console.log('\nZoom påvirker klik-præcision proportionalt (samme pixel giver mindre data-udsving ved højere zoom)');
+  var canvasElZoom325 = d.getElementById('canvas-325');
+  canvasElZoom325.getBoundingClientRect = () => ({ left:0, top:0, width:320, height:300 });
+  w.canvas325Zoom = 1;
+  var ptA = w.getCanvasPoint325(canvasElZoom325, {clientX:160, clientY:150});
+  var ptB = w.getCanvasPoint325(canvasElZoom325, {clientX:161, clientY:150});
+  var deltaZoom1 = ptB[0]-ptA[0];
+  w.canvas325Zoom = 4;
+  var ptC = w.getCanvasPoint325(canvasElZoom325, {clientX:160, clientY:150});
+  var ptD = w.getCanvasPoint325(canvasElZoom325, {clientX:161, clientY:150});
+  var deltaZoom4 = ptD[0]-ptC[0];
+  test('Ved 4x zoom giver samme pixel-forskydning ~4x mindre data-udsving', Math.abs(deltaZoom1/deltaZoom4 - 4) < 0.01);
+
+  console.log('\nRound-trip: klik-position → data → tilbage til pixel matcher, uanset zoom');
+  w.canvas325Zoom = 2.5;
+  var rtPt = w.getCanvasPoint325(canvasElZoom325, {clientX:100, clientY:200});
+  var rtPixel = w.canvas325DataToPixel(rtPt[0], rtPt[1], 320, 300);
+  test('Round-trip pixel matcher (inden for 0,01px)', Math.abs(rtPixel[0]-100)<0.01 && Math.abs(rtPixel[1]-200)<0.01);
+
+  console.log('\ncanvas325ZoomReset og restart nulstiller zoom');
+  w.canvas325Zoom = 3;
+  w.canvas325ZoomReset();
+  test('canvas325ZoomReset() → zoom tilbage til 1', w.canvas325Zoom === 1);
+  w.canvas325Zoom = 3;
+  w.restartOpgaver325();
+  test('Fuld restart nulstiller også zoom til 1', w.canvas325Zoom === 1);
+
+  console.log('\nAllerede placerede punkter forbliver korrekt positioneret efter zoomskift');
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325IntersectionPoint = [3,1];
+  w.canvas325ZoomIn(); // zoom ændres EFTER punktet er sat
+  test('Datakoordinaten for det placerede punkt er uændret efter zoom', w.canvas325IntersectionPoint[0]===3 && w.canvas325IntersectionPoint[1]===1);
+  w.checkPoint325();
+  test('Punktet tjekkes stadig korrekt efter zoomændring', w.opg325PointDone);
+
+  console.log('\nPan (ryk rundt) i koordinatsystemet (3.2.5 bronze)');
+  w.restartOpgaver325(); w.startOpgaver325();
+  test('Standard pan er (0,0)', w.canvas325PanX === 0 && w.canvas325PanY === 0);
+  w.canvas325ZoomIn(); w.canvas325ZoomIn(); // zoom ind først, så pan giver mening
+  var viewBeforePan = w.getCanvas325View();
+  w.canvas325Pan(1,0); // ryk til højre
+  var viewAfterPanRight = w.getCanvas325View();
+  test('Pan højre: centrum rykker mod højre (xMin og xMax stiger)', viewAfterPanRight.xMin > viewBeforePan.xMin && viewAfterPanRight.xMax > viewBeforePan.xMax);
+  test('Pan højre: y-området er uændret', viewAfterPanRight.yMin === viewBeforePan.yMin && viewAfterPanRight.yMax === viewBeforePan.yMax);
+
+  var viewBeforePanUp = w.getCanvas325View();
+  w.canvas325Pan(0,1); // ryk op
+  var viewAfterPanUp = w.getCanvas325View();
+  test('Pan op: centrum rykker opad (yMin og yMax stiger)', viewAfterPanUp.yMin > viewBeforePanUp.yMin && viewAfterPanUp.yMax > viewBeforePanUp.yMax);
+
+  w.canvas325Pan(-1,0); w.canvas325Pan(-1,0); // ryk tilbage til venstre (dobbelt for at gå forbi udgangspunktet)
+  var viewAfterPanLeft = w.getCanvas325View();
+  test('Pan venstre: centrum rykker mod venstre', viewAfterPanLeft.xMin < viewAfterPanRight.xMin);
+
+  console.log('\nPan-forskydning skalerer med zoom-niveauet');
+  w.restartOpgaver325(); w.startOpgaver325();
+  w.canvas325Zoom = 1;
+  var v1 = w.getCanvas325View(); w.canvas325Pan(1,0);
+  var panDeltaLowZoom = w.canvas325PanX;
+  w.restartOpgaver325(); w.startOpgaver325();
+  w.canvas325Zoom = 4;
+  var v2 = w.getCanvas325View(); w.canvas325Pan(1,0);
+  var panDeltaHighZoom = w.canvas325PanX;
+  test('Ved højere zoom er hvert pan-skridt mindre i data-enheder (finere styring)', Math.abs(panDeltaHighZoom) < Math.abs(panDeltaLowZoom));
+
+  console.log('\ncanvas325ZoomReset og restart nulstiller også pan');
+  w.restartOpgaver325(); w.startOpgaver325();
+  w.canvas325ZoomIn(); w.canvas325Pan(1,1);
+  test('Pan er ikke (0,0) efter at have rykket rundt', w.canvas325PanX !== 0 || w.canvas325PanY !== 0);
+  w.canvas325ZoomReset();
+  test('canvas325ZoomReset() nulstiller også pan til (0,0)', w.canvas325PanX === 0 && w.canvas325PanY === 0);
+
+  w.canvas325ZoomIn(); w.canvas325Pan(1,1);
+  w.restartOpgaver325();
+  test('Fuld restart nulstiller pan til (0,0)', w.canvas325PanX === 0 && w.canvas325PanY === 0);
+
+  console.log('\nEfter pan kan man stadig finde og ramme et punkt der ellers var uden for det zoomede udsnit');
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325Zoom = 6; // kraftigt zoom, centreret om (2.5,2.5) — (3,1) er stadig lige akkurat i syne her
+  w.canvas325PanX = -5; w.canvas325PanY = -5; // ryk væk fra punktet, simulerer at det er uden for skærmen
+  var viewFarAway = w.getCanvas325View();
+  test('Efter kraftig pan væk er punktet (3,1) uden for det synlige udsnit', !(viewFarAway.xMin<=3 && 3<=viewFarAway.xMax && viewFarAway.yMin<=1 && 1<=viewFarAway.yMax));
+  w.canvas325PanX = 0; w.canvas325PanY = 0; // ryk tilbage
+  var viewBack = w.getCanvas325View();
+  test('Efter pan tilbage er punktet (3,1) igen synligt', viewBack.xMin<=3 && 3<=viewBack.xMax && viewBack.yMin<=1 && 1<=viewBack.yMax);
+
+  console.log('\nclearLines325 — rydder kun linjegraferne, bevarer skæringspunktet');
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
+  w.canvas325Points = [[[-2,-9],[5,5]], [[-1,13]]]; // delvist udfyldt linje-data
+  w.clearLines325();
+  test('Ryd graf: linjepunkter tømt', w.canvas325Points[0].length===0 && w.canvas325Points[1].length===0);
+  test('Ryd graf: canvas325CurrentLine nulstillet til 0', w.canvas325CurrentLine === 0);
+  test('Ryd graf: opg325LinesDone nulstillet', !w.opg325LinesDone);
+  test('Ryd graf: skæringspunktet er UÆNDRET (bevaret)', w.canvas325IntersectionPoint[0]===3 && w.canvas325IntersectionPoint[1]===1);
+  test('Ryd graf: opg325PointDone forbliver true (punktet er stadig godkendt)', w.opg325PointDone);
+  test('Ryd graf: forbliver i "lines"-fasen (ikke tilbage til "point")', w.canvas325Stage === 'lines');
+  test('Ryd graf: linje-sektionen er stadig synlig', d.getElementById('t325-bronze-lines').style.display === 'block');
+
+  console.log('\nEfter "Ryd graf" kan man tegne graferne igen og bestå normalt');
+  w.canvas325Points = [[[-2,-9],[5,5]], [[-1,13],[4,-2]]];
+  w.checkLines325();
+  test('Efter ryd graf + gentegning: opg325LinesDone=true igen', w.opg325LinesDone);
+
+  console.log('\ncheckLines325 — rækkefølgen af hvilken linje man tegner først er ligegyldig');
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
+  // Studerende tegner k(x) FØRST (i "h-pladsen"), derefter h(x) (i "k-pladsen") — begge grafer er reelt korrekte
+  w.canvas325Points = [[[0,10],[1,7]], [[0,-5],[1,-3]]];
+  w.checkLines325();
+  test('Byttet rækkefølge (k tegnet først i h-pladsen): stadig opg325LinesDone=true', w.opg325LinesDone);
+  test('Byttet rækkefølge: ok-styling', d.getElementById('ow-r-325-lines').classList.contains('ok'));
+
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
+  w.canvas325Points = [[[100,100],[200,200]], [[0,-5],[1,-3]]]; // reelt forkert i den ene "plads", uanset rækkefølge
+  w.opg325LinesDone=false; w.checkLines325();
+  test('Reelt forkert linje (matcher hverken h eller k) → stadig ikke done', !w.opg325LinesDone);
+
+  console.log('\nSølv 3.2.5 – ligningssystem x+3y=11, x-2y=1 → (5,2)');
+  function setVal325g(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect325g(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+  w.restartOpgaver325(); w.opg325Level=2; w.startOpgaver325();
+  setVal325g('325-sys','(5,2)');
+  w.checkSilver325();
+  test('Sølv: (5,2) → correct', isCorrect325g('325-sys'));
+  test('Sølv: opg325SilverDone=true', w.opg325SilverDone);
+  w.restartOpgaver325(); w.opg325Level=2; w.startOpgaver325();
+  setVal325g('325-sys','5,2'); // uden parenteser
+  w.checkSilver325();
+  test('Sølv: 5,2 (uden parenteser) → correct', isCorrect325g('325-sys'));
+  w.restartOpgaver325(); w.opg325Level=2; w.startOpgaver325();
+  setVal325g('325-sys','(2,5)'); // byttet om
+  w.checkSilver325();
+  test('Sølv: (2,5) byttet om → not correct', !isCorrect325g('325-sys'));
+  test('Sølv: forkert → opg325SilverDone forbliver false', !w.opg325SilverDone);
+
+  console.log('\nGuld 3.2.5 – break-even for C(x)=14x+24000, R(x)=20x → 4000 enheder');
+  w.restartOpgaver325(); w.opg325Level=3; w.startOpgaver325();
+  setVal325g('325-be','4000');
+  w.checkGold325();
+  test('Guld: 4000 → correct', isCorrect325g('325-be'));
+  test('Guld: opg325GoldDone=true', w.opg325GoldDone);
+  w.restartOpgaver325(); w.opg325Level=3; w.startOpgaver325();
+  setVal325g('325-be','6000'); // reelt forkert
+  w.checkGold325();
+  test('Guld: forkert (6000) → not correct', !isCorrect325g('325-be'));
+  test('Guld: forkert → opg325GoldDone forbliver false', !w.opg325GoldDone);
+
+  console.log('\nFuld 3-niveau medaljeflow 3.2.5 (bronze+sølv+guld)');
+  w.restartOpgaver325(); w.opg325Level=3; w.startOpgaver325();
+  setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
+  w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
+  w.canvas325Points = [[[-2,-9],[5,5]], [[-1,13],[4,-2]]]; w.checkLines325();
+  test('Niveau 3: kun bronze færdig → ingen medalje endnu', !w.opg325MedalShown);
+  setVal325g('325-sys','(5,2)'); w.checkSilver325();
+  test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opg325MedalShown);
+  setVal325g('325-be','4000'); w.checkGold325();
+  test('Niveau 3: alle tre færdige → medalje gemmes', w.opg325MedalShown);
+  test('Niveau 3: medal_325 = 3 i localStorage', parseInt(w.loadProgress('medal_325',0)) === 3);
+
+  // ── 3.5.1 MINDSTE KVADRATERS METODE ─────────────────────────────────────────
+  console.log('\nNavigation og struktur 3.5.1');
+  w.showPage('3-5-1');
+  test('showPage(3-5-1)', isVisible(d.getElementById('page-3-5-1')));
+  test('3 tab-knapper i 3.5.1', d.querySelectorAll('#page-3-5-1 .tab-btn').length === 3);
+  test('3.5.1 i emneData', html.includes("'3.5.1'") && html.includes("'chk-351-bog'"));
+
+  console.log('\nQuiz 3.5.1 – positive tests');
+  d.querySelectorAll('#page-3-5-1 .tab-btn')[1].click();
+  const q351answers = [1,2,0,1]; // korrekte options (0-indekseret): B,C,A,B
+  q351answers.forEach((idx,i) => {
+    const opts = d.querySelectorAll('#qq351-'+(i+1)+' .quiz-option');
+    opts[idx].click();
+    test(`3.5.1 Q${i+1}: korrekt svar → correct`, opts[idx].classList.contains('correct'));
+  });
+  test('3.5.1 quiz score: 4/4', d.getElementById('quiz-score-351-title').textContent.includes('4/4'));
+
+  console.log('\nQuiz 3.5.1 – negativ test');
+  w.quizRetry351();
+  d.querySelectorAll('#page-3-5-1 .tab-btn')[1].click();
+  const q351_1b = d.querySelectorAll('#qq351-1 .quiz-option');
+  q351_1b[0].click(); // A = wrong
+  test('3.5.1 Q1: A → wrong', q351_1b[0].classList.contains('wrong'));
+  test('3.5.1 Q1: feedback err', d.getElementById('qf351-1').classList.contains('err'));
+  test('3.5.1 Q1: B ikke afsløret', !q351_1b[1].classList.contains('reveal-correct'));
+
+  // ── 3.5.1 OPGAVER ────────────────────────────────────────────────────────────
+  console.log('\nBronze 3.5.1 – indsæt datapunkter (0,2),(2,3),(3,6)');
+  w.showPage('3-5-1');
+  d.querySelectorAll('#page-3-5-1 .tab-btn')[2].click(); // Opgaver-fanen
+  w.restartOpgaver351(); w.startOpgaver351();
+  const rPoints351 = d.getElementById('ow-r-351-points');
+  w.canvas351Points = [[0,2],[2,3],[3,6]];
+  w.checkPoints351();
+  test('Punkter: alle 3 korrekt placeret → opg351PointsDone=true', w.opg351PointsDone);
+  test('Punkter: ok-styling', rPoints351 && rPoints351.classList.contains('ok'));
+  test('Punkter: linje-sektion vises', d.getElementById('t351-bronze-line').style.display==='block');
+  test('Punkter: stage skifter til "line"', w.canvas351Stage === 'line');
+
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3]]; // kun 2 punkter
+  w.checkPoints351();
+  test('Punkter: kun 2 af 3 → err, ikke done', !w.opg351PointsDone && rPoints351.classList.contains('err'));
+
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[5,5]]; // forkert tredje punkt
+  w.checkPoints351();
+  test('Punkter: ét forkert punkt → ikke done', !w.opg351PointsDone);
+
+  console.log('\nBronze 3.5.1 – klik-toggle: klik på et eksisterende punkt fjerner det');
+  w.restartOpgaver351(); w.startOpgaver351();
+  var canvasEl351 = d.getElementById('canvas-351');
+  canvasEl351.getBoundingClientRect = () => ({ left:0, top:0, width:320, height:300 });
+  function clickAt351(x,y){
+    var px = ((x+4)/8)*320, py = ((7-y)/8)*300;
+    w.canvas351LastClickTime = 0;
+    w.canvas351ClickHandler({ clientX: px, clientY: py });
+  }
+  clickAt351(0,2);
+  test('Første klik: punkt tilføjet', w.canvas351Points.length === 1);
+  clickAt351(0,2); // klik samme sted igen
+  test('Klik samme sted igen: punktet fjernes (toggle)', w.canvas351Points.length === 0);
+
+  console.log('\nBronze 3.5.1 – træk i linjen (tilstand direkte)');
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  const rLine351 = d.getElementById('ow-r-351-line');
+  w.canvas351LineHandles = [-3.21, 6.5]; // tæt på den ægte regressionslinje
+  w.checkLine351();
+  test('Linje: tæt på regressionslinjen → opg351LineDone=true', w.opg351LineDone);
+  test('Linje: ok-styling', rLine351 && rLine351.classList.contains('ok'));
+  test('Linje: stage skifter til "done"', w.canvas351Stage === 'done');
+
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  w.canvas351LineHandles = [3, 3.5]; // alt for flad, langt fra punkterne
+  w.opg351LineDone = false; w.checkLine351();
+  test('Linje: alt for flad linje → ikke done', !w.opg351LineDone);
+  test('Linje: err-styling', rLine351 && rLine351.classList.contains('err'));
+
+  console.log('\nresetLine351 nulstiller kun linjen, ikke punkterne');
+  w.canvas351LineHandles = [-3.21, 6.5]; w.checkLine351();
+  test('Før nulstil: linje er godkendt', w.opg351LineDone);
+  w.resetLine351();
+  test('Nulstil linje: handles tilbage til default [2,4]', w.canvas351LineHandles[0]===2 && w.canvas351LineHandles[1]===4);
+  test('Nulstil linje: opg351LineDone nulstillet', !w.opg351LineDone);
+  test('Nulstil linje: punkterne er stadig placeret (uændret)', w.canvas351Points.length === 3);
+
+  console.log('\nÆgte trække-simulering (mousedown → mousemove → mouseup) på linje-håndtaget');
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  function pixelFor351(x,y){ return { clientX: ((x+4)/8)*320, clientY: ((7-y)/8)*300 }; }
+  var downA = pixelFor351(-4, 2); // tæt på håndtag A's startposition
+  w.canvas351MousedownHandler(downA);
+  test('Mousedown nær håndtag A: canvas351Dragging = "A"', w.canvas351Dragging === 'A');
+  var moveA = pixelFor351(-4, 5); // træk håndtag A op til y=5
+  w.canvas351MousemoveHandler(moveA);
+  test('Mousemove: håndtag A er nu flyttet til ~5', Math.abs(w.canvas351LineHandles[0]-5) < 0.1);
+  w.canvas351MouseupHandler();
+  test('Mouseup: trækning stoppet', w.canvas351Dragging === null);
+  var moveAfterUp = pixelFor351(-4, 0);
+  w.canvas351MousemoveHandler(moveAfterUp);
+  test('Bevægelse efter mouseup ændrer IKKE håndtaget længere', Math.abs(w.canvas351LineHandles[0]-5) < 0.1);
+
+  console.log('\nTrække-håndtag er klemt fast inden for det synlige y-område');
+  w.canvas351MousedownHandler(pixelFor351(4, 4));
+  test('Mousedown nær håndtag B', w.canvas351Dragging === 'B');
+  w.canvas351MousemoveHandler({ clientX: pixelFor351(4,4).clientX, clientY: -2000 }); // langt uden for canvas (over toppen) — nok til at ramme det NYE, bredere loft
+  test('Håndtag B klemmes fast til det brede maksimum (40), IKKE det synlige udsnit (7)', w.canvas351LineHandles[1] === 40);
+  w.canvas351MouseupHandler();
+
+  console.log('\nLinjen kan nu gøres reelt stejl (hældning > 1, som tidligere var det praktiske loft)');
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  w.canvas351LineHandles = [2, 4]; // a=0.25 til at starte med
+  w.canvas351MousedownHandler(pixelFor351(4, 4)); // grib håndtag B
+  // Simuler at musen bevæger sig UD OVER selve canvas-elementet (langt over toppen, y=-1000px)
+  w.canvas351MousemoveHandler({ clientX: pixelFor351(4,4).clientX, clientY: -1000 });
+  var steepA = (w.canvas351LineHandles[1]-w.canvas351LineHandles[0])/8;
+  test('Hældningen kan nu overstige 1 (det gamle loft)', steepA > 1);
+  w.canvas351MouseupHandler();
+
+  console.log('\nDokument-niveau lyttere ryddes korrekt op efter mouseup (ikke lækket)');
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  w.canvas351MousedownHandler(pixelFor351(0, 3));
+  test('Under træk: canvas351Dragging er sat', w.canvas351Dragging !== null);
+  w.canvas351MouseupHandler();
+  test('Efter mouseup: canvas351Dragging nulstillet', w.canvas351Dragging === null);
+  var handlesBeforeStray = w.canvas351LineHandles.slice();
+  w.canvas351MousemoveHandler({ clientX: pixelFor351(0,3).clientX, clientY: 0 }); // "vildfaren" bevægelse efter slip
+  test('Bevægelse efter mouseup ændrer intet (lytter er korrekt fjernet/ignoreret)', w.canvas351LineHandles[0]===handlesBeforeStray[0] && w.canvas351LineHandles[1]===handlesBeforeStray[1]);
+
+  console.log('\nTræk MIDT på linjen flytter hele linjen (uændret hældning) — ikke kun endepunkterne');
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  w.canvas351LineHandles = [2, 4]; // a=0.25, b=3, linje ved x=0 er y=3 (midten)
+  var downMiddle = pixelFor351(0, 3);
+  w.canvas351MousedownHandler(downMiddle);
+  test('Mousedown midt på linjen: canvas351Dragging = "BOTH"', w.canvas351Dragging === 'BOTH');
+  var moveMiddle = pixelFor351(0, 5); // træk op 2 enheder
+  w.canvas351MousemoveHandler(moveMiddle);
+  test('Efter træk midt på: begge håndtag flyttet lige meget', Math.abs(w.canvas351LineHandles[0]-4)<0.1 && Math.abs(w.canvas351LineHandles[1]-6)<0.1);
+  test('Hældningen er uændret efter midter-træk', Math.abs((w.canvas351LineHandles[1]-w.canvas351LineHandles[0]) - (4-2)) < 0.01);
+  w.canvas351MouseupHandler();
+
+  console.log('\nKlik langt fra linjen starter ingen trækning ("man kan trække alle steder PÅ linjen", ikke udenfor)');
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  w.canvas351LineHandles = [2, 4];
+  var downMiss = pixelFor351(0, 6); // langt over linjen (linjen er ved y=3 der)
+  w.canvas351MousedownHandler(downMiss);
+  test('Klik langt fra linjen: ingen trækning startes', w.canvas351Dragging === null);
+
+  console.log('\nSidste bronze-delopgave: aflæs a og b fra den tegnede linje');
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  w.canvas351LineHandles = [-3.21, 6.5]; w.checkLine351();
+  test('Efter godkendt linje: aflæsnings-sektionen vises', d.getElementById('t351-bronze-formula').style.display==='block');
+  var trueA351 = (6.5-(-3.21))/8, trueB351 = (-3.21+6.5)/2;
+  setVal351('351-drawn-a', trueA351.toFixed(3));
+  setVal351('351-drawn-b', trueB351.toFixed(3));
+  w.checkDrawnFormula351();
+  test('Korrekt aflæsning af den tegnede linje → opg351FormulaDone=true', w.opg351FormulaDone);
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  w.canvas351LineHandles = [-3.21, 6.5]; w.checkLine351();
+  setVal351('351-drawn-a', '99'); // reelt forkert aflæsning
+  setVal351('351-drawn-b', trueB351.toFixed(3));
+  w.checkDrawnFormula351();
+  test('Forkert aflæsning → opg351FormulaDone forbliver false', !w.opg351FormulaDone);
+
+  console.log('\nStram tolerance: skal matche det AFRUNDEDE viste tal præcist, ikke bare "tæt nok" som før');
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  w.canvas351LineHandles = [1.6, 4.4]; // a=0.35, b=3 → viser "y = 0.35x + 3"
+  w.checkLine351();
+  var displayedA = Math.round(((4.4-1.6)/8)*100)/100, displayedB = Math.round(((1.6+4.4)/2)*100)/100;
+  setVal351('351-drawn-a', displayedA + 0.12); // ville have bestået under den gamle tolerance på 0,15, men ikke nu
+  setVal351('351-drawn-b', displayedB.toFixed(2));
+  w.checkDrawnFormula351();
+  test('Værdi der kun var "tæt nok" under gammel tolerance → afvises nu korrekt', !w.opg351FormulaDone);
+  setVal351('351-drawn-a', displayedA.toFixed(2)); // det PRÆCISE viste tal
+  setVal351('351-drawn-b', displayedB.toFixed(2));
+  w.checkDrawnFormula351();
+  test('Det præcise viste tal → godkendes', w.opg351FormulaDone);
+
+  console.log('\nresetLine351 skjuler også aflæsnings-sektionen igen');
+  w.restartOpgaver351(); w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  w.canvas351LineHandles = [-3.21, 6.5]; w.checkLine351();
+  test('Før nulstil: aflæsnings-sektionen er synlig', d.getElementById('t351-bronze-formula').style.display==='block');
+  w.resetLine351();
+  test('Efter nulstil linje: aflæsnings-sektionen skjules igen', d.getElementById('t351-bronze-formula').style.display==='none');
+  test('Efter nulstil linje: opg351FormulaDone nulstillet', !w.opg351FormulaDone);
+  test('Efter nulstil linje: stage tilbage til "line" (kan trække igen)', w.canvas351Stage === 'line');
+
+  console.log('\nSølv 3.5.1 – mindste kvadraters metode på (0,2),(2,3),(3,6) → a=17/14, b=23/14');
+  function setVal351(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect351(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+  w.restartOpgaver351(); w.opg351Level=2; w.startOpgaver351();
+  setVal351('351-a', (17/14).toFixed(4));
+  setVal351('351-b', (23/14).toFixed(4));
+  w.checkSilver351();
+  test('Sølv: korrekt a og b → opg351SilverDone=true', w.opg351SilverDone);
+  test('Sølv: a-feltet korrekt', isCorrect351('351-a'));
+  test('Sølv: b-feltet korrekt', isCorrect351('351-b'));
+  w.restartOpgaver351(); w.opg351Level=2; w.startOpgaver351();
+  setVal351('351-a', '2'); setVal351('351-b', (23/14).toFixed(4)); // forkert a
+  w.checkSilver351();
+  test('Sølv: forkert a → not done', !w.opg351SilverDone);
+  test('Sølv: a-feltet forkert', !isCorrect351('351-a'));
+
+  console.log('\nGuld 3.5.1 – reklamekroner/salg → a≈5,583, b≈2,514');
+  w.restartOpgaver351(); w.opg351Level=3; w.startOpgaver351();
+  setVal351('351-ga', (977/175).toFixed(4));
+  setVal351('351-gb', (88/35).toFixed(4));
+  w.checkGold351();
+  test('Guld: korrekt a og b → opg351GoldDone=true', w.opg351GoldDone);
+  w.restartOpgaver351(); w.opg351Level=3; w.startOpgaver351();
+  setVal351('351-ga', '10'); setVal351('351-gb', (88/35).toFixed(4)); // forkert a
+  w.checkGold351();
+  test('Guld: forkert a → not done', !w.opg351GoldDone);
+
+  console.log('\nFuld 3-niveau medaljeflow 3.5.1 (bronze+sølv+guld)');
+  w.restartOpgaver351(); w.opg351Level=3; w.startOpgaver351();
+  w.canvas351Points = [[0,2],[2,3],[3,6]]; w.checkPoints351();
+  w.canvas351LineHandles = [-3.21, 6.5]; w.checkLine351();
+  test('Niveau 3: kurve+linje men mangler forskrift → ingen medalje endnu', !w.opg351MedalShown);
+  setVal351('351-drawn-a', ((6.5-(-3.21))/8).toFixed(4));
+  setVal351('351-drawn-b', ((-3.21+6.5)/2).toFixed(4));
+  w.checkDrawnFormula351();
+  test('Niveau 3: hele bronze færdig → stadig ingen medalje (mangler sølv+guld)', !w.opg351MedalShown);
+  setVal351('351-a', (17/14).toFixed(4)); setVal351('351-b', (23/14).toFixed(4)); w.checkSilver351();
+  test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opg351MedalShown);
+  setVal351('351-ga', (977/175).toFixed(4)); setVal351('351-gb', (88/35).toFixed(4)); w.checkGold351();
+  test('Niveau 3: alle tre færdige → medalje gemmes', w.opg351MedalShown);
+  test('Niveau 3: medal_351 = 3 i localStorage', parseInt(w.loadProgress('medal_351',0)) === 3);
+
+  console.log('\nRestart-flow 3.5.1');
+  w.restartOpgaver351();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-351').style.display==='block');
+  test('Restart: canvas351Points tømt', w.canvas351Points.length === 0);
+  test('Restart: canvas351Stage tilbage til "points"', w.canvas351Stage === 'points');
+  test('Restart: linje-sektion skjult igen', d.getElementById('t351-bronze-line').style.display==='none');
+  test('Restart: linje-håndtag nulstillet', w.canvas351LineHandles[0]===2 && w.canvas351LineHandles[1]===4);
+  test('Restart: opg351PointsDone nulstillet', !w.opg351PointsDone);
+  test('Restart: opg351MedalShown nulstillet', !w.opg351MedalShown);
+
+  // ── 3.5.2 KORRELATIONSKOEFFICIENTEN ─────────────────────────────────────────
+  console.log('\nNavigation og struktur 3.5.2');
+  w.showPage('3-5-2');
+  test('showPage(3-5-2)', isVisible(d.getElementById('page-3-5-2')));
+  test('3 tab-knapper i 3.5.2', d.querySelectorAll('#page-3-5-2 .tab-btn').length === 3);
+  test('3.5.2 i emneData', html.includes("'3.5.2'") && html.includes("'chk-352-bog'"));
+
+  console.log('\nQuiz 3.5.2 – positive tests');
+  d.querySelectorAll('#page-3-5-2 .tab-btn')[1].click();
+  const q352answers = [1,2,1,2,2,1,1,2]; // korrekte options (0-indekseret): B,C,B,C,C,B,B,C
+  q352answers.forEach((idx,i) => {
+    const opts = d.querySelectorAll('#qq352-'+(i+1)+' .quiz-option');
+    opts[idx].click();
+    test(`3.5.2 Q${i+1}: korrekt svar → correct`, opts[idx].classList.contains('correct'));
+  });
+  test('3.5.2 quiz score: 8/8', d.getElementById('quiz-score-352-title').textContent.includes('8/8'));
+
+  console.log('\nQuiz 3.5.2 – negativ test');
+  w.quizRetry352();
+  d.querySelectorAll('#page-3-5-2 .tab-btn')[1].click();
+  const q352_1b = d.querySelectorAll('#qq352-1 .quiz-option');
+  q352_1b[0].click(); // A = wrong (korrekt er B)
+  test('3.5.2 Q1: A → wrong', q352_1b[0].classList.contains('wrong'));
+  test('3.5.2 Q1: feedback err', d.getElementById('qf352-1').classList.contains('err'));
+  test('3.5.2 Q1: B ikke afsløret', !q352_1b[1].classList.contains('reveal-correct'));
+
+  console.log('\nQuiz 3.5.2 – spørgsmålet om determinationskoefficienten ved r=-0,91');
+  w.quizRetry352();
+  d.querySelectorAll('#page-3-5-2 .tab-btn')[1].click();
+  const q352r2opts = d.querySelectorAll('#qq352-5 .quiz-option'); // r=-0,91 -> r²=0,83 (nu spørgsmål 5 efter flytning af Q1/Q2 til bronze)
+  q352r2opts[2].click();
+  test('3.5.2 Q5 (r=-0,91 → r²): C (0,83) → correct', q352r2opts[2].classList.contains('correct'));
+
+  // ── 3.5.2 OPGAVER ────────────────────────────────────────────────────────────
+  console.log('\nBronze 3.5.2 – to MC-spørgsmål flyttet fra tjekspørgsmål');
+  w.showPage('3-5-2');
+  d.querySelectorAll('#page-3-5-2 .tab-btn')[2].click(); // Opgaver-fanen
+  w.restartOpgaver352(); w.startOpgaver352();
+  const rBronze352 = d.getElementById('ow-r-352-low');
+  var bq1opts = d.querySelectorAll('#bq352-1 .quiz-option');
+  var bq2opts = d.querySelectorAll('#bq352-2 .quiz-option');
+  bq1opts[0].click(); // A = korrekt
+  bq2opts[0].click(); // A = korrekt
+  test('Bronze: begge MC korrekte → opg352BronzeDone=true', w.opg352BronzeDone);
+  test('Bronze: ok-styling', rBronze352 && rBronze352.classList.contains('ok'));
+
+  w.restartOpgaver352(); w.startOpgaver352();
+  var bq1optsB = d.querySelectorAll('#bq352-1 .quiz-option');
+  var bq2optsB = d.querySelectorAll('#bq352-2 .quiz-option');
+  bq1optsB[0].click(); // korrekt
+  bq2optsB[1].click(); // forkert (B)
+  test('Bronze: én forkert → opg352BronzeDone forbliver false', !w.opg352BronzeDone);
+  test('Bronze: én forkert → err-styling', rBronze352 && rBronze352.classList.contains('err'));
+
+  console.log('\nSølv 3.5.2 – beregn r for x=[0,2,3] y=[2,3,6] → r≈0,891');
+  function setVal352(id,val){var i=d.getElementById('ow-'+id);if(i)i.value=val;}
+  function isCorrect352(id){var i=d.getElementById('ow-'+id);return i&&i.classList.contains('correct');}
+  w.restartOpgaver352(); w.opg352Level=2; w.startOpgaver352();
+  setVal352('352-r1', (17/Math.sqrt(364)).toFixed(4));
+  w.checkSilver352();
+  test('Sølv: korrekt r → opg352SilverDone=true', w.opg352SilverDone);
+  test('Sølv: r-feltet korrekt', isCorrect352('352-r1'));
+  w.restartOpgaver352(); w.opg352Level=2; w.startOpgaver352();
+  setVal352('352-r1', '0.5'); // reelt forkert
+  w.checkSilver352();
+  test('Sølv: forkert r → not done', !w.opg352SilverDone);
+
+  console.log('\nGuld 3.5.2 – MC-sammenligning (skal være "lavere") + beregn r for x=[0,2,3] y=[4,2,7] → r≈0,434');
+  w.restartOpgaver352(); w.opg352Level=3; w.startOpgaver352();
+  var bq3opts = d.querySelectorAll('#bq352-3 .quiz-option');
+  bq3opts[1].click(); // B = Lavere = korrekt
+  test('Guld: MC "Lavere" → opg352MCDone=true', w.opg352MCDone);
+  setVal352('352-r2', (17/Math.sqrt(1876)).toFixed(4));
+  w.checkGold352();
+  test('Guld: MC korrekt + r korrekt → opg352GoldDone=true', w.opg352GoldDone);
+
+  w.restartOpgaver352(); w.opg352Level=3; w.startOpgaver352();
+  setVal352('352-r2', (17/Math.sqrt(1876)).toFixed(4));
+  w.checkGold352(); // uden at besvare MC-spørgsmålet først
+  test('Guld: korrekt r men MC ikke besvaret → opg352GoldDone forbliver false', !w.opg352GoldDone);
+  test('Guld: specifik besked om at MC skal besvares først', d.getElementById('ow-r-352-high').textContent.includes('sammenligningsspørgsmålet'));
+
+  w.restartOpgaver352(); w.opg352Level=3; w.startOpgaver352();
+  var bq3optsWrong = d.querySelectorAll('#bq352-3 .quiz-option');
+  bq3optsWrong[0].click(); // A = Højere = forkert
+  test('Guld: MC "Højere" (forkert) → opg352MCDone forbliver false', !w.opg352MCDone);
+  setVal352('352-r2', (17/Math.sqrt(1876)).toFixed(4));
+  w.checkGold352();
+  test('Guld: r korrekt men MC forkert → opg352GoldDone forbliver false', !w.opg352GoldDone);
+
+  console.log('\nFuld 3-niveau medaljeflow 3.5.2 (bronze+sølv+guld)');
+  w.restartOpgaver352(); w.opg352Level=3; w.startOpgaver352();
+  var mBq1 = d.querySelectorAll('#bq352-1 .quiz-option'), mBq2 = d.querySelectorAll('#bq352-2 .quiz-option');
+  mBq1[0].click(); mBq2[0].click();
+  test('Niveau 3: kun bronze færdig → ingen medalje endnu', !w.opg352MedalShown);
+  setVal352('352-r1', (17/Math.sqrt(364)).toFixed(4)); w.checkSilver352();
+  test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opg352MedalShown);
+  var mBq3 = d.querySelectorAll('#bq352-3 .quiz-option'); mBq3[1].click();
+  setVal352('352-r2', (17/Math.sqrt(1876)).toFixed(4)); w.checkGold352();
+  test('Niveau 3: alle tre færdige → medalje gemmes', w.opg352MedalShown);
+  test('Niveau 3: medal_352 = 3 i localStorage', parseInt(w.loadProgress('medal_352',0)) === 3);
+
+  console.log('\nRestart-flow 3.5.2');
+  w.restartOpgaver352();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-352').style.display==='block');
+  test('Restart: MC-knapper i bronze er igen klikbare', ![...d.querySelectorAll('#bq352-1 .quiz-option')].some(b=>b.disabled));
+  test('Restart: ingen MC-knapper markeret correct/wrong', ![...d.querySelectorAll('#opg352-low .quiz-option')].some(b=>b.classList.contains('correct')||b.classList.contains('wrong')));
+  test('Restart: opg352BronzeDone nulstillet', !w.opg352BronzeDone);
+  test('Restart: opg352MCDone nulstillet', !w.opg352MCDone);
+  test('Restart: opg352MedalShown nulstillet', !w.opg352MedalShown);
+
+  console.log('\nGuld 3.5.2 — del 2 (beregn r) er skjult indtil del 1 (MC) er besvaret korrekt');
+  w.restartOpgaver352(); w.opg352Level=3; w.startOpgaver352();
+  test('Ved åbning: del 2 er skjult', d.getElementById('t352-gold-r').style.display==='none');
+  var bq3gate = d.querySelectorAll('#bq352-3 .quiz-option');
+  bq3gate[0].click(); // A = Højere = forkert
+  test('Efter forkert MC-svar: del 2 forbliver skjult', d.getElementById('t352-gold-r').style.display==='none');
+  w.restartOpgaver352(); w.opg352Level=3; w.startOpgaver352();
+  var bq3gate2 = d.querySelectorAll('#bq352-3 .quiz-option');
+  bq3gate2[1].click(); // B = Lavere = korrekt
+  test('Efter korrekt MC-svar: del 2 vises', d.getElementById('t352-gold-r').style.display==='block');
+
   // ── RESULTAT ──────────────────────────────────────────────────────────────────
   console.log(`\n${'='.repeat(40)}`);
   console.log(`Resultat: ${passed}/${passed+failed} tests bestået`);

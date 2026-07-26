@@ -2829,7 +2829,603 @@ document.addEventListener("DOMContentLoaded", function() {
 
   </div>
 </div>
-<div id="page-3-2-5" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.2.5</span><h1>Skæring mellem lineære grafer</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-1" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.1</span><h1>Mindste kvadraters metode</h1><p>Indhold tilføjes snart.</p></div></div><div id="page-3-5-2" class="page-hidden"><a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a><div class="emne-header"><span class="tag">3.5.2</span><h1>Korrelationskoefficienten</h1><p>Indhold tilføjes snart.</p></div></div>
+<div id="page-3-2-5" class="page-hidden">
+  <a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a>
+  <div class="emne-header">
+    <span class="tag">3.2.5</span>
+    <h1>Skæring mellem lineære grafer</h1>
+    <p>Lær at løse lineære ligningssystemer grafisk og ved beregning.</p>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="t325-mat">Materiale</button>
+    <button class="tab-btn" data-tab="t325-quiz">Tjekspørgsmål</button>
+    <button class="tab-btn" data-tab="t325-opg">Opgaver</button>
+  </div>
+
+  <div id="t325-mat" class="tab-panel active">
+    <div class="simple-resource-list">
+      <div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=306','_blank')">
+        <input type="checkbox" class="card-check" id="chk-325-bog" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">Kapitel 3.2.5</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+      <div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=C8MztixWc9E','_blank')">
+        <input type="checkbox" class="card-check" id="chk-325-yt" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Skæring mellem lineære grafer</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div id="t325-quiz" class="tab-panel">
+    <div class="quiz-question" id="qq325-1">
+      <div class="quiz-q-text">1. To ligninger med to ubekendte, der hver kan omskrives til formen y = ax + b, kaldes:</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer325(1,'wrong',event)">A) Et kvadratisk ligningssystem</button>
+        <button class="quiz-option" onclick="quizAnswer325(1,'correct',event)">B) Et lineært ligningssystem</button>
+        <button class="quiz-option" onclick="quizAnswer325(1,'wrong',event)">C) Et eksponentielt ligningssystem</button>
+        <button class="quiz-option" onclick="quizAnswer325(1,'wrong',event)">D) Et parallelt ligningssystem</button>
+      </div>
+      <div class="quiz-feedback" id="qf325-1"></div>
+    </div>
+    <div class="quiz-question" id="qq325-2">
+      <div class="quiz-q-text">2. Hvad svarer den grafiske løsning af et lineært ligningssystem til?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer325(2,'wrong',event)">A) Linjernes skæring med y-aksen</button>
+        <button class="quiz-option" onclick="quizAnswer325(2,'wrong',event)">B) Linjernes hældningskoefficienter</button>
+        <button class="quiz-option" onclick="quizAnswer325(2,'correct',event)">C) Skæringspunktet mellem de to linjer</button>
+        <button class="quiz-option" onclick="quizAnswer325(2,'wrong',event)">D) Afstanden mellem de to linjer</button>
+      </div>
+      <div class="quiz-feedback" id="qf325-2"></div>
+    </div>
+    <div class="quiz-question" id="qq325-3">
+      <div class="quiz-q-text">3. Ligningssystemet 3x − y = 7 og 2x + y = 18 har løsningen:</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer325(3,'wrong',event)">A) (x, y) = (8, 5)</button>
+        <button class="quiz-option" onclick="quizAnswer325(3,'correct',event)">B) (x, y) = (5, 8)</button>
+        <button class="quiz-option" onclick="quizAnswer325(3,'wrong',event)">C) (x, y) = (5, −8)</button>
+        <button class="quiz-option" onclick="quizAnswer325(3,'wrong',event)">D) (x, y) = (25, 5)</button>
+      </div>
+      <div class="quiz-feedback" id="qf325-3"></div>
+    </div>
+    <div class="quiz-question" id="qq325-4">
+      <div class="quiz-q-text">4. Man vil løse ligningen 3x − 7 = −2x + 18 ved beregning. Hvad er det første fornuftige skridt?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer325(4,'wrong',event)">A) Sætte x = 0 på begge sider</button>
+        <button class="quiz-option" onclick="quizAnswer325(4,'correct',event)">B) Lægge 2x til på begge sider og lægge 7 til på begge sider</button>
+        <button class="quiz-option" onclick="quizAnswer325(4,'wrong',event)">C) Gange begge sider med −2</button>
+        <button class="quiz-option" onclick="quizAnswer325(4,'wrong',event)">D) Dividere begge sider med 3</button>
+      </div>
+      <div class="quiz-feedback" id="qf325-4"></div>
+    </div>
+    <div class="quiz-question" id="qq325-5">
+      <div class="quiz-q-text">5. To rette linjer med samme hældning, men forskellige skæringer med y-aksen, er:</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer325(5,'wrong',event)">A) Sammenfaldende</button>
+        <button class="quiz-option" onclick="quizAnswer325(5,'wrong',event)">B) Vinkelrette</button>
+        <button class="quiz-option" onclick="quizAnswer325(5,'correct',event)">C) Parallelle uden skæringspunkt</button>
+        <button class="quiz-option" onclick="quizAnswer325(5,'wrong',event)">D) Skærende i ét punkt</button>
+      </div>
+      <div class="quiz-feedback" id="qf325-5"></div>
+    </div>
+    <div class="quiz-question" id="qq325-6">
+      <div class="quiz-q-text">6. Hvis to linjer i et lineært ligningssystem er parallelle og ikke sammenfaldende, har ligningssystemet:</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer325(6,'wrong',event)">A) Én løsning</button>
+        <button class="quiz-option" onclick="quizAnswer325(6,'wrong',event)">B) To løsninger</button>
+        <button class="quiz-option" onclick="quizAnswer325(6,'correct',event)">C) Ingen løsning</button>
+        <button class="quiz-option" onclick="quizAnswer325(6,'wrong',event)">D) Uendeligt mange løsninger</button>
+      </div>
+      <div class="quiz-feedback" id="qf325-6"></div>
+    </div>
+    <div class="quiz-score" id="quiz-score-325" style="display:none">
+      <h3 id="quiz-score-325-title"></h3>
+      <p id="quiz-score-325-text"></p>
+      <button class="quiz-retry" onclick="quizRetry325()">Prøv igen</button>
+    </div>
+  </div>
+
+  <div id="t325-opg" class="tab-panel">
+    <div class="energy-wrap">
+      <div class="energy-header">
+        <span class="energy-question">Hvor meget energi har du i dag?</span>
+        <span class="energy-state" id="energy-state-325" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span>
+      </div>
+      <div class="energy-slider-track">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span>
+        <input type="range" class="energy-slider" id="energy-slider-325" min="0" max="100" value="1" oninput="updateEnergy325(this.value)">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span>
+      </div>
+    </div>
+    <div class="ready-btn-wrap" id="ready-btn-wrap-325" style="display:block">
+      <button class="ready-btn" onclick="startOpgaver325()">
+        <div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div>
+        <span class="ready-btn-cta">Ja, klar!</span>
+      </button>
+    </div>
+    <button class="restart-btn" id="restart-btn-325" onclick="restartOpgaver325()" style="display:none">↩ Vælg nyt niveau</button>
+
+    <!-- BRONZE -->
+    <div class="opgave-widget opgave-hidden" id="opg325-low">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Løs ligningen h(x) = k(x)</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:12px">Om de to lineære funktioner h og k oplyses det, at \(h(x) = 2x - 5\) og \(k(x) = -3x + 10\). Bestem løsningen til ligningen h(x) = k(x).</div>
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:10px">Skriv løsningen som et koordinatsæt (a,b), fx (1,3)</div>
+      <div class="ow-input-row" style="margin-bottom:12px">
+        <span style="font-size:0.9rem">Løsningen er</span>
+        <input class="ow-input" id="ow-325-eq" type="text" placeholder="(a,b)" style="width:120px">
+      </div>
+      <button onclick="checkBronzeEq325()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button>
+      <div class="ow-result" id="ow-r-325-eq" style="margin-top:10px"></div>
+
+      <!-- Grafisk del – vises efter ligningen er løst korrekt -->
+      <div id="t325-bronze-graph" style="display:none;margin-top:20px;padding-top:16px;border-top:1.5px solid var(--border)">
+        <div style="font-size:0.95rem;font-weight:700;margin-bottom:8px">Indsæt punktet du har fundet i et koordinatsystem</div>
+        <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:6px" id="canvas-325-progress">Klik på grafen for at sætte skæringspunktet</div>
+        <div style="display:flex;gap:6px;margin-bottom:6px;align-items:center;flex-wrap:wrap">
+          <button type="button" onclick="canvas325ZoomIn()" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.85rem;cursor:pointer;font-family:inherit" title="Zoom ind">🔍 Zoom ind</button>
+          <button type="button" onclick="canvas325ZoomOut()" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.85rem;cursor:pointer;font-family:inherit" title="Zoom ud">🔍 Zoom ud</button>
+          <button type="button" onclick="canvas325ZoomReset()" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.85rem;cursor:pointer;font-family:inherit">Nulstil zoom</button>
+          <span style="width:1px;height:20px;background:var(--border);margin:0 2px"></span>
+          <button type="button" onclick="canvas325Pan(-1,0)" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.9rem;cursor:pointer;font-family:inherit" title="Ryk til venstre">←</button>
+          <button type="button" onclick="canvas325Pan(1,0)" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.9rem;cursor:pointer;font-family:inherit" title="Ryk til højre">→</button>
+          <button type="button" onclick="canvas325Pan(0,1)" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.9rem;cursor:pointer;font-family:inherit" title="Ryk op">↑</button>
+          <button type="button" onclick="canvas325Pan(0,-1)" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.9rem;cursor:pointer;font-family:inherit" title="Ryk ned">↓</button>
+        </div>
+        <canvas id="canvas-325" width="320" height="300" style="border:1.5px solid var(--border);border-radius:8px;cursor:crosshair;background:#fff;display:block;touch-action:none"></canvas>
+        <div style="margin-top:8px;margin-bottom:8px;display:flex;gap:8px">
+          <button onclick="checkPoint325()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek punkt</button>
+          <button onclick="clearGraph325()" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Ryd</button>
+        </div>
+        <div class="ow-result" id="ow-r-325-point" style="margin-bottom:8px"></div>
+
+        <div id="t325-bronze-lines" style="display:none;margin-top:12px">
+          <div style="font-size:0.88rem;font-weight:600;margin-bottom:6px">Tegn graferne for h(x) og k(x)</div>
+          <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:10px">Klik to punkter på hver graf — linjen tegnes automatisk igennem dem (og videre ud til kanten, da funktionerne ikke er begrænsede)</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button onclick="checkLines325()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek grafer</button>
+            <button onclick="clearLines325()" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Ryd graf</button>
+          </div>
+          <div class="ow-result" id="ow-r-325-lines"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SØLV -->
+    <div class="opgave-widget opgave-hidden" id="opg325-mid">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Løs ligningssystemet</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:12px">Bestem løsningen til de to ligninger med to ubekendte
+        $$\begin{aligned} x + 3y &= 11 \\ x - 2y &= 1 \end{aligned}$$
+      </div>
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:10px">Skriv løsningen som et koordinatsæt, fx (a,b)</div>
+      <div class="ow-input-row" style="margin-bottom:12px">
+        <span style="font-size:0.9rem">Løsningen er</span>
+        <input class="ow-input" id="ow-325-sys" type="text" placeholder="(a,b)" style="width:120px">
+      </div>
+      <button onclick="checkSilver325()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button>
+      <div class="ow-result" id="ow-r-325-mid" style="margin-top:10px"></div>
+    </div>
+
+    <!-- GULD -->
+    <div class="opgave-widget opgave-hidden" id="opg325-high">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Break-even-punktet</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:12px">
+        En virksomhed fremstiller en vare. De samlede omkostninger i kr. ved fremstilling af x enheder kan beskrives ved \(C(x) = 14x + 24\,000\), og virksomhedens indtægt i kr. ved afsætning af x enheder er \(R(x) = 20x\). Find det antal enheder, der skal sælges, for at indtægten netop dækker de samlede omkostninger (break-even-punktet).
+      </div>
+      <div class="ow-input-row" style="margin-bottom:12px">
+        <span style="font-size:0.9rem">Break-even ved</span>
+        <input class="ow-input" id="ow-325-be" type="text" placeholder="?" style="width:110px;text-align:center"> enheder
+      </div>
+      <button onclick="checkGold325()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button>
+      <div class="ow-result" id="ow-r-325-high" style="margin-top:10px"></div>
+    </div>
+
+  </div>
+</div>
+<div id="page-3-5-1" class="page-hidden">
+  <a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a>
+  <div class="emne-header">
+    <span class="tag">3.5.1</span>
+    <h1>Mindste kvadraters metode</h1>
+    <p>Find den bedste rette linje gennem en mængde datapunkter.</p>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="t351-mat">Materiale</button>
+    <button class="tab-btn" data-tab="t351-quiz">Tjekspørgsmål</button>
+    <button class="tab-btn" data-tab="t351-opg">Opgaver</button>
+  </div>
+
+  <div id="t351-mat" class="tab-panel active">
+    <div class="simple-resource-list">
+      <div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=236','_blank')">
+        <input type="checkbox" class="card-check" id="chk-351-bog" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">Kapitel 3.5.1</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+      <div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=P8hT5nDai6A','_blank')">
+        <input type="checkbox" class="card-check" id="chk-351-yt" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Mindste kvadraters metode</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div id="t351-quiz" class="tab-panel">
+    <div class="quiz-question" id="qq351-1">
+      <div class="quiz-q-text">1. Hvad kaldes den metode, der bruges til at bestemme den bedste rette linje gennem en mængde datapunkter?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer351(1,'wrong',event)">A) Største kvadraters metode</button>
+        <button class="quiz-option" onclick="quizAnswer351(1,'correct',event)">B) Mindste kvadraters metode</button>
+        <button class="quiz-option" onclick="quizAnswer351(1,'wrong',event)">C) Residualmetoden</button>
+        <button class="quiz-option" onclick="quizAnswer351(1,'wrong',event)">D) Interpolationsmetoden</button>
+      </div>
+      <div class="quiz-feedback" id="qf351-1"></div>
+    </div>
+    <div class="quiz-question" id="qq351-2">
+      <div class="quiz-q-text">2. Grafen for den lineære model, der bedst beskriver datapunkterne, kaldes:</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer351(2,'wrong',event)">A) Tangenten</button>
+        <button class="quiz-option" onclick="quizAnswer351(2,'wrong',event)">B) Residuallinjen</button>
+        <button class="quiz-option" onclick="quizAnswer351(2,'correct',event)">C) Regressionslinjen (den bedste rette linje)</button>
+        <button class="quiz-option" onclick="quizAnswer351(2,'wrong',event)">D) Middellinjen</button>
+      </div>
+      <div class="quiz-feedback" id="qf351-2"></div>
+    </div>
+    <div class="quiz-question" id="qq351-3">
+      <div class="quiz-q-text">3. Hvordan beregnes residualet rᵢ for punktet (xᵢ, yᵢ) i forhold til linjen y = ax + b?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer351(3,'correct',event)">A) rᵢ = yᵢ − (axᵢ + b)</button>
+        <button class="quiz-option" onclick="quizAnswer351(3,'wrong',event)">B) rᵢ = (axᵢ + b) − xᵢ</button>
+        <button class="quiz-option" onclick="quizAnswer351(3,'wrong',event)">C) rᵢ = yᵢ + (axᵢ + b)</button>
+        <button class="quiz-option" onclick="quizAnswer351(3,'wrong',event)">D) rᵢ = yᵢ · (axᵢ + b)</button>
+      </div>
+      <div class="quiz-feedback" id="qf351-3"></div>
+    </div>
+    <div class="quiz-question" id="qq351-4">
+      <div class="quiz-q-text">4. Hvorfor kan man normalt ikke bare beregne a og b, så linjen y = ax + b går gennem alle datapunkterne?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer351(4,'wrong',event)">A) Fordi formlerne kun gælder for to punkter</button>
+        <button class="quiz-option" onclick="quizAnswer351(4,'correct',event)">B) Fordi observerede data næsten aldrig ligger præcist på en ret linje</button>
+        <button class="quiz-option" onclick="quizAnswer351(4,'wrong',event)">C) Fordi residualerne altid er nul</button>
+        <button class="quiz-option" onclick="quizAnswer351(4,'wrong',event)">D) Fordi datapunkterne skal være hele tal</button>
+      </div>
+      <div class="quiz-feedback" id="qf351-4"></div>
+    </div>
+    <div class="quiz-score" id="quiz-score-351" style="display:none">
+      <h3 id="quiz-score-351-title"></h3>
+      <p id="quiz-score-351-text"></p>
+      <button class="quiz-retry" onclick="quizRetry351()">Prøv igen</button>
+    </div>
+  </div>
+
+  <div id="t351-opg" class="tab-panel">
+    <div class="energy-wrap">
+      <div class="energy-header">
+        <span class="energy-question">Hvor meget energi har du i dag?</span>
+        <span class="energy-state" id="energy-state-351" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span>
+      </div>
+      <div class="energy-slider-track">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span>
+        <input type="range" class="energy-slider" id="energy-slider-351" min="0" max="100" value="1" oninput="updateEnergy351(this.value)">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span>
+      </div>
+    </div>
+    <div class="ready-btn-wrap" id="ready-btn-wrap-351" style="display:block">
+      <button class="ready-btn" onclick="startOpgaver351()">
+        <div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div>
+        <span class="ready-btn-cta">Ja, klar!</span>
+      </button>
+    </div>
+    <button class="restart-btn" id="restart-btn-351" onclick="restartOpgaver351()" style="display:none">↩ Vælg nyt niveau</button>
+
+    <!-- BRONZE -->
+    <div class="opgave-widget opgave-hidden" id="opg351-low">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Indsæt datapunkter og tegn en god linje</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Tabellen viser sammenhørende værdier af x og y:</div>
+      <table style="border-collapse:collapse;margin-bottom:12px;font-size:0.85rem">
+        <tr><td style="border:1px solid var(--border);padding:4px 12px;font-weight:600">x</td><td style="border:1px solid var(--border);padding:4px 12px">0</td><td style="border:1px solid var(--border);padding:4px 12px">2</td><td style="border:1px solid var(--border);padding:4px 12px">3</td></tr>
+        <tr><td style="border:1px solid var(--border);padding:4px 12px;font-weight:600">y</td><td style="border:1px solid var(--border);padding:4px 12px">2</td><td style="border:1px solid var(--border);padding:4px 12px">3</td><td style="border:1px solid var(--border);padding:4px 12px">6</td></tr>
+      </table>
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:6px" id="canvas-351-progress">Klik på grafen for at indsætte de tre datapunkter (klik igen på et punkt for at fjerne det)</div>
+      <canvas id="canvas-351" width="320" height="300" style="border:1.5px solid var(--border);border-radius:8px;cursor:crosshair;background:#fff;display:block;touch-action:none"></canvas>
+      <div style="margin-top:8px;margin-bottom:8px;display:flex;gap:8px">
+        <button onclick="checkPoints351()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek punkter</button>
+        <button onclick="clearPoints351()" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Ryd punkter</button>
+      </div>
+      <div class="ow-result" id="ow-r-351-points" style="margin-bottom:8px"></div>
+
+      <div id="t351-bronze-line" style="display:none;margin-top:12px">
+        <div style="font-size:0.88rem;font-weight:600;margin-bottom:6px">Træk i linjen for at tilpasse den, så den passer godt til punkterne</div>
+        <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:6px">Træk nær midten af linjen for at flytte hele linjen op/ned, eller nær en af enderne for at vippe den.</div>
+        <div style="margin-top:8px;margin-bottom:8px;display:flex;gap:8px">
+          <button onclick="checkLine351()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek linje</button>
+          <button onclick="resetLine351()" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Nulstil linje</button>
+        </div>
+        <div class="ow-result" id="ow-r-351-line"></div>
+
+        <div id="t351-bronze-formula" style="display:none;margin-top:12px">
+          <div style="font-size:0.88rem;font-weight:600;margin-bottom:6px">Skriv forskriften for den linje, du har tegnet</div>
+          <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:10px">Aflæs a og b ud fra det, der står øverst i koordinatsystemet</div>
+          <div class="ow-input-row" style="margin-bottom:10px">
+            <span style="font-size:0.9rem">a =</span>
+            <input class="ow-input" id="ow-351-drawn-a" type="text" placeholder="?" style="width:100px;text-align:center">
+          </div>
+          <div class="ow-input-row" style="margin-bottom:12px">
+            <span style="font-size:0.9rem">b =</span>
+            <input class="ow-input" id="ow-351-drawn-b" type="text" placeholder="?" style="width:100px;text-align:center">
+          </div>
+          <button onclick="checkDrawnFormula351()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button>
+          <div class="ow-result" id="ow-r-351-formula" style="margin-top:10px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SØLV -->
+    <div class="opgave-widget opgave-hidden" id="opg351-mid">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Beregn regressionslinjen</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Anvend mindste kvadraters metode på de samme datapunkter til at bestemme forskriften y = ax + b for den bedste rette linje.</div>
+      <table style="border-collapse:collapse;margin-bottom:12px;font-size:0.85rem">
+        <tr><td style="border:1px solid var(--border);padding:4px 12px;font-weight:600">x</td><td style="border:1px solid var(--border);padding:4px 12px">0</td><td style="border:1px solid var(--border);padding:4px 12px">2</td><td style="border:1px solid var(--border);padding:4px 12px">3</td></tr>
+        <tr><td style="border:1px solid var(--border);padding:4px 12px;font-weight:600">y</td><td style="border:1px solid var(--border);padding:4px 12px">2</td><td style="border:1px solid var(--border);padding:4px 12px">3</td><td style="border:1px solid var(--border);padding:4px 12px">6</td></tr>
+      </table>
+      <div class="ow-input-row" style="margin-bottom:10px">
+        <span style="font-size:0.9rem">a =</span>
+        <input class="ow-input" id="ow-351-a" type="text" placeholder="?" style="width:100px;text-align:center">
+      </div>
+      <div class="ow-input-row" style="margin-bottom:12px">
+        <span style="font-size:0.9rem">b =</span>
+        <input class="ow-input" id="ow-351-b" type="text" placeholder="?" style="width:100px;text-align:center">
+      </div>
+      <button onclick="checkSilver351()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button>
+      <div class="ow-result" id="ow-r-351-mid" style="margin-top:10px"></div>
+    </div>
+
+    <!-- GULD -->
+    <div class="opgave-widget opgave-hidden" id="opg351-high">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Reklamekroner og salgsantal</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">En virksomhed har registreret deres ugentlige forbrug på reklame x (i tusinde kr.) og det tilhørende antal solgte enheder y. Bestem den bedste rette linje, der beskriver sammenhængen, ved hjælp af mindste kvadraters metode.</div>
+      <table style="border-collapse:collapse;margin-bottom:12px;font-size:0.82rem">
+        <tr><td style="border:1px solid var(--border);padding:4px 10px;font-weight:600">x</td><td style="border:1px solid var(--border);padding:4px 10px">5</td><td style="border:1px solid var(--border);padding:4px 10px">15</td><td style="border:1px solid var(--border);padding:4px 10px">25</td><td style="border:1px solid var(--border);padding:4px 10px">35</td><td style="border:1px solid var(--border);padding:4px 10px">45</td><td style="border:1px solid var(--border);padding:4px 10px">55</td></tr>
+        <tr><td style="border:1px solid var(--border);padding:4px 10px;font-weight:600">y</td><td style="border:1px solid var(--border);padding:4px 10px">32</td><td style="border:1px solid var(--border);padding:4px 10px">84</td><td style="border:1px solid var(--border);padding:4px 10px">141</td><td style="border:1px solid var(--border);padding:4px 10px">203</td><td style="border:1px solid var(--border);padding:4px 10px">248</td><td style="border:1px solid var(--border);padding:4px 10px">312</td></tr>
+      </table>
+      <div class="ow-input-row" style="margin-bottom:12px;flex-wrap:wrap">
+        <span style="font-size:0.9rem">y =</span>
+        <input class="ow-input" id="ow-351-ga" type="text" placeholder="?" style="width:70px;text-align:center">
+        <span style="font-size:0.9rem">x +</span>
+        <input class="ow-input" id="ow-351-gb" type="text" placeholder="?" style="width:70px;text-align:center">
+      </div>
+      <button onclick="checkGold351()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button>
+      <div class="ow-result" id="ow-r-351-high" style="margin-top:10px"></div>
+    </div>
+
+  </div>
+</div>
+<div id="page-3-5-2" class="page-hidden">
+  <a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a>
+  <div class="emne-header">
+    <span class="tag">3.5.2</span>
+    <h1>Korrelationskoefficienten</h1>
+    <p>Vurder hvor godt en lineær model beskriver et datasæt.</p>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="t352-mat">Materiale</button>
+    <button class="tab-btn" data-tab="t352-quiz">Tjekspørgsmål</button>
+    <button class="tab-btn" data-tab="t352-opg">Opgaver</button>
+  </div>
+
+  <div id="t352-mat" class="tab-panel active">
+    <div class="simple-resource-list">
+      <div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=299','_blank')">
+        <input type="checkbox" class="card-check" id="chk-352-bog" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">Kapitel 3.5.2</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div id="t352-quiz" class="tab-panel">
+    <div class="quiz-question" id="qq352-1">
+      <div class="quiz-q-text">1. Hvad er det mulige interval for korrelationskoefficienten r?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer352(1,'wrong',event)">A) r er altid mellem 0 og 1</button>
+        <button class="quiz-option" onclick="quizAnswer352(1,'correct',event)">B) r er altid mellem −1 og 1</button>
+        <button class="quiz-option" onclick="quizAnswer352(1,'wrong',event)">C) r er altid mellem −2 og 2</button>
+        <button class="quiz-option" onclick="quizAnswer352(1,'wrong',event)">D) r kan antage alle reelle værdier</button>
+      </div>
+      <div class="quiz-feedback" id="qf352-1"></div>
+    </div>
+    <div class="quiz-question" id="qq352-2">
+      <div class="quiz-q-text">2. Tre forskellige datasæt giver alle samme regressionslinje y = 0,5x + 3 med r = 0,82. Hvad fortæller det os?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer352(2,'wrong',event)">A) Alle tre datasæt er lige godt beskrevet af den lineære model</button>
+        <button class="quiz-option" onclick="quizAnswer352(2,'wrong',event)">B) Den lineære model er en perfekt beskrivelse af alle tre datasæt</button>
+        <button class="quiz-option" onclick="quizAnswer352(2,'correct',event)">C) Korrelationskoefficienten alene er ikke tilstrækkelig til at vurdere, om den lineære model er passende</button>
+        <button class="quiz-option" onclick="quizAnswer352(2,'wrong',event)">D) r = 0,82 betyder, at den lineære model skal forkastes for alle tre datasæt</button>
+      </div>
+      <div class="quiz-feedback" id="qf352-2"></div>
+    </div>
+    <div class="quiz-question" id="qq352-3">
+      <div class="quiz-q-text">3. Hvad er determinationskoefficienten r²?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer352(3,'wrong',event)">A) Kvadratroden af korrelationskoefficienten</button>
+        <button class="quiz-option" onclick="quizAnswer352(3,'correct',event)">B) Korrelationskoefficienten r opløftet i anden potens</button>
+        <button class="quiz-option" onclick="quizAnswer352(3,'wrong',event)">C) Summen af alle residualer i anden potens</button>
+        <button class="quiz-option" onclick="quizAnswer352(3,'wrong',event)">D) Hældningen for regressionslinjen opløftet i anden potens</button>
+      </div>
+      <div class="quiz-feedback" id="qf352-3"></div>
+    </div>
+    <div class="quiz-question" id="qq352-4">
+      <div class="quiz-q-text">4. Hvilket interval befinder determinationskoefficienten r² sig altid i?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer352(4,'wrong',event)">A) Mellem −1 og 1</button>
+        <button class="quiz-option" onclick="quizAnswer352(4,'wrong',event)">B) Mellem −1 og 0</button>
+        <button class="quiz-option" onclick="quizAnswer352(4,'correct',event)">C) Mellem 0 og 1</button>
+        <button class="quiz-option" onclick="quizAnswer352(4,'wrong',event)">D) Mellem 0 og 2</button>
+      </div>
+      <div class="quiz-feedback" id="qf352-4"></div>
+    </div>
+    <div class="quiz-question" id="qq352-5">
+      <div class="quiz-q-text">5. Et datasæt giver korrelationskoefficienten r = −0,91. Hvad er determinationskoefficienten r²?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer352(5,'wrong',event)">A) r² = −0,83</button>
+        <button class="quiz-option" onclick="quizAnswer352(5,'wrong',event)">B) r² = 0,91</button>
+        <button class="quiz-option" onclick="quizAnswer352(5,'correct',event)">C) r² = 0,83</button>
+        <button class="quiz-option" onclick="quizAnswer352(5,'wrong',event)">D) r² = −0,91</button>
+      </div>
+      <div class="quiz-feedback" id="qf352-5"></div>
+    </div>
+    <div class="quiz-question" id="qq352-6">
+      <div class="quiz-q-text">6. Hvad betyder det, at r² er tæt på 1?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer352(6,'wrong',event)">A) At hældningen på regressionslinjen er positiv</button>
+        <button class="quiz-option" onclick="quizAnswer352(6,'correct',event)">B) At den lineære regressionsmodel er en god beskrivelse af data</button>
+        <button class="quiz-option" onclick="quizAnswer352(6,'wrong',event)">C) At alle residualer er lig med nul</button>
+        <button class="quiz-option" onclick="quizAnswer352(6,'wrong',event)">D) At data slet ikke følger en lineær model</button>
+      </div>
+      <div class="quiz-feedback" id="qf352-6"></div>
+    </div>
+    <div class="quiz-question" id="qq352-7">
+      <div class="quiz-q-text">7. En elev har lavet lineær regression på et datasæt og fået r² = 0,89. Eleven konkluderer: "Modellen er god, fordi determinationskoefficienten er høj." Er elevens konklusion korrekt?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer352(7,'wrong',event)">A) Ja, r² = 0,89 er tæt på 1, så den lineære model er en god beskrivelse af data</button>
+        <button class="quiz-option" onclick="quizAnswer352(7,'correct',event)">B) Nej, man kan ikke vurdere modellen uden også at se på et xy-plot og et residualplot, da et systematisk mønster i data ikke opdages af r² alene</button>
+        <button class="quiz-option" onclick="quizAnswer352(7,'wrong',event)">C) Nej, r² skal være over 0,95 før man kan kalde modellen god</button>
+        <button class="quiz-option" onclick="quizAnswer352(7,'wrong',event)">D) Ja, så længe r² er over 0,80 er den lineære model altid passende</button>
+      </div>
+      <div class="quiz-feedback" id="qf352-7"></div>
+    </div>
+    <div class="quiz-question" id="qq352-8">
+      <div class="quiz-q-text">8. En lærer siger: "Determinationskoefficienten skal altid være over 0,80, før man kan sige at den lineære regressionsmodel er god." Er lærerens udsagn korrekt?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer352(8,'wrong',event)">A) Ja, r² > 0,80 er den universelle grænse for en god lineær model</button>
+        <button class="quiz-option" onclick="quizAnswer352(8,'wrong',event)">B) Ja, men kun inden for naturvidenskab — i andre fag gælder andre regler</button>
+        <button class="quiz-option" onclick="quizAnswer352(8,'correct',event)">C) Nej, grænsen for hvornår r² er "god nok" afhænger af fagområdet, datatypen og et eventuelt opstillet kriterium — der findes ingen universel grænse</button>
+        <button class="quiz-option" onclick="quizAnswer352(8,'wrong',event)">D) Nej, r² skal altid være over 0,90 før modellen kan kaldes god</button>
+      </div>
+      <div class="quiz-feedback" id="qf352-8"></div>
+    </div>
+    <div class="quiz-score" id="quiz-score-352" style="display:none">
+      <h3 id="quiz-score-352-title"></h3>
+      <p id="quiz-score-352-text"></p>
+      <button class="quiz-retry" onclick="quizRetry352()">Prøv igen</button>
+    </div>
+  </div>
+
+  <div id="t352-opg" class="tab-panel">
+    <div class="energy-wrap">
+      <div class="energy-header">
+        <span class="energy-question">Hvor meget energi har du i dag?</span>
+        <span class="energy-state" id="energy-state-352" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span>
+      </div>
+      <div class="energy-slider-track">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span>
+        <input type="range" class="energy-slider" id="energy-slider-352" min="0" max="100" value="1" oninput="updateEnergy352(this.value)">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span>
+      </div>
+    </div>
+    <div class="ready-btn-wrap" id="ready-btn-wrap-352" style="display:block">
+      <button class="ready-btn" onclick="startOpgaver352()">
+        <div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div>
+        <span class="ready-btn-cta">Ja, klar!</span>
+      </button>
+    </div>
+    <button class="restart-btn" id="restart-btn-352" onclick="restartOpgaver352()" style="display:none">↩ Vælg nyt niveau</button>
+
+    <!-- BRONZE -->
+    <div class="opgave-widget opgave-hidden" id="opg352-low">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Aflæs korrelationskoefficienten fra figurer</span>
+      </div>
+      <div class="quiz-question" id="bq352-1">
+        <div class="quiz-q-text">1. Se figuren. Hvilken model har den højeste korrelationskoefficient?
+          <img src="https://brianveispennerup.github.io/HHXB/Figur1_352_1.png" style="max-width:100%;border-radius:8px;margin-top:8px">
+        </div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="bronzeAnswer352(1,'correct',event)">A) Den første</button>
+          <button class="quiz-option" onclick="bronzeAnswer352(1,'wrong',event)">B) Den anden</button>
+          <button class="quiz-option" onclick="bronzeAnswer352(1,'wrong',event)">C) Den tredje</button>
+        </div>
+        <div class="quiz-feedback" id="bqf352-1"></div>
+      </div>
+      <div class="quiz-question" id="bq352-2">
+        <div class="quiz-q-text">2. Se figuren. Hvilken model har den højeste korrelationskoefficient?
+          <img src="https://brianveispennerup.github.io/HHXB/Figur1_352_2.png" style="max-width:100%;border-radius:8px;margin-top:8px">
+        </div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="bronzeAnswer352(2,'correct',event)">A) Den første</button>
+          <button class="quiz-option" onclick="bronzeAnswer352(2,'wrong',event)">B) Den anden</button>
+          <button class="quiz-option" onclick="bronzeAnswer352(2,'wrong',event)">C) Den tredje</button>
+        </div>
+        <div class="quiz-feedback" id="bqf352-2"></div>
+      </div>
+      <div class="ow-result" id="ow-r-352-low"></div>
+    </div>
+
+    <!-- SØLV -->
+    <div class="opgave-widget opgave-hidden" id="opg352-mid">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Beregn korrelationskoefficienten</span>
+      </div>
+      <img src="https://brianveispennerup.github.io/HHXB/Figur1_352_3.png" style="max-width:100%;border-radius:8px;margin-bottom:10px">
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Beregn korrelationskoefficienten r ud fra datapunkterne i koordinatsystemet ovenfor. Regressionsmodellen for disse punkter er f(x) = 1,21x + 1,64.</div>
+      <div class="ow-input-row" style="margin-bottom:12px">
+        <span style="font-size:0.9rem">r =</span>
+        <input class="ow-input" id="ow-352-r1" type="text" placeholder="?" style="width:100px;text-align:center">
+      </div>
+      <button onclick="checkSilver352()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button>
+      <div class="ow-result" id="ow-r-352-mid" style="margin-top:10px"></div>
+    </div>
+
+    <!-- GULD -->
+    <div class="opgave-widget opgave-hidden" id="opg352-high">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Sammenlign og beregn</span>
+      </div>
+      <img src="https://brianveispennerup.github.io/HHXB/Figur1_352_4.png" style="max-width:100%;border-radius:8px;margin-bottom:10px">
+      <div class="quiz-question" id="bq352-3">
+        <div style="font-size:0.83rem;color:#6b7280;font-weight:400;margin-bottom:8px">1. Sammenlignet med figuren i sølv-opgaven ovenfor — har denne figur en højere eller lavere korrelationskoefficient?
+          <div style="font-size:0.78rem;color:#9ca3af;font-weight:400;margin-top:6px">Regressionsmodellen for figuren i sølv-opgaven er f(x) = 1,21x + 1,64.</div>
+        </div>
+        <div class="quiz-options">
+          <button class="quiz-option" onclick="goldAnswer352('wrong',event)">A) Højere</button>
+          <button class="quiz-option" onclick="goldAnswer352('correct',event)">B) Lavere</button>
+        </div>
+        <div class="quiz-feedback" id="bqf352-3"></div>
+      </div>
+      <div id="t352-gold-r" style="display:none;margin-top:12px">
+        <div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">2. Beregn korrelationskoefficienten r ud fra datapunkterne i koordinatsystemet ovenfor.</div>
+        <div class="ow-input-row" style="margin-bottom:12px">
+          <span style="font-size:0.9rem">r =</span>
+          <input class="ow-input" id="ow-352-r2" type="text" placeholder="?" style="width:100px;text-align:center">
+        </div>
+        <button onclick="checkGold352()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button>
+        <div class="ow-result" id="ow-r-352-high" style="margin-top:10px"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div id="page-fremgang" class="page-hidden">
 <a class="back-link" onclick="showPage('home')">← Alle forløb</a>
 <div class="fremgang-header">
@@ -6173,6 +6769,968 @@ function restartOpgaver324() {
   var state=document.getElementById('energy-state-324'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
 }
 
+// ── 3.2.5 SKÆRING MELLEM LINEÆRE GRAFER ─────────────────────────────────────
+var quiz325Answered = {}, quiz325Correct = 0, quiz325Total = 6;
+
+function quizAnswer325(qnum, result, evt) {
+  if (quiz325Answered[qnum]) return;
+  quiz325Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq325-' + qnum);
+  var fb = document.getElementById('qf325-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz325Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  if (Object.keys(quiz325Answered).length >= quiz325Total) {
+    var box=document.getElementById('quiz-score-325'); box.style.display='block';
+    document.getElementById('quiz-score-325-title').textContent = quiz325Correct===quiz325Total ? 'Perfekt – '+quiz325Correct+'/'+quiz325Total+'!' : quiz325Correct+'/'+quiz325Total+' rigtige';
+    document.getElementById('quiz-score-325-text').textContent = quiz325Correct===quiz325Total ? 'Du har styr på lineære ligningssystemer!' : 'Se de markerede svar og prøv igen.';
+  }
+}
+
+function quizRetry325() {
+  quiz325Answered={}; quiz325Correct=0;
+  [1,2,3,4,5,6].forEach(function(n){
+    var qq=document.getElementById('qq325-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.classList.remove('correct','wrong');});
+    var fb=document.getElementById('qf325-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-325').style.display='none';
+}
+
+// ── 3.2.5 OPGAVER ────────────────────────────────────────────────────────────
+var opg325Level = 1, opg325Started = false, opg325MedalShown = false;
+var opg325EqDone = false, opg325PointDone = false, opg325LinesDone = false;
+var opg325SilverDone = false, opg325GoldDone = false;
+
+var line325H = function(x){ return 2*x - 5; };
+var line325K = function(x){ return -3*x + 10; };
+var point325Intersection = [3, 1];
+
+function checkBronzeEq325() {
+  var input = document.getElementById('ow-325-eq');
+  var r = document.getElementById('ow-r-325-eq');
+  var pt = parseCoordinatePoint(input.value);
+  var ok = pt !== null && Math.abs(pt[0]-3) < 0.05 && Math.abs(pt[1]-1) < 0.05;
+  if (ok) {
+    input.classList.remove('wrong'); input.classList.add('correct');
+    opg325EqDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    var graph = document.getElementById('t325-bronze-graph');
+    if (graph) { graph.style.display = 'block'; setTimeout(initCanvas325, 100); }
+    runOpgaveSparkle(document.getElementById('opg325-low'));
+    checkOpg325Medal();
+  } else {
+    input.classList.add('wrong');
+    setTimeout(function(){ input.classList.remove('wrong'); }, 1200);
+    if (r) { r.className='ow-result err'; r.textContent='Ikke helt rigtigt — skriv løsningen som (x,y).'; }
+  }
+}
+
+// Klik-baseret grafisk del: 'point' → 'lines' → 'done'
+var canvas325Stage = 'point';
+var canvas325IntersectionPoint = null;
+var canvas325Points = [[], []]; // [0]=h's punkter, [1]=k's punkter
+var canvas325CurrentLine = 0;
+var canvas325LastClickTime = 0;
+
+function canvas325RegisterClick(clientX, clientY) {
+  var now = Date.now();
+  if (now - canvas325LastClickTime < 350) return;
+  canvas325LastClickTime = now;
+  var canvas = document.getElementById('canvas-325');
+  var pt = getCanvasPoint325(canvas, { clientX: clientX, clientY: clientY });
+  var mx = Math.round(pt[0]*2)/2, my = Math.round(pt[1]*2)/2;
+
+  if (canvas325Stage === 'point') {
+    canvas325IntersectionPoint = [mx, my];
+  } else if (canvas325Stage === 'lines') {
+    if (canvas325CurrentLine >= 2) return;
+    canvas325Points[canvas325CurrentLine].push([mx, my]);
+    if (canvas325Points[canvas325CurrentLine].length >= 2) canvas325CurrentLine++;
+    updateCanvas325Progress();
+  }
+  drawCanvas325();
+}
+function canvas325ClickHandler(e) { canvas325RegisterClick(e.clientX, e.clientY); }
+function canvas325TouchendHandler(e) {
+  e.preventDefault();
+  var touch = e.changedTouches[0];
+  canvas325RegisterClick(touch.clientX, touch.clientY);
+}
+
+function updateCanvas325Progress() {
+  var label = document.getElementById('canvas-325-progress');
+  if (!label) return;
+  if (canvas325Stage === 'point') {
+    label.textContent = 'Klik på grafen for at sætte skæringspunktet';
+  } else if (canvas325Stage === 'lines') {
+    if (canvas325CurrentLine >= 2) {
+      label.textContent = 'Begge grafer er tegnet — klik "Tjek grafer".';
+    } else {
+      var lineName = canvas325CurrentLine === 0 ? 'h(x)' : 'k(x)';
+      var n = canvas325Points[canvas325CurrentLine].length === 0 ? '1.' : '2.';
+      label.textContent = 'Sæt ' + n + ' punkt på grafen for ' + lineName;
+    }
+  }
+}
+
+function initCanvas325() {
+  var canvas = document.getElementById('canvas-325');
+  if (!canvas) return;
+  canvas.removeEventListener('click', canvas325ClickHandler);
+  canvas.removeEventListener('touchend', canvas325TouchendHandler);
+  drawCanvas325();
+  updateCanvas325Progress();
+  canvas.addEventListener('click', canvas325ClickHandler);
+  canvas.addEventListener('touchend', canvas325TouchendHandler, {passive:false});
+}
+
+// Grund-udsnit: x ∈ [-3;8] (11 enheder), y ∈ [-15;20] (35 enheder) — rummer begge linjer fint
+var CANVAS325_BASE_XMIN = -3, CANVAS325_BASE_XMAX = 8, CANVAS325_BASE_YMIN = -15, CANVAS325_BASE_YMAX = 20;
+var CANVAS325_CENTER_X = (CANVAS325_BASE_XMIN + CANVAS325_BASE_XMAX) / 2;
+var CANVAS325_CENTER_Y = (CANVAS325_BASE_YMIN + CANVAS325_BASE_YMAX) / 2;
+var canvas325Zoom = 1;
+var canvas325PanX = 0, canvas325PanY = 0; // forskydning fra centrum, i data-enheder
+
+function getCanvas325View() {
+  var xHalf = (CANVAS325_BASE_XMAX - CANVAS325_BASE_XMIN) / 2 / canvas325Zoom;
+  var yHalf = (CANVAS325_BASE_YMAX - CANVAS325_BASE_YMIN) / 2 / canvas325Zoom;
+  var centerX = CANVAS325_CENTER_X + canvas325PanX;
+  var centerY = CANVAS325_CENTER_Y + canvas325PanY;
+  return {
+    xMin: centerX - xHalf, xMax: centerX + xHalf,
+    yMin: centerY - yHalf, yMax: centerY + yHalf
+  };
+}
+
+function canvas325ZoomIn() {
+  canvas325Zoom = Math.min(canvas325Zoom * 1.5, 8);
+  drawCanvas325();
+}
+function canvas325ZoomOut() {
+  canvas325Zoom = Math.max(canvas325Zoom / 1.5, 1);
+  drawCanvas325();
+}
+function canvas325ZoomReset() {
+  canvas325Zoom = 1;
+  canvas325PanX = 0; canvas325PanY = 0;
+  drawCanvas325();
+}
+
+// Rykker det synlige udsnit, dx/dy = -1, 0 eller 1 (retning), skalerer med det aktuelle zoom-niveau
+function canvas325Pan(dx, dy) {
+  var v = getCanvas325View();
+  var xRange = v.xMax - v.xMin, yRange = v.yMax - v.yMin;
+  canvas325PanX += dx * xRange * 0.3;
+  canvas325PanY += dy * yRange * 0.3;
+  drawCanvas325();
+}
+
+// Finder et "pænt" gitter-interval (1, 2, 5, 10, ...) ud fra det synlige tal-spænd
+function niceGridStep325(range) {
+  var rough = range / 8;
+  var pow10 = Math.pow(10, Math.floor(Math.log10(rough)));
+  var norm = rough / pow10;
+  var step;
+  if (norm < 1.5) step = 1;
+  else if (norm < 3.5) step = 2;
+  else if (norm < 7.5) step = 5;
+  else step = 10;
+  return step * pow10;
+}
+
+function getCanvasPoint325(canvas, e) {
+  var rect = canvas.getBoundingClientRect();
+  var scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height;
+  var cx = (e.clientX-rect.left)*scaleX, cy = (e.clientY-rect.top)*scaleY;
+  var v = getCanvas325View();
+  var xRange = v.xMax-v.xMin, yRange = v.yMax-v.yMin;
+  return [(cx/canvas.width)*xRange + v.xMin, v.yMax - (cy/canvas.height)*yRange];
+}
+
+function canvas325DataToPixel(x, y, w, h) {
+  var v = getCanvas325View();
+  var xRange = v.xMax-v.xMin, yRange = v.yMax-v.yMin;
+  return [((x-v.xMin)/xRange)*w, ((v.yMax-y)/yRange)*h];
+}
+
+function drawCanvas325() {
+  var canvas = document.getElementById('canvas-325'); if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+  var v = getCanvas325View();
+  var xStep = niceGridStep325(v.xMax-v.xMin), yStep = niceGridStep325(v.yMax-v.yMin);
+
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=0.8;
+  for (var xi=Math.ceil(v.xMin/xStep)*xStep; xi<=v.xMax; xi+=xStep) { var px=canvas325DataToPixel(xi,0,w,h)[0]; ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,h); ctx.stroke(); }
+  for (var yi=Math.ceil(v.yMin/yStep)*yStep; yi<=v.yMax; yi+=yStep) { var py=canvas325DataToPixel(0,yi,w,h)[1]; ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(w,py); ctx.stroke(); }
+
+  ctx.strokeStyle='#374151'; ctx.lineWidth=2;
+  var axis0 = canvas325DataToPixel(0,0,w,h);
+  ctx.beginPath(); ctx.moveTo(0,axis0[1]); ctx.lineTo(w,axis0[1]); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(axis0[0],0); ctx.lineTo(axis0[0],h); ctx.stroke();
+
+  ctx.fillStyle='#6b7280'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  for (var xi2=Math.ceil(v.xMin/xStep)*xStep; xi2<=v.xMax; xi2+=xStep) { if(Math.abs(xi2)<xStep*0.01) continue; var pxl=canvas325DataToPixel(xi2,0,w,h); ctx.fillText(Math.round(xi2*100)/100, pxl[0], axis0[1]+13); }
+  ctx.textAlign='right';
+  for (var yi2=Math.ceil(v.yMin/yStep)*yStep; yi2<=v.yMax; yi2+=yStep) { if(Math.abs(yi2)<yStep*0.01) continue; var pyl=canvas325DataToPixel(0,yi2,w,h); ctx.fillText(Math.round(yi2*100)/100, axis0[0]-5, pyl[1]+4); }
+  ctx.fillStyle='#374151'; ctx.font='12px sans-serif';
+  ctx.textAlign='left'; ctx.fillText('x', w-12, axis0[1]-6);
+  ctx.textAlign='center'; ctx.fillText('y', axis0[0]+12, 10);
+
+  // Linjer (kun i 'lines'-fasen), forlænget helt ud til kanten af det synlige udsnit
+  if (canvas325Stage === 'lines' || canvas325Stage === 'done') {
+    [0,1].forEach(function(li){
+      var pts = canvas325Points[li];
+      if (pts.length < 2) return;
+      var slope = (pts[1][1]-pts[0][1]) / (pts[1][0]-pts[0][0] || 0.0001);
+      var yAtLeft = pts[0][1] + slope*(v.xMin-pts[0][0]);
+      var yAtRight = pts[0][1] + slope*(v.xMax-pts[0][0]);
+      var p1 = canvas325DataToPixel(v.xMin, yAtLeft, w, h);
+      var p2 = canvas325DataToPixel(v.xMax, yAtRight, w, h);
+      ctx.strokeStyle = li===0 ? '#2563eb' : '#dc2626'; ctx.lineWidth=2.5; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(p1[0],p1[1]); ctx.lineTo(p2[0],p2[1]); ctx.stroke();
+      pts.forEach(function(p){
+        var px = canvas325DataToPixel(p[0], p[1], w, h);
+        ctx.fillStyle = li===0 ? '#2563eb' : '#dc2626';
+        ctx.beginPath(); ctx.arc(px[0],px[1],4,0,Math.PI*2); ctx.fill();
+      });
+    });
+  }
+
+  // Skæringspunkt
+  if (canvas325IntersectionPoint) {
+    var pp = canvas325DataToPixel(canvas325IntersectionPoint[0], canvas325IntersectionPoint[1], w, h);
+    ctx.fillStyle='#16a34a'; ctx.beginPath(); ctx.arc(pp[0],pp[1],5,0,Math.PI*2); ctx.fill();
+  }
+}
+
+function clearGraph325() {
+  canvas325IntersectionPoint = null;
+  canvas325Points = [[], []];
+  canvas325CurrentLine = 0;
+  canvas325Stage = 'point';
+  opg325PointDone = false; opg325LinesDone = false;
+  var linesWrap = document.getElementById('t325-bronze-lines'); if (linesWrap) linesWrap.style.display = 'none';
+  drawCanvas325();
+  updateCanvas325Progress();
+  var r1 = document.getElementById('ow-r-325-point'); if (r1) { r1.className='ow-result'; r1.textContent=''; }
+  var r2 = document.getElementById('ow-r-325-lines'); if (r2) { r2.className='ow-result'; r2.textContent=''; }
+}
+
+// Rydder KUN de tegnede grafer (linjepunkterne) — bevarer det allerede godkendte skæringspunkt
+function clearLines325() {
+  canvas325Points = [[], []];
+  canvas325CurrentLine = 0;
+  opg325LinesDone = false;
+  drawCanvas325();
+  updateCanvas325Progress();
+  var r2 = document.getElementById('ow-r-325-lines'); if (r2) { r2.className='ow-result'; r2.textContent=''; }
+}
+
+function checkPoint325() {
+  var r = document.getElementById('ow-r-325-point');
+  if (!canvas325IntersectionPoint) {
+    if (r) { r.className='ow-result err'; r.textContent='Klik på grafen for at sætte punktet først.'; }
+    return;
+  }
+  var tolerance = 0.3;
+  var ok = Math.abs(canvas325IntersectionPoint[0]-point325Intersection[0]) < tolerance &&
+           Math.abs(canvas325IntersectionPoint[1]-point325Intersection[1]) < tolerance;
+  if (ok) {
+    opg325PointDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Korrekt! Tegn nu graferne for h(x) og k(x).'; }
+    canvas325Stage = 'lines';
+    var linesWrap = document.getElementById('t325-bronze-lines'); if (linesWrap) linesWrap.style.display = 'block';
+    updateCanvas325Progress();
+    runOpgaveSparkle(document.getElementById('opg325-low'));
+    checkOpg325Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek din udregning og prøv igen.';
+  }
+}
+
+function checkLines325() {
+  var r = document.getElementById('ow-r-325-lines');
+  if (canvas325Points[0].length < 2 || canvas325Points[1].length < 2) {
+    if (r) { r.className='ow-result err'; r.textContent='Sæt to punkter på hver graf først.'; }
+    return;
+  }
+  var tolerance = 0.4;
+  function pointsMatchLine(points, lineFn) {
+    return points.every(function(p){ return Math.abs(p[1]-lineFn(p[0])) < tolerance; });
+  }
+  function pointsSeparated(points) {
+    return Math.abs(points[0][0]-points[1][0]) >= 1;
+  }
+  var separationOk = pointsSeparated(canvas325Points[0]) && pointsSeparated(canvas325Points[1]);
+  // Rækkefølgen er ligegyldig — kun at BEGGE linjer reelt er tegnet korrekt (den ene som h, den anden som k, i vilkårlig rækkefølge)
+  var assignmentHK = pointsMatchLine(canvas325Points[0], line325H) && pointsMatchLine(canvas325Points[1], line325K);
+  var assignmentKH = pointsMatchLine(canvas325Points[0], line325K) && pointsMatchLine(canvas325Points[1], line325H);
+  var allOk = separationOk && (assignmentHK || assignmentKH);
+
+  if (allOk) {
+    opg325LinesDone = true;
+    canvas325Stage = 'done';
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt! Begge grafer er tegnet korrekt.'; }
+    runOpgaveSparkle(document.getElementById('opg325-low'));
+    checkOpg325Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek at begge punkter på hver graf ligger på den rigtige linje.';
+  }
+}
+
+function checkSilver325() {
+  var input = document.getElementById('ow-325-sys');
+  var r = document.getElementById('ow-r-325-mid');
+  var pt = parseCoordinatePoint(input.value);
+  var ok = pt !== null && Math.abs(pt[0]-5) < 0.05 && Math.abs(pt[1]-2) < 0.05;
+  if (ok) {
+    input.classList.remove('wrong'); input.classList.add('correct');
+    opg325SilverDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg325-mid'));
+    checkOpg325Medal();
+  } else {
+    input.classList.add('wrong');
+    setTimeout(function(){ input.classList.remove('wrong'); }, 1200);
+    if (r) { r.className='ow-result err'; r.textContent='Ikke helt rigtigt — skriv løsningen som (x,y).'; }
+  }
+}
+
+function checkGold325() {
+  var ok = checkSingleNumericField('325-be', 4000, 1);
+  var r = document.getElementById('ow-r-325-high');
+  if (ok) {
+    opg325GoldDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg325-high'));
+    checkOpg325Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — prøv igen.';
+  }
+}
+
+function checkOpg325Medal() {
+  if (opg325MedalShown) return;
+  var bronzeOk = opg325EqDone && opg325PointDone && opg325LinesDone;
+  var ok = false;
+  if (opg325Level === 1) ok = bronzeOk;
+  else if (opg325Level === 2) ok = bronzeOk && opg325SilverDone;
+  else if (opg325Level === 3) ok = bronzeOk && opg325SilverDone && opg325GoldDone;
+  if (ok) {
+    opg325MedalShown = true;
+    var prev = parseInt(loadProgress('medal_325',0));
+    if (opg325Level > prev) saveProgress('medal_325', opg325Level);
+    setTimeout(function(){ showMedal(opg325Level); }, 400);
+  }
+}
+
+function updateEnergy325(val) {
+  if (opg325Started) return;
+  val = parseInt(val);
+  var state = document.getElementById('energy-state-325');
+  if (val < 40) { opg325Level=1; state.textContent='Træt – 1 sæt'; state.style.color='#dc2626'; }
+  else if (val < 75) { opg325Level=2; state.textContent='Klar – 2 sæt'; state.style.color='#ca8a04'; }
+  else { opg325Level=3; state.textContent='On fire! – 3 sæt'; state.style.color='#16a34a'; }
+  ['opg325-low','opg325-mid','opg325-high'].forEach(function(id){
+    var w=document.getElementById(id); if(w){w.classList.add('opgave-hidden');w.style.display='';}
+  });
+  document.getElementById('ready-btn-wrap-325').style.display='block';
+}
+
+function startOpgaver325() {
+  opg325Started=true; opg325MedalShown=false;
+  opg325EqDone=false; opg325PointDone=false; opg325LinesDone=false; opg325SilverDone=false; opg325GoldDone=false;
+  document.getElementById('ready-btn-wrap-325').style.display='none';
+  document.getElementById('restart-btn-325').style.display='block';
+  var ew=document.querySelector('#t325-opg .energy-wrap'); if(ew)ew.classList.add('slider-locked');
+  if(opg325Level>=1) showWidget(document.getElementById('opg325-low'));
+  if(opg325Level>=2 && document.getElementById('opg325-mid')) showWidget(document.getElementById('opg325-mid'));
+  if(opg325Level>=3 && document.getElementById('opg325-high')) showWidget(document.getElementById('opg325-high'));
+}
+
+function restartOpgaver325() {
+  opg325Started=false; opg325Level=1; opg325MedalShown=false;
+  opg325EqDone=false; opg325PointDone=false; opg325LinesDone=false; opg325SilverDone=false; opg325GoldDone=false;
+  var ew=document.querySelector('#t325-opg .energy-wrap'); if(ew)ew.classList.remove('slider-locked');
+  document.getElementById('restart-btn-325').style.display='none';
+  document.getElementById('ready-btn-wrap-325').style.display='block';
+  ['opg325-low','opg325-mid','opg325-high'].forEach(function(id){
+    var w=document.getElementById(id); if(!w)return;
+    w.classList.add('opgave-hidden'); w.style.display=''; w.style.background=''; w.style.borderColor='';
+    w.querySelectorAll('.ow-input').forEach(function(inp){inp.value='';inp.className='ow-input';});
+    w.querySelectorAll('.ow-result').forEach(function(r){r.className='ow-result';r.textContent='';});
+  });
+  var graph = document.getElementById('t325-bronze-graph'); if (graph) graph.style.display='none';
+  var linesWrap = document.getElementById('t325-bronze-lines'); if (linesWrap) linesWrap.style.display='none';
+  canvas325Stage='point'; canvas325IntersectionPoint=null; canvas325Points=[[],[]]; canvas325CurrentLine=0; canvas325Zoom=1; canvas325PanX=0; canvas325PanY=0;
+  var canvas=document.getElementById('canvas-325'); if(canvas)drawCanvas325();
+  updateCanvas325Progress();
+  var slider=document.getElementById('energy-slider-325'); if(slider)slider.value=1;
+  var state=document.getElementById('energy-state-325'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
+}
+
+// ── 3.5.1 MINDSTE KVADRATERS METODE ─────────────────────────────────────────
+var quiz351Answered = {}, quiz351Correct = 0, quiz351Total = 4;
+
+function quizAnswer351(qnum, result, evt) {
+  if (quiz351Answered[qnum]) return;
+  quiz351Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq351-' + qnum);
+  var fb = document.getElementById('qf351-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz351Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  if (Object.keys(quiz351Answered).length >= quiz351Total) {
+    var box=document.getElementById('quiz-score-351'); box.style.display='block';
+    document.getElementById('quiz-score-351-title').textContent = quiz351Correct===quiz351Total ? 'Perfekt – '+quiz351Correct+'/'+quiz351Total+'!' : quiz351Correct+'/'+quiz351Total+' rigtige';
+    document.getElementById('quiz-score-351-text').textContent = quiz351Correct===quiz351Total ? 'Du har styr på mindste kvadraters metode!' : 'Se de markerede svar og prøv igen.';
+  }
+}
+
+function quizRetry351() {
+  quiz351Answered={}; quiz351Correct=0;
+  [1,2,3,4].forEach(function(n){
+    var qq=document.getElementById('qq351-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.classList.remove('correct','wrong');});
+    var fb=document.getElementById('qf351-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-351').style.display='none';
+}
+
+// ── 3.5.1 MINDSTE KVADRATERS METODE — OPGAVER ───────────────────────────────
+var opg351Level = 1, opg351Started = false, opg351MedalShown = false;
+var opg351PointsDone = false, opg351LineDone = false, opg351FormulaDone = false, opg351SilverDone = false, opg351GoldDone = false;
+
+var point351Expected = [[0,2],[2,3],[3,6]];
+var canvas351Points = [];
+var canvas351Stage = 'points'; // 'points' | 'line' | 'done'
+var canvas351LineHandles = [2, 4]; // [y ved x=-4, y ved x=4]
+var canvas351Dragging = null;
+var canvas351LastClickTime = 0;
+var CANVAS351_XMIN=-4, CANVAS351_XMAX=4, CANVAS351_YMIN=-1, CANVAS351_YMAX=7;
+
+// x ∈ [-4;4], y ∈ [-1;7]
+function getCanvasPoint351(canvas, e) {
+  var rect = canvas.getBoundingClientRect();
+  var scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height;
+  var cx = (e.clientX-rect.left)*scaleX, cy = (e.clientY-rect.top)*scaleY;
+  return [(cx/canvas.width)*8-4, 7-(cy/canvas.height)*8];
+}
+function canvas351DataToPixel(x, y, w, h) {
+  return [((x+4)/8)*w, ((7-y)/8)*h];
+}
+
+function canvas351ClickHandler(e) {
+  if (canvas351Stage !== 'points') return;
+  var now = Date.now();
+  if (now - canvas351LastClickTime < 350) return;
+  canvas351LastClickTime = now;
+  var canvas = document.getElementById('canvas-351');
+  var pt = getCanvasPoint351(canvas, e);
+  var mx = Math.round(pt[0]*2)/2, my = Math.round(pt[1]*2)/2;
+  var idx = -1;
+  for (var i=0;i<canvas351Points.length;i++){
+    if (Math.abs(canvas351Points[i][0]-mx)<0.3 && Math.abs(canvas351Points[i][1]-my)<0.3) { idx=i; break; }
+  }
+  if (idx !== -1) canvas351Points.splice(idx,1);
+  else if (canvas351Points.length < 3) canvas351Points.push([mx,my]);
+  drawCanvas351();
+}
+
+var canvas351DragStartY = 0;
+var canvas351DragStartHandles = [0, 0];
+
+// Bredere klemme-grænse end det synlige y-område, så linjen kan gøres langt stejlere end det viste udsnit
+var CANVAS351_HANDLE_YMIN = -40, CANVAS351_HANDLE_YMAX = 40;
+
+function canvas351MousedownHandler(e) {
+  if (canvas351Stage !== 'line') return;
+  var canvas = document.getElementById('canvas-351');
+  var pt = getCanvasPoint351(canvas, e);
+  if (pt[0] < CANVAS351_XMIN || pt[0] > CANVAS351_XMAX) return;
+  var a351 = (canvas351LineHandles[1]-canvas351LineHandles[0])/8;
+  var b351 = (canvas351LineHandles[0]+canvas351LineHandles[1])/2;
+  var lineY = a351*pt[0] + b351;
+  var distToLine = Math.abs(pt[1]-lineY);
+  var grabThreshold = 0.6; // hvor tæt på linjen man skal klikke, i data-enheder
+  if (distToLine > grabThreshold) return;
+
+  var fraction = (pt[0]-CANVAS351_XMIN) / (CANVAS351_XMAX-CANVAS351_XMIN); // 0=venstre kant, 1=højre kant
+  if (fraction < 0.3) canvas351Dragging = 'A';           // træk nær venstre ende → vip om højre ende
+  else if (fraction > 0.7) canvas351Dragging = 'B';      // træk nær højre ende → vip om venstre ende
+  else canvas351Dragging = 'BOTH';                       // træk midt på linjen → flyt hele linjen (uændret hældning)
+  canvas351DragStartY = pt[1];
+  canvas351DragStartHandles = canvas351LineHandles.slice();
+  // Lyt på HELE dokumentet mens man trækker, så det ikke stopper hvis musen forlader selve canvas-elementet
+  document.addEventListener('mousemove', canvas351MousemoveHandler);
+  document.addEventListener('mouseup', canvas351MouseupHandler);
+}
+function canvas351MousemoveHandler(e) {
+  if (!canvas351Dragging) return;
+  var canvas = document.getElementById('canvas-351');
+  var pt = getCanvasPoint351(canvas, e);
+  if (canvas351Dragging === 'A') {
+    canvas351LineHandles[0] = Math.max(CANVAS351_HANDLE_YMIN, Math.min(CANVAS351_HANDLE_YMAX, pt[1]));
+  } else if (canvas351Dragging === 'B') {
+    canvas351LineHandles[1] = Math.max(CANVAS351_HANDLE_YMIN, Math.min(CANVAS351_HANDLE_YMAX, pt[1]));
+  } else if (canvas351Dragging === 'BOTH') {
+    var delta = pt[1] - canvas351DragStartY;
+    var minDelta = Math.max(CANVAS351_HANDLE_YMIN-canvas351DragStartHandles[0], CANVAS351_HANDLE_YMIN-canvas351DragStartHandles[1]);
+    var maxDelta = Math.min(CANVAS351_HANDLE_YMAX-canvas351DragStartHandles[0], CANVAS351_HANDLE_YMAX-canvas351DragStartHandles[1]);
+    delta = Math.max(minDelta, Math.min(maxDelta, delta));
+    canvas351LineHandles[0] = canvas351DragStartHandles[0] + delta;
+    canvas351LineHandles[1] = canvas351DragStartHandles[1] + delta;
+  }
+  drawCanvas351();
+}
+function canvas351MouseupHandler() {
+  canvas351Dragging = null;
+  document.removeEventListener('mousemove', canvas351MousemoveHandler);
+  document.removeEventListener('mouseup', canvas351MouseupHandler);
+}
+
+function canvas351TouchstartHandlerLine(e) {
+  if (canvas351Stage !== 'line') return;
+  e.preventDefault();
+  canvas351MousedownHandler(e.touches[0]);
+}
+function canvas351TouchmoveHandlerLine(e) {
+  if (!canvas351Dragging) return;
+  e.preventDefault();
+  canvas351MousemoveHandler(e.touches[0]);
+}
+function canvas351TouchendHandler(e) {
+  if (canvas351Stage === 'points') {
+    e.preventDefault();
+    var touch = e.changedTouches[0];
+    canvas351ClickHandler({ clientX: touch.clientX, clientY: touch.clientY });
+  } else {
+    canvas351Dragging = null;
+  }
+}
+
+function initCanvas351() {
+  var canvas = document.getElementById('canvas-351');
+  if (!canvas) return;
+  canvas.removeEventListener('click', canvas351ClickHandler);
+  canvas.removeEventListener('mousedown', canvas351MousedownHandler);
+  document.removeEventListener('mousemove', canvas351MousemoveHandler);
+  document.removeEventListener('mouseup', canvas351MouseupHandler);
+  canvas.removeEventListener('touchstart', canvas351TouchstartHandlerLine);
+  canvas.removeEventListener('touchmove', canvas351TouchmoveHandlerLine);
+  canvas.removeEventListener('touchend', canvas351TouchendHandler);
+  drawCanvas351();
+  canvas.addEventListener('click', canvas351ClickHandler);
+  canvas.addEventListener('mousedown', canvas351MousedownHandler);
+  canvas.addEventListener('touchstart', canvas351TouchstartHandlerLine, {passive:false});
+  canvas.addEventListener('touchmove', canvas351TouchmoveHandlerLine, {passive:false});
+  canvas.addEventListener('touchend', canvas351TouchendHandler, {passive:false});
+}
+
+function drawCanvas351() {
+  var canvas = document.getElementById('canvas-351'); if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width, h = canvas.height;
+  ctx.clearRect(0,0,w,h);
+
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=0.8;
+  for (var xi=-4; xi<=4; xi++) { var px=((xi+4)/8)*w; ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,h); ctx.stroke(); }
+  for (var yi=-1; yi<=7; yi++) { var py=((7-yi)/8)*h; ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(w,py); ctx.stroke(); }
+
+  ctx.strokeStyle='#374151'; ctx.lineWidth=2;
+  var ax=((0+4)/8)*w, ay=((7-0)/8)*h;
+  ctx.beginPath(); ctx.moveTo(0,ay); ctx.lineTo(w,ay); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ax,0); ctx.lineTo(ax,h); ctx.stroke();
+
+  ctx.fillStyle='#6b7280'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  for (var xi2=-4; xi2<=4; xi2++) { if(xi2===0) continue; ctx.fillText(xi2, ((xi2+4)/8)*w, ay+13); }
+  ctx.textAlign='right';
+  for (var yi2=-1; yi2<=7; yi2++) { if(yi2===0) continue; ctx.fillText(yi2, ax-5, ((7-yi2)/8)*h+4); }
+  ctx.fillStyle='#374151'; ctx.font='12px sans-serif';
+  ctx.textAlign='left'; ctx.fillText('x', w-12, ay-6);
+  ctx.textAlign='center'; ctx.fillText('y', ax+12, 10);
+
+  var pointColor = (canvas351Stage === 'points') ? '#2563eb' : '#16a34a';
+  canvas351Points.forEach(function(p){
+    var pxl = canvas351DataToPixel(p[0], p[1], w, h);
+    ctx.fillStyle=pointColor; ctx.beginPath(); ctx.arc(pxl[0],pxl[1],5,0,Math.PI*2); ctx.fill();
+  });
+
+  if (canvas351Stage === 'line' || canvas351Stage === 'done') {
+    var p1 = canvas351DataToPixel(CANVAS351_XMIN, canvas351LineHandles[0], w, h);
+    var p2 = canvas351DataToPixel(CANVAS351_XMAX, canvas351LineHandles[1], w, h);
+    ctx.strokeStyle='#2563eb'; ctx.lineWidth=2.5; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(p1[0],p1[1]); ctx.lineTo(p2[0],p2[1]); ctx.stroke();
+
+    var a351 = (canvas351LineHandles[1]-canvas351LineHandles[0])/8;
+    var b351 = (canvas351LineHandles[0]+canvas351LineHandles[1])/2;
+    var aRound = Math.round(a351*100)/100, bRound = Math.round(Math.abs(b351)*100)/100;
+    // Placeret i 2. kvadrant (negativ x, positiv y) i stedet for øverst centreret
+    var formulaAnchor = canvas351DataToPixel(-3.8, 6.6, w, h);
+    ctx.fillStyle='#111827'; ctx.font='bold 13px sans-serif'; ctx.textAlign='left';
+    ctx.fillText('y = ' + aRound + 'x ' + (b351>=0?'+ ':'\u2212 ') + bRound, formulaAnchor[0], formulaAnchor[1]);
+  }
+}
+
+function checkPoints351() {
+  var r = document.getElementById('ow-r-351-points');
+  if (canvas351Points.length < 3) {
+    if (r) { r.className='ow-result err'; r.textContent='Indsæt alle tre datapunkter først.'; }
+    return;
+  }
+  var tolerance = 0.3;
+  var allMatched = point351Expected.every(function(ep){
+    return canvas351Points.some(function(p){ return Math.abs(p[0]-ep[0])<tolerance && Math.abs(p[1]-ep[1])<tolerance; });
+  });
+  if (allMatched) {
+    opg351PointsDone = true;
+    canvas351Stage = 'line';
+    if (r) { r.className='ow-result ok'; r.textContent='Korrekt! Træk nu i prikkerne for at tegne en god linje.'; }
+    var lineWrap = document.getElementById('t351-bronze-line'); if (lineWrap) lineWrap.style.display = 'block';
+    var progress = document.getElementById('canvas-351-progress'); if (progress) progress.textContent = 'Træk i de blå prikker for at tilpasse linjen.';
+    drawCanvas351();
+    runOpgaveSparkle(document.getElementById('opg351-low'));
+    checkOpg351Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Et eller flere punkter er ikke helt rigtige — tjek tabellen og prøv igen.';
+  }
+}
+
+function clearPoints351() {
+  canvas351Points = [];
+  drawCanvas351();
+  var r = document.getElementById('ow-r-351-points'); if (r) { r.className='ow-result'; r.textContent=''; }
+  opg351PointsDone = false;
+}
+
+function checkLine351() {
+  var r = document.getElementById('ow-r-351-line');
+  var a351 = (canvas351LineHandles[1]-canvas351LineHandles[0])/8;
+  var b351 = (canvas351LineHandles[0]+canvas351LineHandles[1])/2;
+  var tolerance = 2;
+  var allOk = point351Expected.every(function(p){
+    var predicted = a351*p[0]+b351;
+    return Math.abs(p[1]-predicted) < tolerance;
+  });
+  if (allOk) {
+    opg351LineDone = true;
+    canvas351Stage = 'done';
+    if (r) { r.className='ow-result ok'; r.textContent='Fint! Det er en fornuftig linje gennem punkterne. Skriv nu forskriften for den.'; }
+    var formulaWrap = document.getElementById('t351-bronze-formula'); if (formulaWrap) formulaWrap.style.display = 'block';
+    runOpgaveSparkle(document.getElementById('opg351-low'));
+    checkOpg351Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Linjen ligger for langt fra et eller flere punkter — prøv at trække lidt i den.';
+  }
+}
+
+function resetLine351() {
+  canvas351LineHandles = [2, 4];
+  canvas351Stage = 'line';
+  canvas351Dragging = null;
+  document.removeEventListener('mousemove', canvas351MousemoveHandler);
+  document.removeEventListener('mouseup', canvas351MouseupHandler);
+  drawCanvas351();
+  var r = document.getElementById('ow-r-351-line'); if (r) { r.className='ow-result'; r.textContent=''; }
+  var formulaWrap = document.getElementById('t351-bronze-formula'); if (formulaWrap) formulaWrap.style.display = 'none';
+  opg351LineDone = false;
+  opg351FormulaDone = false;
+}
+
+// Sidste bronze-delopgave: elev skal blot aflæse a og b fra den linje, de netop har tegnet
+function checkDrawnFormula351() {
+  var a351 = (canvas351LineHandles[1]-canvas351LineHandles[0])/8;
+  var b351 = (canvas351LineHandles[0]+canvas351LineHandles[1])/2;
+  // Skal matche PRÆCIS det, der reelt står i forskriften øverst i koordinatsystemet (samme afrunding som drawCanvas351 bruger til visning)
+  var aShown = Math.round(a351*100)/100;
+  var bShown = Math.round(b351*100)/100;
+  var aOk = checkSingleNumericField('351-drawn-a', aShown, 0.01);
+  var bOk = checkSingleNumericField('351-drawn-b', bShown, 0.01);
+  var r = document.getElementById('ow-r-351-formula');
+  if (aOk && bOk) {
+    opg351FormulaDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg351-low'));
+    checkOpg351Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek forskriften der står øverst i koordinatsystemet.';
+  }
+}
+
+function checkSilver351() {
+  var aOk = checkSingleNumericField('351-a', 17/14, 0.05);
+  var bOk = checkSingleNumericField('351-b', 23/14, 0.05);
+  var r = document.getElementById('ow-r-351-mid');
+  if (aOk && bOk) {
+    opg351SilverDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg351-mid'));
+    checkOpg351Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek dine udregninger og prøv igen.';
+  }
+}
+
+function checkGold351() {
+  var aOk = checkSingleNumericField('351-ga', 977/175, 0.1);
+  var bOk = checkSingleNumericField('351-gb', 88/35, 0.1);
+  var r = document.getElementById('ow-r-351-high');
+  if (aOk && bOk) {
+    opg351GoldDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg351-high'));
+    checkOpg351Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek dine udregninger og prøv igen.';
+  }
+}
+
+function checkOpg351Medal() {
+  if (opg351MedalShown) return;
+  var bronzeOk = opg351PointsDone && opg351LineDone && opg351FormulaDone;
+  var ok = false;
+  if (opg351Level === 1) ok = bronzeOk;
+  else if (opg351Level === 2) ok = bronzeOk && opg351SilverDone;
+  else if (opg351Level === 3) ok = bronzeOk && opg351SilverDone && opg351GoldDone;
+  if (ok) {
+    opg351MedalShown = true;
+    var prev = parseInt(loadProgress('medal_351',0));
+    if (opg351Level > prev) saveProgress('medal_351', opg351Level);
+    setTimeout(function(){ showMedal(opg351Level); }, 400);
+  }
+}
+
+function updateEnergy351(val) {
+  if (opg351Started) return;
+  val = parseInt(val);
+  var state = document.getElementById('energy-state-351');
+  if (val < 40) { opg351Level=1; state.textContent='Træt – 1 sæt'; state.style.color='#dc2626'; }
+  else if (val < 75) { opg351Level=2; state.textContent='Klar – 2 sæt'; state.style.color='#ca8a04'; }
+  else { opg351Level=3; state.textContent='On fire! – 3 sæt'; state.style.color='#16a34a'; }
+  ['opg351-low','opg351-mid','opg351-high'].forEach(function(id){
+    var w=document.getElementById(id); if(w){w.classList.add('opgave-hidden');w.style.display='';}
+  });
+  document.getElementById('ready-btn-wrap-351').style.display='block';
+}
+
+function startOpgaver351() {
+  opg351Started=true; opg351MedalShown=false;
+  opg351PointsDone=false; opg351LineDone=false; opg351FormulaDone=false; opg351SilverDone=false; opg351GoldDone=false;
+  document.getElementById('ready-btn-wrap-351').style.display='none';
+  document.getElementById('restart-btn-351').style.display='block';
+  var ew=document.querySelector('#t351-opg .energy-wrap'); if(ew)ew.classList.add('slider-locked');
+  if(opg351Level>=1){
+    showWidget(document.getElementById('opg351-low'));
+    setTimeout(initCanvas351, 100);
+  }
+  if(opg351Level>=2 && document.getElementById('opg351-mid')) showWidget(document.getElementById('opg351-mid'));
+  if(opg351Level>=3 && document.getElementById('opg351-high')) showWidget(document.getElementById('opg351-high'));
+}
+
+function restartOpgaver351() {
+  opg351Started=false; opg351Level=1; opg351MedalShown=false;
+  opg351PointsDone=false; opg351LineDone=false; opg351FormulaDone=false; opg351SilverDone=false; opg351GoldDone=false;
+  var ew=document.querySelector('#t351-opg .energy-wrap'); if(ew)ew.classList.remove('slider-locked');
+  document.getElementById('restart-btn-351').style.display='none';
+  document.getElementById('ready-btn-wrap-351').style.display='block';
+  ['opg351-low','opg351-mid','opg351-high'].forEach(function(id){
+    var w=document.getElementById(id); if(!w)return;
+    w.classList.add('opgave-hidden'); w.style.display=''; w.style.background=''; w.style.borderColor='';
+    w.querySelectorAll('.ow-input').forEach(function(inp){inp.value='';inp.className='ow-input';});
+    w.querySelectorAll('.ow-result').forEach(function(r){r.className='ow-result';r.textContent='';});
+  });
+  var lineWrap = document.getElementById('t351-bronze-line'); if (lineWrap) lineWrap.style.display='none';
+  var formulaWrap = document.getElementById('t351-bronze-formula'); if (formulaWrap) formulaWrap.style.display='none';
+  canvas351Stage='points'; canvas351Points=[]; canvas351LineHandles=[2,4]; canvas351Dragging=null;
+  document.removeEventListener('mousemove', canvas351MousemoveHandler);
+  document.removeEventListener('mouseup', canvas351MouseupHandler);
+  var canvas=document.getElementById('canvas-351'); if(canvas)drawCanvas351();
+  var progress=document.getElementById('canvas-351-progress'); if(progress) progress.textContent='Klik på grafen for at indsætte de tre datapunkter (klik igen på et punkt for at fjerne det)';
+  var slider=document.getElementById('energy-slider-351'); if(slider)slider.value=1;
+  var state=document.getElementById('energy-state-351'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
+}
+
+// ── 3.5.2 KORRELATIONSKOEFFICIENTEN ─────────────────────────────────────────
+var quiz352Answered = {}, quiz352Correct = 0, quiz352Total = 8;
+
+function quizAnswer352(qnum, result, evt) {
+  if (quiz352Answered[qnum]) return;
+  quiz352Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq352-' + qnum);
+  var fb = document.getElementById('qf352-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz352Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  if (Object.keys(quiz352Answered).length >= quiz352Total) {
+    var box=document.getElementById('quiz-score-352'); box.style.display='block';
+    document.getElementById('quiz-score-352-title').textContent = quiz352Correct===quiz352Total ? 'Perfekt – '+quiz352Correct+'/'+quiz352Total+'!' : quiz352Correct+'/'+quiz352Total+' rigtige';
+    document.getElementById('quiz-score-352-text').textContent = quiz352Correct===quiz352Total ? 'Du har styr på korrelationskoefficienten!' : 'Se de markerede svar og prøv igen.';
+  }
+}
+
+function quizRetry352() {
+  quiz352Answered={}; quiz352Correct=0;
+  [1,2,3,4,5,6,7,8].forEach(function(n){
+    var qq=document.getElementById('qq352-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.classList.remove('correct','wrong');});
+    var fb=document.getElementById('qf352-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-352').style.display='none';
+}
+
+// ── 3.5.2 OPGAVER ────────────────────────────────────────────────────────────
+var opg352Level = 1, opg352Started = false, opg352MedalShown = false;
+var bronze352Answered = {}, opg352BronzeDone = false;
+var gold352MCAnswered = false, opg352MCDone = false;
+var opg352SilverDone = false, opg352GoldDone = false;
+
+function bronzeAnswer352(qnum, result, evt) {
+  if (bronze352Answered[qnum]) return;
+  bronze352Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('bq352-' + qnum);
+  var fb = document.getElementById('bqf352-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt.';
+  }
+  if (bronze352Answered[1] && bronze352Answered[2]) {
+    var q1ok = document.getElementById('bq352-1').querySelector('.quiz-option.correct') !== null;
+    var q2ok = document.getElementById('bq352-2').querySelector('.quiz-option.correct') !== null;
+    var r = document.getElementById('ow-r-352-low');
+    if (q1ok && q2ok) {
+      opg352BronzeDone = true;
+      if (r) { r.className='ow-result ok'; r.textContent='Godt klaret!'; }
+      runOpgaveSparkle(document.getElementById('opg352-low'));
+      checkOpg352Medal();
+    } else if (r) {
+      r.className='ow-result err'; r.textContent='Ikke begge rigtige — genstart opgaverne for at prøve igen.';
+    }
+  }
+}
+
+function goldAnswer352(result, evt) {
+  if (gold352MCAnswered) return;
+  gold352MCAnswered = true;
+  var btn = evt.target;
+  var qq = document.getElementById('bq352-3');
+  var fb = document.getElementById('bqf352-3');
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    opg352MCDone = true;
+    runQuizSparkle(btn);
+    var rWrap = document.getElementById('t352-gold-r'); if (rWrap) rWrap.style.display = 'block';
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt.';
+  }
+}
+
+function checkSilver352() {
+  var ok = checkSingleNumericField('352-r1', 17/Math.sqrt(364), 0.02);
+  var r = document.getElementById('ow-r-352-mid');
+  if (ok) {
+    opg352SilverDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg352-mid'));
+    checkOpg352Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — prøv igen.';
+  }
+}
+
+function checkGold352() {
+  var rOk = checkSingleNumericField('352-r2', 17/Math.sqrt(1876), 0.02);
+  var r = document.getElementById('ow-r-352-high');
+  if (rOk && opg352MCDone) {
+    opg352GoldDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg352-high'));
+    checkOpg352Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent = !opg352MCDone ? 'Besvar sammenligningsspørgsmålet ovenfor korrekt først.' : 'Ikke helt rigtigt — tjek din udregning og prøv igen.';
+  }
+}
+
+function checkOpg352Medal() {
+  if (opg352MedalShown) return;
+  var ok = false;
+  if (opg352Level === 1) ok = opg352BronzeDone;
+  else if (opg352Level === 2) ok = opg352BronzeDone && opg352SilverDone;
+  else if (opg352Level === 3) ok = opg352BronzeDone && opg352SilverDone && opg352GoldDone;
+  if (ok) {
+    opg352MedalShown = true;
+    var prev = parseInt(loadProgress('medal_352',0));
+    if (opg352Level > prev) saveProgress('medal_352', opg352Level);
+    setTimeout(function(){ showMedal(opg352Level); }, 400);
+  }
+}
+
+function updateEnergy352(val) {
+  if (opg352Started) return;
+  val = parseInt(val);
+  var state = document.getElementById('energy-state-352');
+  if (val < 40) { opg352Level=1; state.textContent='Træt – 1 sæt'; state.style.color='#dc2626'; }
+  else if (val < 75) { opg352Level=2; state.textContent='Klar – 2 sæt'; state.style.color='#ca8a04'; }
+  else { opg352Level=3; state.textContent='On fire! – 3 sæt'; state.style.color='#16a34a'; }
+  ['opg352-low','opg352-mid','opg352-high'].forEach(function(id){
+    var w=document.getElementById(id); if(w){w.classList.add('opgave-hidden');w.style.display='';}
+  });
+  document.getElementById('ready-btn-wrap-352').style.display='block';
+}
+
+function startOpgaver352() {
+  opg352Started=true; opg352MedalShown=false;
+  opg352BronzeDone=false; opg352SilverDone=false; opg352GoldDone=false;
+  document.getElementById('ready-btn-wrap-352').style.display='none';
+  document.getElementById('restart-btn-352').style.display='block';
+  var ew=document.querySelector('#t352-opg .energy-wrap'); if(ew)ew.classList.add('slider-locked');
+  if(opg352Level>=1) showWidget(document.getElementById('opg352-low'));
+  if(opg352Level>=2 && document.getElementById('opg352-mid')) showWidget(document.getElementById('opg352-mid'));
+  if(opg352Level>=3 && document.getElementById('opg352-high')) showWidget(document.getElementById('opg352-high'));
+}
+
+function restartOpgaver352() {
+  opg352Started=false; opg352Level=1; opg352MedalShown=false;
+  opg352BronzeDone=false; opg352SilverDone=false; opg352GoldDone=false;
+  bronze352Answered={}; gold352MCAnswered=false; opg352MCDone=false;
+  var ew=document.querySelector('#t352-opg .energy-wrap'); if(ew)ew.classList.remove('slider-locked');
+  document.getElementById('restart-btn-352').style.display='none';
+  document.getElementById('ready-btn-wrap-352').style.display='block';
+  ['opg352-low','opg352-mid','opg352-high'].forEach(function(id){
+    var w=document.getElementById(id); if(!w)return;
+    w.classList.add('opgave-hidden'); w.style.display=''; w.style.background=''; w.style.borderColor='';
+    w.querySelectorAll('.ow-input').forEach(function(inp){inp.value='';inp.className='ow-input';});
+    w.querySelectorAll('.ow-result').forEach(function(r){r.className='ow-result';r.textContent='';});
+    w.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.classList.remove('correct','wrong');});
+    w.querySelectorAll('.quiz-feedback').forEach(function(fb){fb.className='quiz-feedback';fb.textContent='';});
+  });
+  var rWrap = document.getElementById('t352-gold-r'); if (rWrap) rWrap.style.display = 'none';
+  var slider=document.getElementById('energy-slider-352'); if(slider)slider.value=1;
+  var state=document.getElementById('energy-state-352'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
+}
+
 function closeMedal() {
 
   document.getElementById('medal-overlay').classList.remove('show');
@@ -6216,6 +7774,9 @@ var emneData = {
   '3.2.2': { navn: 'Forskrift ud fra to punkter',          opgaver: [],                     materiale: ['chk-322-bog','chk-322-yt'] },
   '3.2.3': { navn: 'Vækstegenskaber',                      opgaver: [],                     materiale: ['chk-323-bog'] },
   '3.2.4': { navn: 'Stykkevis lineære funktioner',          opgaver: [],                     materiale: ['chk-324-bog','chk-324-yt1','chk-324-yt2'] },
+  '3.2.5': { navn: 'Skæring mellem lineære grafer',         opgaver: [],                     materiale: ['chk-325-bog','chk-325-yt'] },
+  '3.5.1': { navn: 'Mindste kvadraters metode',              opgaver: [],                     materiale: ['chk-351-bog','chk-351-yt'] },
+  '3.5.2': { navn: 'Korrelationskoefficienten',               opgaver: [],                     materiale: ['chk-352-bog'] },
 };
 
 // ── FREMGANG SIDE ─────────────────────────────────────────────────────────

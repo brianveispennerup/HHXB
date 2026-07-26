@@ -640,8 +640,8 @@ names = _re2.findall(r'function (updateEnergy\w*)\s*\(', html_v3)
 dupes = sorted(set(n for n in names if names.count(n) > 1))
 test("Hver updateEnergy-variant er kun defineret én gang (ingen duplikater)",
      len(dupes) == 0, f"duplikeret: {dupes}")
-test("updateEnergy findes for alle emner (1.3.1, 3.1.1-3.1.7, 3.2.1-3.2.4)",
-     set(names) == {'updateEnergy', 'updateEnergy311', 'updateEnergy312', 'updateEnergy313', 'updateEnergy314', 'updateEnergy315', 'updateEnergy316', 'updateEnergy317', 'updateEnergy321', 'updateEnergy322', 'updateEnergy323', 'updateEnergy324'},
+test("updateEnergy findes for alle emner (1.3.1, 3.1.1-3.1.7, 3.2.1-3.2.5, 3.5.1-3.5.2)",
+     set(names) == {'updateEnergy', 'updateEnergy311', 'updateEnergy312', 'updateEnergy313', 'updateEnergy314', 'updateEnergy315', 'updateEnergy316', 'updateEnergy317', 'updateEnergy321', 'updateEnergy322', 'updateEnergy323', 'updateEnergy324', 'updateEnergy325', 'updateEnergy351', 'updateEnergy352'},
      f"fandt {sorted(set(names))}")
 # ── REGRESSION: medalje kræver alle synlige widgets ───────────────────────────
 section("Regression: medalje kun naar alle synlige widgets er korrekte")
