@@ -778,6 +778,16 @@ document.addEventListener("DOMContentLoaded", function() {
         <div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">Kapitel 3.1.1</div></div>
         <canvas class="sparkle-canvas"></canvas>
       </div>
+      <div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=JHuFqspCNUY','_blank')">
+        <input type="checkbox" class="card-check" id="chk-311-yt3" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Hvad er en funktion</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+      <div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=EMCRu2rq2z4','_blank')">
+        <input type="checkbox" class="card-check" id="chk-311-yt4" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Lodretskriteriet</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
       <div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=f5Yo76rWerw','_blank')">
         <input type="checkbox" class="card-check" id="chk-311-yt1" onclick="handleCheck(this,event)">
         <div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Grundlæggende om funktioner</div></div>
@@ -7763,7 +7773,7 @@ function loadProgress(key, fallback) {
 // ── OPGAVE TRACKING ───────────────────────────────────────────────────────
 var emneData = {
   '1.3.1': { navn: 'Simple ligninger',            opgaver: ['1a','1b','1d','2a','2b'], materiale: ['chk-131-bog','chk-131-yt'] },
-  '3.1.1': { navn: 'Lodret-kriteriet og definition', opgaver: [],                     materiale: ['chk-311-bog','chk-311-yt1','chk-311-yt2'] },
+  '3.1.1': { navn: 'Lodret-kriteriet og definition', opgaver: [],                     materiale: ['chk-311-bog','chk-311-yt3','chk-311-yt4','chk-311-yt1','chk-311-yt2'] },
   '3.1.2': { navn: 'Funktion givet ved graf',             opgaver: [],                     materiale: ['chk-312-bog'] },
   '3.1.3': { navn: 'Regneforskrift og graf',             opgaver: [],                     materiale: ['chk-313-bog','chk-313-yt'] },
   '3.1.4': { navn: 'Grafiske løsninger',                 opgaver: [],                     materiale: ['chk-314-bog','chk-314-yt'] },
