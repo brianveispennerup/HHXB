@@ -1144,13 +1144,28 @@ setTimeout(() => {
   test('Endepunkter: begge lukkede → ikke korrekt', !w.opg321BronzeEndpointsDone);
   test('Endepunkter: begge lukkede → venstre wrong (skal være åben)', epLeft.classList.contains('wrong'));
 
-  console.log('\nMedalje kræver BÅDE korrekt kurve OG korrekte endepunkter');
+  console.log('\nMedalje kræver kurve OG endepunkter OG forskrift');
+  function setVal321Formula(val){ var i=d.getElementById('ow-321b1'); if(i) i.value=val; }
   w.restartOpgaver321(); w.opg321Level=1; w.startOpgaver321();
-  w.canvas321Curve=genLine321(false); w.checkCurve321(); // kun kurve, ikke endepunkter
+  w.canvas321Curve=genLine321(false); w.checkCurve321(); // kun kurve, ikke endepunkter/forskrift
   test('Kun kurve korrekt → ingen medalje endnu', !w.opg321MedalShown);
   setEndpoints321('aaben','lukket');
-  w.checkEndpoints321(); // nu begge dele
-  test('Kurve + endepunkter korrekte → medalje gemmes', w.opg321MedalShown);
+  w.checkEndpoints321(); // kurve+endepunkter, forskrift mangler stadig
+  test('Kurve + endepunkter korrekte, men forskrift mangler → ingen medalje endnu', !w.opg321MedalShown);
+  setVal321Formula('200x+7000');
+  w.checkFormula321(); // nu alle tre dele
+  test('Kurve + endepunkter + forskrift korrekte → medalje gemmes', w.opg321MedalShown);
+  test('Forskrift: opg321BronzeFormulaDone=true', w.opg321BronzeFormulaDone);
+
+  console.log('\ncheckFormula321 — forkert forskrift');
+  w.restartOpgaver321(); w.opg321Level=1; w.startOpgaver321();
+  setVal321Formula('200x+7001'); // forkert konstantled
+  w.checkFormula321();
+  test('Forkert konstantled → opg321BronzeFormulaDone forbliver false', !w.opg321BronzeFormulaDone);
+  w.restartOpgaver321(); w.opg321Level=1; w.startOpgaver321();
+  setVal321Formula('7000x+200'); // a og b byttet om
+  w.checkFormula321();
+  test('a og b byttet om → opg321BronzeFormulaDone forbliver false', !w.opg321BronzeFormulaDone);
 
   console.log('\nclearCurve321');
   w.restartOpgaver321(); w.startOpgaver321();
@@ -1164,6 +1179,7 @@ setTimeout(() => {
   w.restartOpgaver321(); w.startOpgaver321();
   w.canvas321Curve=genLine321(false); w.checkCurve321();
   setEndpoints321('aaben','lukket'); w.checkEndpoints321();
+  setVal321Formula('200x+7000'); w.checkFormula321();
   w.restartOpgaver321();
   test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-321').style.display==='block');
   test('Restart: restart-btn skjult', d.getElementById('restart-btn-321').style.display==='none');
@@ -1175,6 +1191,8 @@ setTimeout(() => {
   test('Restart: opgave-widget skjules', d.getElementById('opg321-low').classList.contains('opgave-hidden'));
   test('Restart: opg321BronzeCurveDone nulstillet', !w.opg321BronzeCurveDone);
   test('Restart: opg321BronzeEndpointsDone nulstillet', !w.opg321BronzeEndpointsDone);
+  test('Restart: opg321BronzeFormulaDone nulstillet', !w.opg321BronzeFormulaDone);
+  test('Restart: forskrift-inputfelt tømt', d.getElementById('ow-321b1').value==='');
   test('Restart: opg321MedalShown nulstillet', !w.opg321MedalShown);
 
   console.log('\nparseCoordinatePoint');
@@ -1222,11 +1240,12 @@ setTimeout(() => {
   w.restartOpgaver321(); w.opg321Level=3; w.startOpgaver321();
   w.canvas321Curve=genLine321(false); w.checkCurve321();
   setEndpoints321('aaben','lukket'); w.checkEndpoints321();
+  setVal321Formula('200x+7000'); w.checkFormula321();
   test('Niveau 3: kun bronze færdig → ingen medalje endnu', !w.opg321MedalShown);
   setVal321('321s1','(5,0)'); w.checkSilver321();
   test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opg321MedalShown);
   setVal321('321g1','[-10;6['); w.checkGold321();
-  test('Niveau 3: alle tre færdige → medalje gemmes', w.opg321MedalShown);
+  test('Niveau 3: alle dele færdige → medalje gemmes', w.opg321MedalShown);
 
   // ── 3.2.2 FORSKRIFT UD FRA TO PUNKTER ───────────────────────────────────────
   console.log('\nNavigation og struktur 3.2.2 (4 faner, inkl. ny Bevis-fane)');
@@ -2086,14 +2105,28 @@ setTimeout(() => {
   w.checkLines325();
   test('Efter fire ægte klik + tjek: opg325LinesDone=true', w.opg325LinesDone);
 
-  console.log('\nMedalje niveau 1 kræver alle tre dele af bronze (ligning + punkt + linjer)');
+  console.log('\nMedalje niveau 1 kræver alle fire dele af bronze (ligning + punkt + linjer + break-even)');
   w.restartOpgaver325(); w.startOpgaver325();
   setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
   test('Kun ligning løst → ingen medalje endnu', !w.opg325MedalShown);
   w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
   test('Ligning+punkt (men ikke linjer) → stadig ingen medalje', !w.opg325MedalShown);
   w.canvas325Points = [[[-2,-9],[5,5]], [[-1,13],[4,-2]]]; w.checkLines325();
-  test('Alle tre dele færdige → medalje gemmes', w.opg325MedalShown);
+  test('Ligning+punkt+linjer (men ikke break-even) → stadig ingen medalje', !w.opg325MedalShown);
+  setVal325('325-shoes','99'); w.checkBronzeShoes325();
+  test('Alle fire dele færdige → medalje gemmes', w.opg325MedalShown);
+  test('Break-even: opg325ShoesDone=true', w.opg325ShoesDone);
+
+  console.log('\ncheckBronzeShoes325 — break-even for sko (R(x)=349x, C(x)=209x+13800)');
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-shoes','99'); w.checkBronzeShoes325();
+  test('99 sko → opg325ShoesDone=true', w.opg325ShoesDone);
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-shoes','98'); w.checkBronzeShoes325();
+  test('98 sko (indtægt endnu ikke over omkostning) → opg325ShoesDone forbliver false', !w.opg325ShoesDone);
+  w.restartOpgaver325(); w.startOpgaver325();
+  setVal325('325-shoes','100'); w.checkBronzeShoes325();
+  test('100 sko (for højt) → opg325ShoesDone forbliver false', !w.opg325ShoesDone);
 
   console.log('\nclearGraph325 og restart-flow');
   w.restartOpgaver325(); w.startOpgaver325();
@@ -2110,6 +2143,8 @@ setTimeout(() => {
   test('Restart: input nulstillet', d.getElementById('ow-325-eq').value==='');
   test('Restart: grafisk del skjult igen', d.getElementById('t325-bronze-graph').style.display==='none');
   test('Restart: opg325EqDone nulstillet', !w.opg325EqDone);
+  test('Restart: opg325ShoesDone nulstillet', !w.opg325ShoesDone);
+  test('Restart: break-even-inputfelt tømt', d.getElementById('ow-325-shoes').value==='');
   test('Restart: opg325MedalShown nulstillet', !w.opg325MedalShown);
 
   console.log('\nZoom i koordinatsystemet (3.2.5 bronze)');
@@ -2286,11 +2321,12 @@ setTimeout(() => {
   setVal325('325-eq','(3,1)'); w.checkBronzeEq325();
   w.canvas325IntersectionPoint = [3,1]; w.checkPoint325();
   w.canvas325Points = [[[-2,-9],[5,5]], [[-1,13],[4,-2]]]; w.checkLines325();
+  setVal325('325-shoes','99'); w.checkBronzeShoes325();
   test('Niveau 3: kun bronze færdig → ingen medalje endnu', !w.opg325MedalShown);
   setVal325g('325-sys','(5,2)'); w.checkSilver325();
   test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opg325MedalShown);
   setVal325g('325-be','4000'); w.checkGold325();
-  test('Niveau 3: alle tre færdige → medalje gemmes', w.opg325MedalShown);
+  test('Niveau 3: alle dele færdige → medalje gemmes', w.opg325MedalShown);
   test('Niveau 3: medal_325 = 3 i localStorage', parseInt(w.loadProgress('medal_325',0)) === 3);
 
   // ── 3.5.1 MINDSTE KVADRATERS METODE ─────────────────────────────────────────
@@ -2663,6 +2699,164 @@ setTimeout(() => {
   var bq3gate2 = d.querySelectorAll('#bq352-3 .quiz-option');
   bq3gate2[1].click(); // B = Lavere = korrekt
   test('Efter korrekt MC-svar: del 2 vises', d.getElementById('t352-gold-r').style.display==='block');
+
+  // ── MATEMATIKSCREENING 2025 ─────────────────────────────────────────────────
+  console.log('\nNavigation og struktur (Matematikscreening 2025)');
+  w.showPage('screening');
+  test('showPage(screening)', isVisible(d.getElementById('page-screening')));
+  test('2 tab-knapper (Materiale/Opgaver, ingen Tjekspørgsmål-fane)', d.querySelectorAll('#page-screening .tab-btn').length === 2);
+  test('Materiale-fanen har 6 lærebogs-links', d.querySelectorAll('#t-screening-mat .simple-card').length === 6);
+  test('Diverse-kortet på F1 linker til screening', html.includes("showPage('screening')") && html.includes('Matematikscreening 2025'));
+  test('emneData har screening-nøgle med 6 materialer', html.includes("'screening': { navn: 'Matematikscreening 2025'"));
+
+  function setValScr(id,val){ var i=d.getElementById('ow-'+id); if(i) i.value=val; }
+  function isCorrectScr(id){ var i=d.getElementById('ow-'+id); return i && i.classList.contains('correct'); }
+
+  console.log('\nOpgave 1 (1.3.1) – 4(2x+1)=13+5x → x=3');
+  w.restartOpgaverScreening(); w.startOpgaverScreening();
+  setValScr('scr1','3'); w.checkScr1();
+  test('x=3 → correct', isCorrectScr('scr1'));
+  test('opgScr1Done=true', w.opgScr1Done);
+  w.restartOpgaverScreening(); w.startOpgaverScreening();
+  setValScr('scr1','2'); w.checkScr1();
+  test('forkert (2) → not correct', !isCorrectScr('scr1'));
+  test('forkert → opgScr1Done forbliver false', !w.opgScr1Done);
+
+  console.log('\nOpgave 2 (3.2.1) – tegn graf for f(x)=2x-3, Dm(f)=]-1;4]');
+  function genLineScr2(noisy){
+    var pts=[]; for(var x=-1; x<=4.001; x+=0.1){ var y=2*x-3+(noisy?(Math.random()-0.5)*0.15:0); pts.push([x,y]); }
+    return pts;
+  }
+  w.restartOpgaverScreening(); w.startOpgaverScreening();
+  var rCurveScr2 = d.getElementById('ow-r-scr2-curve');
+  w.canvasScr2Curve = genLineScr2(false); w.checkCurveScr2();
+  test('Korrekt linje → opgScr2CurveDone=true', w.opgScr2CurveDone);
+  test('Korrekt → ok-styling', rCurveScr2 && rCurveScr2.classList.contains('ok'));
+  test('Korrekt → endepunkt-sektion vises', d.getElementById('canvas-scr2-endpoints-wrap').style.display==='block');
+
+  w.restartOpgaverScreening(); w.startOpgaverScreening();
+  var flatLineScr2=[]; for(var fx2=-1; fx2<=4; fx2+=0.1) flatLineScr2.push([fx2,0]);
+  w.canvasScr2Curve = flatLineScr2; w.checkCurveScr2();
+  test('Forkert hældning → opgScr2CurveDone forbliver false', !w.opgScr2CurveDone);
+
+  function setEndpointsScr2(leftState, rightState){
+    var l=d.getElementById('endpoint-scr2-left'), r=d.getElementById('endpoint-scr2-right');
+    l.dataset.state=leftState; l.textContent = leftState==='aaben'?'Åben':'Lukket';
+    r.dataset.state=rightState; r.textContent = rightState==='aaben'?'Åben':'Lukket';
+  }
+  w.restartOpgaverScreening(); w.startOpgaverScreening();
+  w.canvasScr2Curve = genLineScr2(false); w.checkCurveScr2();
+  setEndpointsScr2('aaben','lukket'); w.checkEndpointsScr2();
+  test('Endepunkter åben+lukket (korrekt) → opgScr2EndpointsDone=true', w.opgScr2EndpointsDone);
+  w.restartOpgaverScreening(); w.startOpgaverScreening();
+  w.canvasScr2Curve = genLineScr2(false); w.checkCurveScr2();
+  setEndpointsScr2('lukket','aaben'); w.checkEndpointsScr2();
+  test('Endepunkter byttet om → opgScr2EndpointsDone forbliver false', !w.opgScr2EndpointsDone);
+
+  console.log('\nOpgave 3 (3.2.2) – punkterne (2,10) og (5,1) → f(x)=-3x+16');
+  w.restartOpgaverScreening(); w.startOpgaverScreening();
+  setValScr('scr3','-3x+16'); w.checkScr3();
+  test('-3x+16 → correct', isCorrectScr('scr3'));
+  test('opgScr3Done=true', w.opgScr3Done);
+  w.restartOpgaverScreening(); w.startOpgaverScreening();
+  setValScr('scr3','3x+16'); w.checkScr3();
+  test('forkert fortegn → not correct', !isCorrectScr('scr3'));
+
+  console.log('\nOpgave 4 (3.2.1/3.2.2) – aflæs f(x)=3x-2 og g(x)=-2x+5 fra graf');
+  w.restartOpgaverScreening(); w.startOpgaverScreening();
+  setValScr('scr4f','3x-2'); setValScr('scr4g','-2x+5'); w.checkScr4();
+  test('Begge korrekte → opgScr4Done=true', w.opgScr4Done);
+  w.restartOpgaverScreening(); w.startOpgaverScreening();
+  setValScr('scr4f','3x-2'); setValScr('scr4g','2x+5'); w.checkScr4();
+  test('g forkert → opgScr4Done forbliver false', !w.opgScr4Done);
+
+  console.log('\nOpgave 5 (3.1.3) – f(x)=2.5x-14, f(6)=1');
+  w.restartOpgaverScreening(); w.opgScreeningLevel=2; w.startOpgaverScreening();
+  setValScr('scr5','1'); w.checkScr5();
+  test('f(6)=1 → correct', isCorrectScr('scr5'));
+  test('opgScr5Done=true', w.opgScr5Done);
+
+  console.log('\nOpgave 6 (3.2.1) – f(x)=6x-24, nulpunkt x=4');
+  w.restartOpgaverScreening(); w.opgScreeningLevel=2; w.startOpgaverScreening();
+  setValScr('scr6','4'); w.checkScr6();
+  test('x=4 → correct', isCorrectScr('scr6'));
+  test('opgScr6Done=true', w.opgScr6Done);
+
+  console.log('\nOpgave 7 (3.2.5) – f(x)=4x-2, g(x)=-x+8 → skæring (2,6)');
+  w.restartOpgaverScreening(); w.opgScreeningLevel=2; w.startOpgaverScreening();
+  setValScr('scr7','(2,6)'); w.checkScr7();
+  test('(2,6) → correct', isCorrectScr('scr7'));
+  test('opgScr7Done=true', w.opgScr7Done);
+  w.restartOpgaverScreening(); w.opgScreeningLevel=2; w.startOpgaverScreening();
+  setValScr('scr7','(6,2)'); w.checkScr7();
+  test('byttet om (6,2) → not correct', !isCorrectScr('scr7'));
+
+  console.log('\nOpgave 8 (3.1.2) – Dm(f)=[-2;6[, Vm(f)=[-3;1[');
+  w.restartOpgaverScreening(); w.opgScreeningLevel=2; w.startOpgaverScreening();
+  setValScr('scr8dm','[-2;6['); setValScr('scr8vm','[-3;1['); w.checkScr8();
+  test('Begge intervaller korrekte → opgScr8Done=true', w.opgScr8Done);
+  w.restartOpgaverScreening(); w.opgScreeningLevel=2; w.startOpgaverScreening();
+  setValScr('scr8dm','[-2;6]'); setValScr('scr8vm','[-3;1['); w.checkScr8();
+  test('forkert parentestype i Dm → opgScr8Done forbliver false', !w.opgScr8Done);
+
+  console.log('\nOpgave 9 (3.2.1) – befolkningstal, f(x)=200x+7000');
+  w.restartOpgaverScreening(); w.opgScreeningLevel=3; w.startOpgaverScreening();
+  setValScr('scr9','200x+7000'); w.checkScr9();
+  test('200x+7000 → correct', isCorrectScr('scr9'));
+  test('opgScr9Done=true', w.opgScr9Done);
+
+  console.log('\nOpgave 10 (3.2.5) – sko break-even, 99 sko');
+  w.restartOpgaverScreening(); w.opgScreeningLevel=3; w.startOpgaverScreening();
+  setValScr('scr10','99'); w.checkScr10();
+  test('99 → correct', isCorrectScr('scr10'));
+  test('opgScr10Done=true', w.opgScr10Done);
+  w.restartOpgaverScreening(); w.opgScreeningLevel=3; w.startOpgaverScreening();
+  setValScr('scr10','98'); w.checkScr10();
+  test('98 (indtægt endnu ikke over omkostning) → not correct', !isCorrectScr('scr10'));
+
+  console.log('\nOpgave 11 (3.2.1) – plakat-overskud ved 300 stk → 3400 kr');
+  w.restartOpgaverScreening(); w.opgScreeningLevel=3; w.startOpgaverScreening();
+  setValScr('scr11','3400'); w.checkScr11();
+  test('3400 → correct', isCorrectScr('scr11'));
+  test('opgScr11Done=true', w.opgScr11Done);
+
+  console.log('\nOpgave 12 (3.2.2) – f(x)=ax+22 gennem (6,58) → a=6');
+  w.restartOpgaverScreening(); w.opgScreeningLevel=3; w.startOpgaverScreening();
+  setValScr('scr12','6'); w.checkScr12();
+  test('a=6 → correct', isCorrectScr('scr12'));
+  test('opgScr12Done=true', w.opgScr12Done);
+
+  console.log('\nFuld 3-niveau medaljeflow (Matematikscreening 2025)');
+  w.restartOpgaverScreening(); w.opgScreeningLevel=3; w.startOpgaverScreening();
+  setValScr('scr1','3'); w.checkScr1();
+  w.canvasScr2Curve = genLineScr2(false); w.checkCurveScr2();
+  setEndpointsScr2('aaben','lukket'); w.checkEndpointsScr2();
+  setValScr('scr3','-3x+16'); w.checkScr3();
+  setValScr('scr4f','3x-2'); setValScr('scr4g','-2x+5'); w.checkScr4();
+  test('Niveau 3: kun bronze færdig → ingen medalje endnu', !w.opgScreeningMedalShown);
+  setValScr('scr5','1'); w.checkScr5();
+  setValScr('scr6','4'); w.checkScr6();
+  setValScr('scr7','(2,6)'); w.checkScr7();
+  setValScr('scr8dm','[-2;6['); setValScr('scr8vm','[-3;1['); w.checkScr8();
+  test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opgScreeningMedalShown);
+  setValScr('scr9','200x+7000'); w.checkScr9();
+  setValScr('scr10','99'); w.checkScr10();
+  setValScr('scr11','3400'); w.checkScr11();
+  setValScr('scr12','6'); w.checkScr12();
+  test('Niveau 3: alle 12 opgaver færdige → medalje gemmes', w.opgScreeningMedalShown);
+  test('Niveau 3: medal_screening = 3 i localStorage', parseInt(w.loadProgress('medal_screening',0)) === 3);
+
+  console.log('\nRestart-flow (Matematikscreening 2025)');
+  w.restartOpgaverScreening();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-screening').style.display==='block');
+  test('Restart: restart-btn skjult', d.getElementById('restart-btn-screening').style.display==='none');
+  test('Restart: canvasScr2Curve tømt', w.canvasScr2Curve.length===0);
+  test('Restart: endepunkt-sektion skjult igen', d.getElementById('canvas-scr2-endpoints-wrap').style.display==='none');
+  test('Restart: opgScr1Done nulstillet', !w.opgScr1Done);
+  test('Restart: opgScr2CurveDone nulstillet', !w.opgScr2CurveDone);
+  test('Restart: opgScr9Done nulstillet', !w.opgScr9Done);
+  test('Restart: opgScreeningMedalShown nulstillet', !w.opgScreeningMedalShown);
+  test('Restart: scr1-inputfelt tømt', d.getElementById('ow-scr1').value==='');
 
   // ── RESULTAT ──────────────────────────────────────────────────────────────────
   console.log(`\n${'='.repeat(40)}`);
