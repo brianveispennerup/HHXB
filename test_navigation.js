@@ -2858,6 +2858,277 @@ setTimeout(() => {
   test('Restart: opgScreeningMedalShown nulstillet', !w.opgScreeningMedalShown);
   test('Restart: scr1-inputfelt tømt', d.getElementById('ow-scr1').value==='');
 
+  // ── 2.1.1 HYPPIGHEDER OG FREKVENSER (F2) ────────────────────────────────────
+  console.log('\nNavigation og struktur (2.1.1 Hyppigheder og frekvenser)');
+  w.showPage('2-1-1');
+  test('showPage(2-1-1)', isVisible(d.getElementById('page-2-1-1')));
+  test('3 tab-knapper (Materiale/Tjekspørgsmål/Opgaver)', d.querySelectorAll('#page-2-1-1 .tab-btn').length === 3);
+  test('Materiale-fanen har 3 links (2 lærebog + 1 YouTube)', d.querySelectorAll('#t211-mat .simple-card').length === 3);
+  test('F2-kortet på forsiden linker til 2-1-1', html.includes("showPage('2-1-1')"));
+  test('emneData har 2.1.1-nøgle med 3 materialer', html.includes("'2.1.1': { navn: 'Hyppigheder og frekvenser'"));
+  test('F2-forløbskortet er aktivt (ikke længere disabled)', html.includes("forloeb-card active\" onclick=\"showPage('f2')"));
+
+  console.log('\nQuiz 2.1.1 – positive tests');
+  w.showPage('2-1-1');
+  function clickQuizOpt211(qnum, optIdx){ d.querySelectorAll('#qq211-'+qnum+' .quiz-option')[optIdx].click(); }
+  clickQuizOpt211(1,0); // A = korrekt
+  test('2.1.1 Q1: A → correct', d.querySelectorAll('#qq211-1 .quiz-option')[0].classList.contains('correct'));
+  clickQuizOpt211(2,1); // B = korrekt
+  test('2.1.1 Q2: B → correct', d.querySelectorAll('#qq211-2 .quiz-option')[1].classList.contains('correct'));
+  clickQuizOpt211(3,1); // B = korrekt
+  test('2.1.1 Q3: B → correct', d.querySelectorAll('#qq211-3 .quiz-option')[1].classList.contains('correct'));
+  clickQuizOpt211(4,1); // B = korrekt
+  test('2.1.1 Q4: B → correct', d.querySelectorAll('#qq211-4 .quiz-option')[1].classList.contains('correct'));
+  test('2.1.1 quiz score: 4/4', d.getElementById('quiz-score-211-title').textContent.includes('4/4'));
+
+  console.log('\nQuiz 2.1.1 – negativ test + retry');
+  w.quizRetry211();
+  var q211_1b = d.querySelectorAll('#qq211-1 .quiz-option');
+  q211_1b[1].click(); // B = forkert
+  test('2.1.1 Q1: B → wrong', q211_1b[1].classList.contains('wrong'));
+  test('2.1.1 Q1: feedback err', d.getElementById('qf211-1').classList.contains('err'));
+  test('2.1.1 Q1: A ikke afsløret', !q211_1b[0].classList.contains('reveal-correct'));
+
+  console.log('\nBronze 2.1.1 – hyppigheds-/frekvensfordeling for søskende (N=30)');
+  function setVal211(id,val){ var i=d.getElementById('ow-'+id); if(i) i.value=val; }
+  function isCorrect211(id){ var i=d.getElementById('ow-'+id); return i && i.classList.contains('correct'); }
+  w.showPage('2-1-1'); w.restartOpgaver211(); w.opg211Level=1; w.startOpgaver211();
+  var bx = [0,1,2,3,4,5], bh = [5,9,9,4,2,1], bf = [5/30,9/30,9/30,4/30,2/30,1/30];
+  bx.forEach(function(v,i){ setVal211('211b-x'+i, v); });
+  bh.forEach(function(v,i){ setVal211('211b-h'+i, v); });
+  bf.forEach(function(v,i){ setVal211('211b-f'+i, v.toFixed(4)); });
+  w.checkBronze211();
+  test('Bronze: alle 18 felter korrekte → opg211BronzeDone=true', w.opg211BronzeDone);
+  test('Bronze: x0 markeret correct', isCorrect211('211b-x0'));
+  test('Bronze: h1 markeret correct', isCorrect211('211b-h1'));
+  test('Bronze: f2 markeret correct', isCorrect211('211b-f2'));
+
+  w.restartOpgaver211(); w.opg211Level=1; w.startOpgaver211();
+  bx.forEach(function(v,i){ setVal211('211b-x'+i, v); });
+  bh.forEach(function(v,i){ setVal211('211b-h'+i, i===1 ? 8 : v); }); // h(1) forkert
+  bf.forEach(function(v,i){ setVal211('211b-f'+i, v.toFixed(4)); });
+  w.checkBronze211();
+  test('Bronze: forkert h(1) → opg211BronzeDone forbliver false', !w.opg211BronzeDone);
+
+  console.log('\nBronze 2.1.1 – frekvens kan skrives som brøk eller procent');
+  w.restartOpgaver211(); w.opg211Level=1; w.startOpgaver211();
+  bx.forEach(function(v,i){ setVal211('211b-x'+i, v); });
+  bh.forEach(function(v,i){ setVal211('211b-h'+i, v); });
+  setVal211('211b-f0','5/30'); setVal211('211b-f1','30%'); setVal211('211b-f2','0.3');
+  setVal211('211b-f3','4/30'); setVal211('211b-f4','2/30'); setVal211('211b-f5','1/30');
+  w.checkBronze211();
+  test('Brøk/procent-format accepteres → opg211BronzeDone=true', w.opg211BronzeDone);
+
+  console.log('\nSølv 2.1.1 – summerede frekvenser F(x) for x=1..7 (N=20)');
+  w.restartOpgaver211(); w.opg211Level=2; w.startOpgaver211();
+  var sF = [0.1,0.25,0.45,0.7,0.85,0.95,1.0];
+  sF.forEach(function(v,i){ setVal211('211s-F'+(i+1), v); });
+  w.checkSilver211();
+  test('Sølv: alle 7 F(x) korrekte → opg211SilverDone=true', w.opg211SilverDone);
+  w.restartOpgaver211(); w.opg211Level=2; w.startOpgaver211();
+  sF.forEach(function(v,i){ setVal211('211s-F'+(i+1), i===3 ? 0.6 : v); }); // F(4) forkert
+  w.checkSilver211();
+  test('Sølv: forkert F(4) → opg211SilverDone forbliver false', !w.opg211SilverDone);
+
+  console.log('\nGuld 2.1.1 – udled h(x) og f(x) fra summeret hyppighed H(x)');
+  w.restartOpgaver211(); w.opg211Level=3; w.startOpgaver211();
+  var gh = [5,7,8,7,3], gf = [5/30,7/30,8/30,7/30,3/30];
+  gh.forEach(function(v,i){ setVal211('211g-h'+(i+1), v); });
+  gf.forEach(function(v,i){ setVal211('211g-f'+(i+1), v.toFixed(4)); });
+  w.checkGold211();
+  test('Guld: alle h(x) og f(x) korrekte → opg211GoldDone=true', w.opg211GoldDone);
+  w.restartOpgaver211(); w.opg211Level=3; w.startOpgaver211();
+  gh.forEach(function(v,i){ setVal211('211g-h'+(i+1), i===2 ? 9 : v); }); // h(6) forkert
+  gf.forEach(function(v,i){ setVal211('211g-f'+(i+1), v.toFixed(4)); });
+  w.checkGold211();
+  test('Guld: forkert h(6) → opg211GoldDone forbliver false', !w.opg211GoldDone);
+
+  console.log('\nFuld 3-niveau medaljeflow 2.1.1 (bronze+sølv+guld)');
+  w.restartOpgaver211(); w.opg211Level=3; w.startOpgaver211();
+  bx.forEach(function(v,i){ setVal211('211b-x'+i, v); });
+  bh.forEach(function(v,i){ setVal211('211b-h'+i, v); });
+  bf.forEach(function(v,i){ setVal211('211b-f'+i, v.toFixed(4)); });
+  w.checkBronze211();
+  test('Niveau 3: kun bronze færdig → ingen medalje endnu', !w.opg211MedalShown);
+  sF.forEach(function(v,i){ setVal211('211s-F'+(i+1), v); });
+  w.checkSilver211();
+  test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opg211MedalShown);
+  gh.forEach(function(v,i){ setVal211('211g-h'+(i+1), v); });
+  gf.forEach(function(v,i){ setVal211('211g-f'+(i+1), v.toFixed(4)); });
+  w.checkGold211();
+  test('Niveau 3: alle tre færdige → medalje gemmes', w.opg211MedalShown);
+  test('Niveau 3: medal_211 = 3 i localStorage', parseInt(w.loadProgress('medal_211',0)) === 3);
+
+  console.log('\nRestart-flow 2.1.1');
+  w.restartOpgaver211();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-211').style.display==='block');
+  test('Restart: restart-btn skjult', d.getElementById('restart-btn-211').style.display==='none');
+  test('Restart: opg211BronzeDone nulstillet', !w.opg211BronzeDone);
+  test('Restart: opg211SilverDone nulstillet', !w.opg211SilverDone);
+  test('Restart: opg211GoldDone nulstillet', !w.opg211GoldDone);
+  test('Restart: opg211MedalShown nulstillet', !w.opg211MedalShown);
+  test('Restart: bronze-tabel-inputfelt tømt', d.getElementById('ow-211b-x0').value==='');
+
+  // ── 2.1.2 GRAFISKE REPRÆSENTATIONER (F2) ────────────────────────────────────
+  console.log('\nNavigation og struktur (2.1.2 Grafiske repræsentationer)');
+  w.showPage('2-1-2');
+  test('showPage(2-1-2)', isVisible(d.getElementById('page-2-1-2')));
+  test('3 tab-knapper (Materiale/Tjekspørgsmål/Opgaver)', d.querySelectorAll('#page-2-1-2 .tab-btn').length === 3);
+  test('Materiale-fanen har 2 links (1 lærebog + 1 YouTube)', d.querySelectorAll('#t212-mat .simple-card').length === 2);
+  test('emneData har 2.1.2-nøgle med 2 materialer', html.includes("'2.1.2': { navn: 'Grafiske repræsentationer'"));
+
+  console.log('\nQuiz 2.1.2 – positive tests');
+  function clickQuizOpt212(qnum, optIdx){ d.querySelectorAll('#qq212-'+qnum+' .quiz-option')[optIdx].click(); }
+  clickQuizOpt212(1,2); // C = korrekt
+  test('2.1.2 Q1: C → correct', d.querySelectorAll('#qq212-1 .quiz-option')[2].classList.contains('correct'));
+  clickQuizOpt212(2,1); // B = korrekt
+  test('2.1.2 Q2: B → correct', d.querySelectorAll('#qq212-2 .quiz-option')[1].classList.contains('correct'));
+  clickQuizOpt212(3,2); // C = korrekt
+  test('2.1.2 Q3: C → correct', d.querySelectorAll('#qq212-3 .quiz-option')[2].classList.contains('correct'));
+  clickQuizOpt212(4,0); // A = korrekt
+  test('2.1.2 Q4: A → correct', d.querySelectorAll('#qq212-4 .quiz-option')[0].classList.contains('correct'));
+  test('2.1.2 quiz score: 4/4', d.getElementById('quiz-score-212-title').textContent.includes('4/4'));
+
+  console.log('\nBronze 2.1.2 – øvelse 2125 (pindediagram, hyppighed)');
+  w.showPage('2-1-2'); w.restartOpgaver212(); w.opg212Level=1; w.startOpgaver212();
+  test('canvas-2125 state initialiseret', !!w.pindeStates['canvas-2125']);
+  test('canvas-2126 state initialiseret (ingen cascading crash)', !!w.pindeStates['canvas-2126']);
+  w.pindeStates['canvas-2125'].heights = [3,5,7,12,15,6,4,2,1];
+  w.checkBronze2125();
+  test('2125: alle højder korrekte → opg212Bronze1Done=true', w.opg212Bronze1Done);
+  w.restartOpgaver212(); w.opg212Level=1; w.startOpgaver212();
+  w.pindeStates['canvas-2125'].heights = [3,5,7,12,15,6,4,2,99]; // sidste forkert
+  w.checkBronze2125();
+  test('2125: én forkert højde → opg212Bronze1Done forbliver false', !w.opg212Bronze1Done);
+
+  console.log('\nBronze 2.1.2 – øvelse 2126 (pindediagram, frekvens)');
+  w.restartOpgaver212(); w.opg212Level=1; w.startOpgaver212();
+  w.pindeStates['canvas-2126'].heights = [0.05,0.10,0.20,0.30,0.25,0.10];
+  w.checkBronze2126();
+  test('2126: alle højder korrekte → opg212Bronze2Done=true', w.opg212Bronze2Done);
+  test('Bronze medalje kræver BEGGE øvelser: kun 2126 løst → stadig ingen medalje', !w.opg212MedalShown);
+  w.pindeStates['canvas-2125'].heights = [3,5,7,12,15,6,4,2,1];
+  w.checkBronze2125();
+  test('Begge øvelser løst → bronzemedalje gemmes', w.opg212MedalShown);
+
+  console.log('\nSølv 2.1.2 – øvelse 2127 (trappediagram, todelt)');
+  w.restartOpgaver212(); w.opg212Level=2; w.startOpgaver212();
+  test('canvas-2127-points state initialiseret', !!w.pindeStates['canvas-2127-points']);
+  test('Trappe-sektion skjult før punkter er tjekket', d.getElementById('t2127-trappe-wrap').style.display === 'none');
+  w.pindeStates['canvas-2127-points'].heights = [0.10,0.30,0.40,0.70,0.80,0.90,1.00];
+  w.checkSilverPoints212();
+  test('Alle 7 punkter korrekte → opg212SilverPointsDone=true', w.opg212SilverPointsDone);
+  test('Trappe-sektion vises efter korrekte punkter', d.getElementById('t2127-trappe-wrap').style.display === 'block');
+  test('canvas-2127-trappe state initialiseret efter reveal', !!w.trappeStates['canvas-2127-trappe']);
+
+  var pts2127 = [[20,0.10],[25,0.30],[30,0.40],[35,0.70],[40,0.80],[45,0.90],[50,1.00]];
+  var expected2127 = w.expectedTrappeVertices(pts2127, 15, 55);
+  test('expectedTrappeVertices har 16 knækpunkter (2×7-1 + leadin/leadout)', expected2127.length === 16);
+  test('Trappe starter fladt ved 0% fra venstre kant (xMin=15)', expected2127[0][0]===15 && expected2127[0][1]===0);
+  test('Trappe slutter fladt ved 100% ud til højre kant (xMax=55)', expected2127[15][0]===55 && expected2127[15][1]===1);
+  w.trappeStates['canvas-2127-trappe'].vertices = expected2127;
+  w.checkSilverTrappe212();
+  test('Korrekt trappe tegnet (inkl. lead-in/lead-out) → opg212SilverTrappeDone=true', w.opg212SilverTrappeDone);
+
+  w.restartOpgaver212(); w.opg212Level=2; w.startOpgaver212();
+  w.pindeStates['canvas-2127-points'].heights = [0.10,0.30,0.40,0.70,0.80,0.90,1.00];
+  w.checkSilverPoints212();
+  w.trappeStates['canvas-2127-trappe'].vertices = expected2127.slice(0, 10); // for få knæk
+  w.checkSilverTrappe212();
+  test('For få knækpunkter → opg212SilverTrappeDone forbliver false', !w.opg212SilverTrappeDone);
+  test('For få knækpunkter → fejlbesked oplyser præcist antal', d.getElementById('ow-r-2127-trappe').textContent.includes('10 knækpunkter') && d.getElementById('ow-r-2127-trappe').textContent.includes('skal være 16'));
+
+  console.log('\nSølv 2.1.2 – uden lead-in/lead-out (kun de 7 datapunkter forbundet, som tidligere accepteret)');
+  w.restartOpgaver212(); w.opg212Level=2; w.startOpgaver212();
+  w.pindeStates['canvas-2127-points'].heights = [0.10,0.30,0.40,0.70,0.80,0.90,1.00];
+  w.checkSilverPoints212();
+  var oldStyleOnly = expected2127.slice(2, 15); // kun selve trappen mellem datapunkterne, uden 0%- og 100%-halerne
+  w.trappeStates['canvas-2127-trappe'].vertices = oldStyleOnly;
+  w.checkSilverTrappe212();
+  test('Uden lead-in/lead-out → opg212SilverTrappeDone forbliver false (for få knækpunkter)', !w.opg212SilverTrappeDone);
+
+  console.log('\nSølv 2.1.2 – én ekstra (stray) knækpunkt før den rigtige trappe (som i brugerens screenshot)');
+  w.restartOpgaver212(); w.opg212Level=2; w.startOpgaver212();
+  w.pindeStates['canvas-2127-points'].heights = [0.10,0.30,0.40,0.70,0.80,0.90,1.00];
+  w.checkSilverPoints212();
+  w.trappeStates['canvas-2127-trappe'].vertices = [[17,0]].concat(expected2127); // ét ekstra stray-punkt forrest
+  w.checkSilverTrappe212();
+  test('Én ekstra knæk forrest → opg212SilverTrappeDone forbliver false', !w.opg212SilverTrappeDone);
+  var msg2127extra = d.getElementById('ow-r-2127-trappe').textContent;
+  test('Ekstra knæk → fejlbesked siger "17 knækpunkter" og "1 for mange"', msg2127extra.includes('17 knækpunkter') && msg2127extra.includes('1 for mange'));
+  test('Ekstra knæk → fejlbesked nævner "Fortryd sidste"', msg2127extra.includes('Fortryd sidste'));
+
+  console.log('\nSølv 2.1.2 – korrekt antal knækpunkter, men forkert placeret');
+  w.restartOpgaver212(); w.opg212Level=2; w.startOpgaver212();
+  w.pindeStates['canvas-2127-points'].heights = [0.10,0.30,0.40,0.70,0.80,0.90,1.00];
+  w.checkSilverPoints212();
+  var wrongPos2127 = expected2127.slice();
+  wrongPos2127[6] = [30, 0.9]; // knæk nr. 7 forkert placeret (skal være [30,0.40])
+  w.trappeStates['canvas-2127-trappe'].vertices = wrongPos2127;
+  w.checkSilverTrappe212();
+  test('Korrekt antal, men forkert placering → opg212SilverTrappeDone forbliver false', !w.opg212SilverTrappeDone);
+  test('Forkert placering → fejlbesked peger på knækpunkt nr. 7', d.getElementById('ow-r-2127-trappe').textContent.includes('knækpunkt nr. 7'));
+
+  console.log('\nGuld 2.1.2 – øvelse 2128 (beregn F(x), sæt punkter, tegn trappe)');
+  w.restartOpgaver212(); w.opg212Level=3; w.startOpgaver212();
+  var goldF = [14/60, 30/60, 42/60, 51/60, 57/60, 60/60];
+  function setVal2128(id,val){ var i=d.getElementById('ow-'+id); if(i) i.value=val; }
+  setVal2128('2128-F1', goldF[0].toFixed(4)); // forkert (kun første)
+  w.checkGoldTable212();
+  test('Ufuldstændig tabel → opg212GoldTableDone forbliver false', !w.opg212GoldTableDone);
+  test('Canvas-sektion skjult før tabellen er korrekt', d.getElementById('t2128-canvas-wrap').style.display === 'none');
+  ['2128-F1','2128-F2','2128-F3','2128-F4','2128-F5','2128-F6'].forEach(function(id,i){ setVal2128(id, goldF[i].toFixed(4)); });
+  w.checkGoldTable212();
+  test('Fuld korrekt F(x)-tabel → opg212GoldTableDone=true', w.opg212GoldTableDone);
+  test('Canvas-sektion vises efter korrekt tabel', d.getElementById('t2128-canvas-wrap').style.display === 'block');
+  test('canvas-2128-points state initialiseret efter reveal', !!w.pindeStates['canvas-2128-points']);
+
+  w.pindeStates['canvas-2128-points'].heights = goldF.slice();
+  w.checkGoldPoints212();
+  test('Alle 6 punkter korrekte → opg212GoldPointsDone=true', w.opg212GoldPointsDone);
+  test('Trappe-sektion vises efter korrekte punkter', d.getElementById('t2128-trappe-wrap').style.display === 'block');
+  test('canvas-2128-trappe state initialiseret efter reveal', !!w.trappeStates['canvas-2128-trappe']);
+
+  var pts2128 = [0,2,4,6,8,10].map(function(x,i){ return [x, goldF[i]]; });
+  var expected2128 = w.expectedTrappeVertices(pts2128, -1, 11);
+  test('expectedTrappeVertices (2128) har 14 knækpunkter (2×6-1 + leadin/leadout)', expected2128.length === 14);
+  w.trappeStates['canvas-2128-trappe'].vertices = expected2128;
+  w.checkGoldTrappe212();
+  test('Korrekt trappe tegnet (inkl. lead-in/lead-out) → opg212GoldTrappeDone=true', w.opg212GoldTrappeDone);
+
+  console.log('\nFuld 3-niveau medaljeflow 2.1.2 (bronze+sølv+guld)');
+  w.restartOpgaver212(); w.opg212Level=3; w.startOpgaver212();
+  w.pindeStates['canvas-2125'].heights = [3,5,7,12,15,6,4,2,1]; w.checkBronze2125();
+  w.pindeStates['canvas-2126'].heights = [0.05,0.10,0.20,0.30,0.25,0.10]; w.checkBronze2126();
+  test('Niveau 3: kun bronze færdig → ingen medalje endnu', !w.opg212MedalShown);
+  w.pindeStates['canvas-2127-points'].heights = [0.10,0.30,0.40,0.70,0.80,0.90,1.00];
+  w.checkSilverPoints212();
+  w.trappeStates['canvas-2127-trappe'].vertices = expected2127;
+  w.checkSilverTrappe212();
+  test('Niveau 3: bronze+sølv færdig, guld mangler → stadig ingen medalje', !w.opg212MedalShown);
+  ['2128-F1','2128-F2','2128-F3','2128-F4','2128-F5','2128-F6'].forEach(function(id,i){ setVal2128(id, goldF[i].toFixed(4)); });
+  w.checkGoldTable212();
+  w.pindeStates['canvas-2128-points'].heights = goldF.slice();
+  w.checkGoldPoints212();
+  w.trappeStates['canvas-2128-trappe'].vertices = expected2128;
+  w.checkGoldTrappe212();
+  test('Niveau 3: alle dele færdige → medalje gemmes', w.opg212MedalShown);
+  test('Niveau 3: medal_212 = 3 i localStorage', parseInt(w.loadProgress('medal_212',0)) === 3);
+
+  console.log('\nRestart-flow 2.1.2');
+  w.restartOpgaver212();
+  test('Restart: ready-btn synlig igen', d.getElementById('ready-btn-wrap-212').style.display==='block');
+  test('Restart: restart-btn skjult', d.getElementById('restart-btn-212').style.display==='none');
+  test('Restart: opg212Bronze1Done nulstillet', !w.opg212Bronze1Done);
+  test('Restart: opg212SilverTrappeDone nulstillet', !w.opg212SilverTrappeDone);
+  test('Restart: opg212GoldTrappeDone nulstillet', !w.opg212GoldTrappeDone);
+  test('Restart: opg212MedalShown nulstillet', !w.opg212MedalShown);
+  test('Restart: trappe-sektion (2127) skjult igen', d.getElementById('t2127-trappe-wrap').style.display==='none');
+  test('Restart: canvas-sektion (2128) skjult igen', d.getElementById('t2128-canvas-wrap').style.display==='none');
+  test('Restart: F(x)-inputfelt (2128) tømt', d.getElementById('ow-2128-F1').value==='');
+  test('Restart: pindeStates ryddet', Object.keys(w.pindeStates).length===0);
+  test('Restart: trappeStates ryddet', Object.keys(w.trappeStates).length===0);
+
   // ── RESULTAT ──────────────────────────────────────────────────────────────────
   console.log(`\n${'='.repeat(40)}`);
   console.log(`Resultat: ${passed}/${passed+failed} tests bestået`);

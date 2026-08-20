@@ -598,7 +598,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <section class="intro"><h1>Vælg et forløb</h1><p>Klik på et forløb for at se emner, materiale og opgaver.</p></section>
 <div class="forloeb-grid">
 <div class="forloeb-card active" onclick="showPage('f1')"><span class="forloeb-nr">F1</span><span class="forloeb-titel">Lineære funktioner</span></div>
-<div class="forloeb-card disabled"><span class="forloeb-nr">F2</span><span class="forloeb-titel">Deskriptiv statistik</span><span class="coming-soon">Kommer snart</span></div>
+<div class="forloeb-card active" onclick="showPage('f2')"><span class="forloeb-nr">F2</span><span class="forloeb-titel">Deskriptiv statistik</span></div>
 <div class="forloeb-card disabled"><span class="forloeb-nr">F3</span><span class="forloeb-titel">Eksponentielle funktioner</span><span class="coming-soon">Kommer snart</span></div>
 <div class="forloeb-card disabled"><span class="forloeb-nr">F4</span><span class="forloeb-titel">Finansiel regning</span><span class="coming-soon">Kommer snart</span></div>
 <div class="forloeb-card disabled"><span class="forloeb-nr">F5</span><span class="forloeb-titel">Andengradsfunktioner</span><span class="coming-soon">Kommer snart</span></div>
@@ -611,6 +611,555 @@ document.addEventListener("DOMContentLoaded", function() {
 <a class="back-link" onclick="showPage('home')">← Alle forløb</a>
 <section class="intro"><h1>F1 – Lineære funktioner</h1><p>Vælg et emne for at se materiale og opgaver.</p></section>
 <p class="section-label">Kapitel 1.3 – Ligninger og uligheder</p><div class="emne-grid"><div class="emne-card" onclick="showPage('1-3-1')"><span class="emne-nr">1.3.1</span><span class="emne-titel">Simple ligninger</span><span class="emne-desc">Løsning af ligninger med én ubekendt</span></div></div><p class="section-label">Kapitel 3.1 – Grundlæggende om funktioner</p><div class="emne-grid"><div class="emne-card" onclick="showPage('3-1-1')"><span class="emne-nr">3.1.1</span><span class="emne-titel">Lodret-kriteriet og definition</span><span class="emne-desc">Hvornår er en graf en funktion?</span></div><div class="emne-card" onclick="showPage('3-1-2')"><span class="emne-nr">3.1.2</span><span class="emne-titel">Funktion givet ved graf</span><span class="emne-desc">Aflæsning og fortolkning af grafer</span></div><div class="emne-card" onclick="showPage('3-1-3')"><span class="emne-nr">3.1.3</span><span class="emne-titel">Regneforskrift og graf</span><span class="emne-desc">Fra forskrift til graf og omvendt</span></div><div class="emne-card" onclick="showPage('3-1-4')"><span class="emne-nr">3.1.4</span><span class="emne-titel">Grafiske løsninger</span><span class="emne-desc">Løsning af ligninger grafisk</span></div><div class="emne-card" onclick="showPage('3-1-5')"><span class="emne-nr">3.1.5</span><span class="emne-titel">Monotoniforhold</span><span class="emne-desc">Voksende og aftagende funktioner</span></div><div class="emne-card" onclick="showPage('3-1-6')"><span class="emne-nr">3.1.6</span><span class="emne-titel">Egenskaber ved grafer</span><span class="emne-desc">Maksimum, minimum og symmetri</span></div><div class="emne-card" onclick="showPage('3-1-7')"><span class="emne-nr">3.1.7</span><span class="emne-titel">Omvendt funktion</span><span class="emne-desc">Invers funktion og spejling</span></div></div><p class="section-label">Kapitel 3.2 – Lineære funktioner</p><div class="emne-grid"><div class="emne-card" onclick="showPage('3-2-1')"><span class="emne-nr">3.2.1</span><span class="emne-titel">Grundbegreber</span><span class="emne-desc">Hældning, skæring og forskrift f(x) = ax + b</span></div><div class="emne-card" onclick="showPage('3-2-2')"><span class="emne-nr">3.2.2</span><span class="emne-titel">Forskrift ud fra to punkter</span><span class="emne-desc">Bestem a og b fra to kendte punkter</span></div><div class="emne-card" onclick="showPage('3-2-3')"><span class="emne-nr">3.2.3</span><span class="emne-titel">Vækstegenskaber</span><span class="emne-desc">Konstant vækst og hældningskoefficient</span></div><div class="emne-card" onclick="showPage('3-2-4')"><span class="emne-nr">3.2.4</span><span class="emne-titel">Stykkevis lineære funktioner</span><span class="emne-desc">Funktioner defineret i intervaller</span></div><div class="emne-card" onclick="showPage('3-2-5')"><span class="emne-nr">3.2.5</span><span class="emne-titel">Skæring mellem lineære grafer</span><span class="emne-desc">Find skæringspunkt mellem to linjer</span></div></div><p class="section-label">Kapitel 3.5 – xy-plot og regressionsanalyse</p><div class="emne-grid"><div class="emne-card" onclick="showPage('3-5-1')"><span class="emne-nr">3.5.1</span><span class="emne-titel">Mindste kvadraters metode</span><span class="emne-desc">Tilpasning af lineær model til data</span></div><div class="emne-card" onclick="showPage('3-5-2')"><span class="emne-nr">3.5.2</span><span class="emne-titel">Korrelationskoefficienten</span><span class="emne-desc">Måling af sammenhæng mellem variable</span></div></div><p class="section-label">Diverse</p><div class="emne-grid"><div class="emne-card" onclick="showPage('screening')"><span class="emne-nr">✏️</span><span class="emne-titel">Matematikscreening 2025</span><span class="emne-desc">Repetition af 1.3.1, 3.1.2, 3.1.3, 3.2.1, 3.2.2 og 3.2.5</span></div></div>
+</div>
+<div id="page-f2" class="page-hidden">
+<a class="back-link" onclick="showPage('home')">← Alle forløb</a>
+<section class="intro"><h1>F2 – Deskriptiv statistik</h1><p>Vælg et emne for at se materiale og opgaver.</p></section>
+<p class="section-label">Kapitel 2.1 – Diskrete observationssæt</p><div class="emne-grid"><div class="emne-card" onclick="showPage('2-1-1')"><span class="emne-nr">2.1.1</span><span class="emne-titel">Hyppigheder og frekvenser</span></div><div class="emne-card" onclick="showPage('2-1-2')"><span class="emne-nr">2.1.2</span><span class="emne-titel">Grafiske repræsentationer</span></div><div class="emne-card" onclick="showPage('2-1-3')"><span class="emne-nr">2.1.3</span><span class="emne-titel">Positionsmål</span></div><div class="emne-card" onclick="showPage('2-1-4')"><span class="emne-nr">2.1.4</span><span class="emne-titel">Spredningsmål</span></div></div><p class="section-label">Kapitel 2.2 – Grupperede observationssæt</p><div class="emne-grid"><div class="emne-card" onclick="showPage('2-2-1')"><span class="emne-nr">2.2.1</span><span class="emne-titel">Hyppigheder og frekvenser</span></div><div class="emne-card" onclick="showPage('2-2-2')"><span class="emne-nr">2.2.2</span><span class="emne-titel">Grafiske repræsentationer</span></div><div class="emne-card" onclick="showPage('2-2-3')"><span class="emne-nr">2.2.3</span><span class="emne-titel">Positionsmål</span></div><div class="emne-card" onclick="showPage('2-2-4')"><span class="emne-nr">2.2.4</span><span class="emne-titel">Spredningsmål</span></div></div><p class="section-label">Kapitel 2.3 – Udtræk af databaser</p><div class="emne-grid"><div class="emne-card" onclick="showPage('2-3')"><span class="emne-nr">2.3</span><span class="emne-titel">Udtræk fra databaser</span></div></div>
+</div>
+<div id="page-2-1-1" class="page-hidden">
+  <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
+  <div class="emne-header">
+    <span class="tag">2.1.1</span>
+    <h1>Hyppigheder og frekvenser</h1>
+    <p>Hyppighedsfordeling, frekvensfordeling og summerede (kumulerede) værdier for diskrete observationssæt.</p>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="t211-mat">Materiale</button>
+    <button class="tab-btn" data-tab="t211-quiz">Tjekspørgsmål</button>
+    <button class="tab-btn" data-tab="t211-opg">Opgaver</button>
+  </div>
+
+  <div id="t211-mat" class="tab-panel active">
+    <div class="simple-resource-list">
+      <div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=124','_blank')">
+        <input type="checkbox" class="card-check" id="chk-211-bog1" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">Intro til diskret observationssæt</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+      <div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=268','_blank')">
+        <input type="checkbox" class="card-check" id="chk-211-bog2" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">Kapitel 2.1.1</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+      <div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=H_9fsdh3c38','_blank')">
+        <input type="checkbox" class="card-check" id="chk-211-yt" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Hyppigheder og frekvenser</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div id="t211-quiz" class="tab-panel">
+    <div class="quiz-question" id="qq211-1">
+      <div class="quiz-q-text">1. 40 elever er blevet spurgt, hvor mange bøger de har læst i løbet af sommerferien. I datasættet gælder h(3) = 9. Hvad betyder det?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer211(1,'correct',event)">A) 9 elever har læst 3 bøger</button>
+        <button class="quiz-option" onclick="quizAnswer211(1,'wrong',event)">B) 3 % af eleverne har læst 9 bøger</button>
+        <button class="quiz-option" onclick="quizAnswer211(1,'wrong',event)">C) 9 % af eleverne har læst 3 bøger</button>
+        <button class="quiz-option" onclick="quizAnswer211(1,'wrong',event)">D) 3 elever har læst højst 9 bøger</button>
+      </div>
+      <div class="quiz-feedback" id="qf211-1"></div>
+    </div>
+    <div class="quiz-question" id="qq211-2">
+      <div class="quiz-q-text">2. Hvordan beregnes frekvensen f(x) af en observation x ud fra hyppigheden h(x) og observationssættets størrelse N?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer211(2,'wrong',event)">A) f(x) = h(x) · N</button>
+        <button class="quiz-option" onclick="quizAnswer211(2,'correct',event)">B) f(x) = h(x) / N</button>
+        <button class="quiz-option" onclick="quizAnswer211(2,'wrong',event)">C) f(x) = N / h(x)</button>
+        <button class="quiz-option" onclick="quizAnswer211(2,'wrong',event)">D) f(x) = h(x) + N</button>
+      </div>
+      <div class="quiz-feedback" id="qf211-2"></div>
+    </div>
+    <div class="quiz-question" id="qq211-3">
+      <div class="quiz-q-text">3. For datasættet med antal læste bøger er den summerede hyppighed H(5) = 28. Hvad fortæller det os?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer211(3,'wrong',event)">A) 28 elever har læst præcis 5 bøger</button>
+        <button class="quiz-option" onclick="quizAnswer211(3,'correct',event)">B) 28 elever har læst højst 5 bøger</button>
+        <button class="quiz-option" onclick="quizAnswer211(3,'wrong',event)">C) 5 elever har læst 28 bøger</button>
+        <button class="quiz-option" onclick="quizAnswer211(3,'wrong',event)">D) 28 % af eleverne har læst 5 bøger</button>
+      </div>
+      <div class="quiz-feedback" id="qf211-3"></div>
+    </div>
+    <div class="quiz-question" id="qq211-4">
+      <div class="quiz-q-text">4. I et datasæt med 40 elever er den summerede frekvens for "højst 5 bøger" lig 70 %. Hvordan er dette tal beregnet?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer211(4,'wrong',event)">A) Ved at gange H(5) med 40</button>
+        <button class="quiz-option" onclick="quizAnswer211(4,'correct',event)">B) Ved at dele H(5) med 40</button>
+        <button class="quiz-option" onclick="quizAnswer211(4,'wrong',event)">C) Ved at dele 40 med H(5)</button>
+        <button class="quiz-option" onclick="quizAnswer211(4,'wrong',event)">D) Ved at trække H(5) fra 40</button>
+      </div>
+      <div class="quiz-feedback" id="qf211-4"></div>
+    </div>
+    <div class="quiz-score" id="quiz-score-211" style="display:none">
+      <h3 id="quiz-score-211-title"></h3>
+      <p id="quiz-score-211-text"></p>
+      <button class="quiz-retry" onclick="quizRetry211()">Prøv igen</button>
+    </div>
+  </div>
+
+  <div id="t211-opg" class="tab-panel">
+    <div class="energy-wrap">
+      <div class="energy-header">
+        <span class="energy-question">Hvor meget energi har du i dag?</span>
+        <span class="energy-state" id="energy-state-211" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span>
+      </div>
+      <div class="energy-slider-track">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span>
+        <input type="range" class="energy-slider" id="energy-slider-211" min="0" max="100" value="1" oninput="updateEnergy211(this.value)">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span>
+      </div>
+    </div>
+    <div class="ready-btn-wrap" id="ready-btn-wrap-211" style="display:block">
+      <button class="ready-btn" onclick="startOpgaver211()">
+        <div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div>
+        <span class="ready-btn-cta">Ja, klar!</span>
+      </button>
+    </div>
+    <button class="restart-btn" id="restart-btn-211" onclick="restartOpgaver211()" style="display:none">↩ Vælg nyt niveau</button>
+
+    <!-- BRONZE -->
+    <div class="opgave-widget opgave-hidden" id="opg211-low">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Hyppigheds- og frekvensfordeling</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Tabellen nedenfor viser, hvor mange søskende 30 elever har.</div>
+      <table style="border-collapse:collapse;margin-bottom:10px;font-size:0.85rem">
+        <tr><td style="border:1px solid var(--border);padding:4px 10px">1</td><td style="border:1px solid var(--border);padding:4px 10px">2</td><td style="border:1px solid var(--border);padding:4px 10px">0</td><td style="border:1px solid var(--border);padding:4px 10px">3</td><td style="border:1px solid var(--border);padding:4px 10px">1</td><td style="border:1px solid var(--border);padding:4px 10px">2</td><td style="border:1px solid var(--border);padding:4px 10px">4</td><td style="border:1px solid var(--border);padding:4px 10px">1</td><td style="border:1px solid var(--border);padding:4px 10px">0</td><td style="border:1px solid var(--border);padding:4px 10px">2</td></tr>
+        <tr><td style="border:1px solid var(--border);padding:4px 10px">2</td><td style="border:1px solid var(--border);padding:4px 10px">1</td><td style="border:1px solid var(--border);padding:4px 10px">3</td><td style="border:1px solid var(--border);padding:4px 10px">0</td><td style="border:1px solid var(--border);padding:4px 10px">2</td><td style="border:1px solid var(--border);padding:4px 10px">1</td><td style="border:1px solid var(--border);padding:4px 10px">5</td><td style="border:1px solid var(--border);padding:4px 10px">2</td><td style="border:1px solid var(--border);padding:4px 10px">1</td><td style="border:1px solid var(--border);padding:4px 10px">3</td></tr>
+        <tr><td style="border:1px solid var(--border);padding:4px 10px">0</td><td style="border:1px solid var(--border);padding:4px 10px">2</td><td style="border:1px solid var(--border);padding:4px 10px">1</td><td style="border:1px solid var(--border);padding:4px 10px">4</td><td style="border:1px solid var(--border);padding:4px 10px">2</td><td style="border:1px solid var(--border);padding:4px 10px">0</td><td style="border:1px solid var(--border);padding:4px 10px">3</td><td style="border:1px solid var(--border);padding:4px 10px">1</td><td style="border:1px solid var(--border);padding:4px 10px">2</td><td style="border:1px solid var(--border);padding:4px 10px">1</td></tr>
+      </table>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:8px">Lav en tabel, som viser hyppighedsfordelingen og frekvensfordelingen af data. Udfyld selv hvilke x-værdier der forekommer.</div>
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:10px">Skriv frekvensen som decimaltal, fx 0,25 (eller som brøk, fx 3/12)</div>
+      <div style="overflow-x:auto;margin-bottom:12px">
+        <table style="border-collapse:collapse;font-size:0.85rem">
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">x</td>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">h(x)</td>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">f(x)</td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-x0" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-h0" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-f0" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-x1" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-h1" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-f1" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-x2" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-h2" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-f2" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-x3" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-h3" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-f3" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-x4" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-h4" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-f4" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-x5" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-h5" type="text" style="width:48px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211b-f5" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+        </table>
+      </div>
+      <button onclick="checkBronze211()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek tabel</button>
+      <div class="ow-result" id="ow-r-211-low" style="margin-top:10px"></div>
+    </div>
+
+    <!-- SØLV -->
+    <div class="opgave-widget opgave-hidden" id="opg211-mid">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Summerede frekvenser</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Find de summerede (kumulerede) frekvenser for datasættet givet ved følgende hyppighedsfordeling:</div>
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:10px">Skriv som decimaltal, fx 0,25 (eller som brøk / procent)</div>
+      <div style="overflow-x:auto;margin-bottom:12px">
+        <table style="border-collapse:collapse;font-size:0.85rem">
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">x</td>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">h(x)</td>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">F(x)</td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">1</td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">2</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211s-F1" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">2</td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">3</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211s-F2" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">3</td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">4</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211s-F3" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">4</td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">5</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211s-F4" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">5</td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">3</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211s-F5" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">6</td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">2</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211s-F6" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">7</td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">1</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211s-F7" type="text" style="width:64px;text-align:center"></td>
+          </tr>
+        </table>
+      </div>
+      <button onclick="checkSilver211()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek tabel</button>
+      <div class="ow-result" id="ow-r-211-mid" style="margin-top:10px"></div>
+    </div>
+
+    <!-- GULD -->
+    <div class="opgave-widget opgave-hidden" id="opg211-high">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Fra summeret hyppighed til hele tabellen</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">En sportsklub har registreret, hvor mange træningsgange deres medlemmer har deltaget i løbet af en måned. De summerede hyppigheder for datasættet ser sådan ud. Udfyld resten af tabellen.</div>
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:10px">Skriv frekvensen som decimaltal, fx 0,25 (eller som brøk / procent)</div>
+      <div style="overflow-x:auto;margin-bottom:12px">
+        <table style="border-collapse:collapse;font-size:0.85rem">
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">x</td>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">h(x)</td>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">f(x)</td>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">H(x)</td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">2</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211g-h1" type="text" style="width:56px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211g-f1" type="text" style="width:64px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">5</td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">4</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211g-h2" type="text" style="width:56px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211g-f2" type="text" style="width:64px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">12</td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">6</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211g-h3" type="text" style="width:56px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211g-f3" type="text" style="width:64px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">20</td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">8</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211g-h4" type="text" style="width:56px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211g-f4" type="text" style="width:64px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">27</td>
+          </tr>
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">10</td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211g-h5" type="text" style="width:56px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-211g-f5" type="text" style="width:64px;text-align:center"></td>
+            <td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">30</td>
+          </tr>
+        </table>
+      </div>
+      <button onclick="checkGold211()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek tabel</button>
+      <div class="ow-result" id="ow-r-211-high" style="margin-top:10px"></div>
+    </div>
+
+  </div>
+</div>
+<div id="page-2-1-2" class="page-hidden">
+  <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
+  <div class="emne-header">
+    <span class="tag">2.1.2</span>
+    <h1>Grafiske repræsentationer</h1>
+    <p>Pindediagram og trappediagram for hyppigheds-, frekvens- og summerede fordelinger.</p>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="t212-mat">Materiale</button>
+    <button class="tab-btn" data-tab="t212-quiz">Tjekspørgsmål</button>
+    <button class="tab-btn" data-tab="t212-opg">Opgaver</button>
+  </div>
+
+  <div id="t212-mat" class="tab-panel active">
+    <div class="simple-resource-list">
+      <div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=269','_blank')">
+        <input type="checkbox" class="card-check" id="chk-212-bog" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">Kapitel 2.1.2</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+      <div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=wKJB0pm3gck','_blank')">
+        <input type="checkbox" class="card-check" id="chk-212-yt" onclick="handleCheck(this,event)">
+        <div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Grafiske repræsentationer</div></div>
+        <canvas class="sparkle-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div id="t212-quiz" class="tab-panel">
+    <div class="quiz-question" id="qq212-1">
+      <div class="quiz-q-text">1. Hvilken graf er bedst egnet til at illustrere en observations procentvise andel af det samlede antal observationer, hvor arealerne af delene viser fordelingen?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer212(1,'wrong',event)">A) Pindediagram</button>
+        <button class="quiz-option" onclick="quizAnswer212(1,'wrong',event)">B) Trappediagram</button>
+        <button class="quiz-option" onclick="quizAnswer212(1,'correct',event)">C) Cirkeldiagram</button>
+        <button class="quiz-option" onclick="quizAnswer212(1,'wrong',event)">D) Søjlediagram med akkumulerede værdier</button>
+      </div>
+      <div class="quiz-feedback" id="qf212-1"></div>
+    </div>
+    <div class="quiz-question" id="qq212-2">
+      <div class="quiz-q-text">2. Et pindediagram for en hyppighedsfordeling og et pindediagram for den tilsvarende frekvensfordeling af samme datasæt ser stort set ens ud. Hvad er forskellen mellem de to diagrammer?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer212(2,'wrong',event)">A) Pindene har forskellig bredde</button>
+        <button class="quiz-option" onclick="quizAnswer212(2,'correct',event)">B) Kun enheden på den lodrette akse er forskellig</button>
+        <button class="quiz-option" onclick="quizAnswer212(2,'wrong',event)">C) Observationerne på den vandrette akse er forskellige</button>
+        <button class="quiz-option" onclick="quizAnswer212(2,'wrong',event)">D) Der er ikke nogen forskel</button>
+      </div>
+      <div class="quiz-feedback" id="qf212-2"></div>
+    </div>
+    <div class="quiz-question" id="qq212-3">
+      <div class="quiz-q-text">3. Hvilken type diagram bruges til at illustrere summerede hyppigheder eller summerede frekvenser?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer212(3,'wrong',event)">A) Cirkeldiagram</button>
+        <button class="quiz-option" onclick="quizAnswer212(3,'wrong',event)">B) Pindediagram</button>
+        <button class="quiz-option" onclick="quizAnswer212(3,'correct',event)">C) Trappediagram</button>
+        <button class="quiz-option" onclick="quizAnswer212(3,'wrong',event)">D) Punktdiagram</button>
+      </div>
+      <div class="quiz-feedback" id="qf212-3"></div>
+    </div>
+    <div class="quiz-question" id="qq212-4">
+      <div class="quiz-q-text">4. I et trappediagram, der illustrerer en summeret frekvensfordeling, er observationerne afsat på den vandrette akse. Hvad svarer højden af hvert trappetrin til?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer212(4,'correct',event)">A) Den enkelte observations hyppighed eller frekvens (ikke summeret)</button>
+        <button class="quiz-option" onclick="quizAnswer212(4,'wrong',event)">B) Den summerede frekvens (eller hyppighed) op til og med den pågældende observation</button>
+        <button class="quiz-option" onclick="quizAnswer212(4,'wrong',event)">C) Det samlede antal observationer N</button>
+        <button class="quiz-option" onclick="quizAnswer212(4,'wrong',event)">D) Gennemsnittet af alle observationerne</button>
+      </div>
+      <div class="quiz-feedback" id="qf212-4"></div>
+    </div>
+    <div class="quiz-score" id="quiz-score-212" style="display:none">
+      <h3 id="quiz-score-212-title"></h3>
+      <p id="quiz-score-212-text"></p>
+      <button class="quiz-retry" onclick="quizRetry212()">Prøv igen</button>
+    </div>
+  </div>
+
+  <div id="t212-opg" class="tab-panel">
+    <div class="energy-wrap">
+      <div class="energy-header">
+        <span class="energy-question">Hvor meget energi har du i dag?</span>
+        <span class="energy-state" id="energy-state-212" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span>
+      </div>
+      <div class="energy-slider-track">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span>
+        <input type="range" class="energy-slider" id="energy-slider-212" min="0" max="100" value="1" oninput="updateEnergy212(this.value)">
+        <span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span>
+      </div>
+    </div>
+    <div class="ready-btn-wrap" id="ready-btn-wrap-212" style="display:block">
+      <button class="ready-btn" onclick="startOpgaver212()">
+        <div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div>
+        <span class="ready-btn-cta">Ja, klar!</span>
+      </button>
+    </div>
+    <button class="restart-btn" id="restart-btn-212" onclick="restartOpgaver212()" style="display:none">↩ Vælg nyt niveau</button>
+
+    <!-- BRONZE -->
+    <div class="opgave-widget opgave-hidden" id="opg212-low">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Øvelse 2125 — pindediagram for hyppighed</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:8px">En cykelhandler har registreret, hvor mange gear de solgte cykler har haft i løbet af en uge. Tegn pindediagrammet for nedenstående observationssæt.</div>
+      <table style="border-collapse:collapse;margin-bottom:10px;font-size:0.82rem">
+        <tr><td style="border:1px solid var(--border);padding:4px 8px;font-weight:600;background:var(--bg)">Antal gear</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">1</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">3</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">6</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">9</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">12</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">18</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">21</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">24</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">27</td></tr>
+        <tr><td style="border:1px solid var(--border);padding:4px 8px;font-weight:600;background:var(--bg)">Hyppighed</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">3</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">5</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">7</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">12</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">15</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">6</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">4</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">2</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">1</td></tr>
+      </table>
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px">Klik og træk op/ned ved hver observation for at tegne pinden i den rigtige højde.</div>
+      <canvas id="canvas-2125" width="320" height="260" style="border:1.5px solid var(--border);border-radius:8px;cursor:crosshair;background:#fff;display:block;touch-action:none"></canvas>
+      <div style="margin-top:8px;margin-bottom:8px;display:flex;gap:8px">
+        <button onclick="checkBronze2125()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek pindediagram</button>
+        <button onclick="clearPinde('canvas-2125')" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Ryd</button>
+      </div>
+      <div class="ow-result" id="ow-r-2125" style="margin-bottom:16px"></div>
+
+      <div style="margin-top:8px;padding-top:16px;border-top:1.5px solid var(--border)">
+        <div style="font-size:0.88rem;font-weight:600;margin-bottom:6px">Øvelse 2126 — pindediagram for frekvens</div>
+        <div style="font-size:0.83rem;color:#6b7280;margin-bottom:8px">Tabellen nedenfor viser frekvensfordelingen for, hvor mange dage om ugen et hold fodboldspillere træner. Tegn et pindediagram for frekvensfordelingen.</div>
+        <table style="border-collapse:collapse;margin-bottom:10px;font-size:0.82rem">
+          <tr><td style="border:1px solid var(--border);padding:4px 8px;font-weight:600;background:var(--bg)">Antal træningsdage</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">1</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">2</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">3</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">4</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">5</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">6</td></tr>
+          <tr><td style="border:1px solid var(--border);padding:4px 8px;font-weight:600;background:var(--bg)">Frekvens</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,05</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,10</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,20</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,30</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,25</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,10</td></tr>
+        </table>
+        <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px">Klik og træk op/ned ved hver observation for at tegne pinden i den rigtige højde.</div>
+        <canvas id="canvas-2126" width="300" height="260" style="border:1.5px solid var(--border);border-radius:8px;cursor:crosshair;background:#fff;display:block;touch-action:none"></canvas>
+        <div style="margin-top:8px;margin-bottom:8px;display:flex;gap:8px">
+          <button onclick="checkBronze2126()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek pindediagram</button>
+          <button onclick="clearPinde('canvas-2126')" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Ryd</button>
+        </div>
+        <div class="ow-result" id="ow-r-2126" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <!-- SØLV -->
+    <div class="opgave-widget opgave-hidden" id="opg212-mid">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Øvelse 2127 — trappediagram</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:8px">Den summerede frekvensfordeling for, hvor mange minutter en gruppe løbere bruger på at gennemføre en 5 km-løbetur, fremgår af tabellen. Tegn trappediagrammet for den summerede frekvensfordeling.</div>
+      <table style="border-collapse:collapse;margin-bottom:10px;font-size:0.82rem">
+        <tr><td style="border:1px solid var(--border);padding:4px 8px;font-weight:600;background:var(--bg)">x (minutter)</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">20</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">25</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">30</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">35</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">40</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">45</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">50</td></tr>
+        <tr><td style="border:1px solid var(--border);padding:4px 8px;font-weight:600;background:var(--bg)">F(x)</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,10</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,30</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,40</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,70</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,80</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">0,90</td><td style="border:1px solid var(--border);padding:4px 8px;text-align:center">1,00</td></tr>
+      </table>
+
+      <div style="font-size:0.88rem;font-weight:600;margin-bottom:6px">Del 1: Sæt punkterne</div>
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px">Klik og træk op/ned ved hvert x for at sætte punktet i den rigtige højde F(x).</div>
+      <canvas id="canvas-2127-points" width="320" height="280" style="border:1.5px solid var(--border);border-radius:8px;cursor:crosshair;background:#fff;display:block;touch-action:none"></canvas>
+      <div style="margin-top:8px;margin-bottom:8px;display:flex;gap:8px">
+        <button onclick="checkSilverPoints212()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek punkter</button>
+        <button onclick="clearPinde('canvas-2127-points')" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Ryd</button>
+      </div>
+      <div class="ow-result" id="ow-r-2127-points" style="margin-bottom:8px"></div>
+
+      <div id="t2127-trappe-wrap" style="display:none;margin-top:12px">
+        <div style="font-size:0.88rem;font-weight:600;margin-bottom:6px">Del 2: Tegn trappen</div>
+        <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px">Klik for at sætte knækpunkter — der tegnes automatisk en streg til det forrige punkt. Husk at trappen skal starte fladt ved 0% fra venstre kant og hen til det første punkt, og fortsætte fladt fra det sidste punkt og ud til højre kant. Hold Ctrl (eller Cmd) nede mens du klikker for at gå præcist vandret/lodret.</div>
+        <canvas id="canvas-2127-trappe" width="320" height="280" style="border:1.5px solid var(--border);border-radius:8px;cursor:crosshair;background:#fff;display:block;touch-action:none"></canvas>
+        <div style="margin-top:8px;margin-bottom:8px;display:flex;gap:8px">
+          <button onclick="checkSilverTrappe212()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek trappediagram</button>
+          <button onclick="undoTrappeVertex('canvas-2127-trappe')" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Fortryd sidste</button>
+          <button onclick="clearTrappe('canvas-2127-trappe')" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Ryd</button>
+        </div>
+        <div class="ow-result" id="ow-r-2127-trappe" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <!-- GULD -->
+    <div class="opgave-widget opgave-hidden" id="opg212-high">
+      <div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <span style="font-size:0.95rem;font-weight:700">Øvelse 2128 — beregn og tegn</span>
+      </div>
+      <div style="font-size:0.83rem;color:#6b7280;margin-bottom:8px">En biograf har registreret, hvor mange minutter forsinket deres forestillinger startede en måned, fordelt på 60 forestillinger. Antallet af forsinkede minutter fremgår af tabellen. Bestem den summerede frekvensfordeling, og tegn trappediagrammet for denne.</div>
+
+      <div style="font-size:0.88rem;font-weight:600;margin-bottom:6px">Del 1: Bestem den summerede frekvensfordeling</div>
+      <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:10px">Skriv som decimaltal, fx 0,25 (eller som brøk / procent)</div>
+      <div style="overflow-x:auto;margin-bottom:12px">
+        <table style="border-collapse:collapse;font-size:0.85rem">
+          <tr>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">Minutter forsinket</td>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">Antal forestillinger</td>
+            <td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">F(x)</td>
+          </tr>
+          <tr><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">0</td><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">14</td><td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-2128-F1" type="text" style="width:64px;text-align:center"></td></tr>
+          <tr><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">2</td><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">16</td><td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-2128-F2" type="text" style="width:64px;text-align:center"></td></tr>
+          <tr><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">4</td><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">12</td><td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-2128-F3" type="text" style="width:64px;text-align:center"></td></tr>
+          <tr><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">6</td><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">9</td><td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-2128-F4" type="text" style="width:64px;text-align:center"></td></tr>
+          <tr><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">8</td><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">6</td><td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-2128-F5" type="text" style="width:64px;text-align:center"></td></tr>
+          <tr><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">10</td><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">3</td><td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-2128-F6" type="text" style="width:64px;text-align:center"></td></tr>
+        </table>
+      </div>
+      <button onclick="checkGoldTable212()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek tabel</button>
+      <div class="ow-result" id="ow-r-2128-table" style="margin-top:8px;margin-bottom:16px"></div>
+
+      <div id="t2128-canvas-wrap" style="display:none;margin-top:8px;padding-top:16px;border-top:1.5px solid var(--border)">
+        <div style="font-size:0.88rem;font-weight:600;margin-bottom:6px">Del 2: Sæt punkterne</div>
+        <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px">Klik og træk op/ned ved hvert x for at sætte punktet i den rigtige højde F(x).</div>
+        <canvas id="canvas-2128-points" width="320" height="280" style="border:1.5px solid var(--border);border-radius:8px;cursor:crosshair;background:#fff;display:block;touch-action:none"></canvas>
+        <div style="margin-top:8px;margin-bottom:8px;display:flex;gap:8px">
+          <button onclick="checkGoldPoints212()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek punkter</button>
+          <button onclick="clearPinde('canvas-2128-points')" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Ryd</button>
+        </div>
+        <div class="ow-result" id="ow-r-2128-points" style="margin-bottom:8px"></div>
+
+        <div id="t2128-trappe-wrap" style="display:none;margin-top:12px">
+          <div style="font-size:0.88rem;font-weight:600;margin-bottom:6px">Del 3: Tegn trappen</div>
+          <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px">Klik for at sætte knækpunkter — der tegnes automatisk en streg til det forrige punkt. Husk at trappen skal starte fladt ved 0% fra venstre kant og hen til det første punkt, og fortsætte fladt fra det sidste punkt og ud til højre kant. Hold Ctrl (eller Cmd) nede mens du klikker for at gå præcist vandret/lodret.</div>
+          <canvas id="canvas-2128-trappe" width="320" height="280" style="border:1.5px solid var(--border);border-radius:8px;cursor:crosshair;background:#fff;display:block;touch-action:none"></canvas>
+          <div style="margin-top:8px;margin-bottom:8px;display:flex;gap:8px">
+            <button onclick="checkGoldTrappe212()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek trappediagram</button>
+            <button onclick="undoTrappeVertex('canvas-2128-trappe')" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Fortryd sidste</button>
+            <button onclick="clearTrappe('canvas-2128-trappe')" style="padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;cursor:pointer;font-family:inherit">Ryd</button>
+          </div>
+          <div class="ow-result" id="ow-r-2128-trappe" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div id="page-2-1-3" class="page-hidden">
+  <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
+  <div class="emne-header">
+    <span class="tag">2.1.3</span>
+    <h1>Positionsmål</h1>
+    <p>Indhold tilføjes snart.</p>
+  </div>
+</div>
+<div id="page-2-1-4" class="page-hidden">
+  <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
+  <div class="emne-header">
+    <span class="tag">2.1.4</span>
+    <h1>Spredningsmål</h1>
+    <p>Indhold tilføjes snart.</p>
+  </div>
+</div>
+<div id="page-2-2-1" class="page-hidden">
+  <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
+  <div class="emne-header">
+    <span class="tag">2.2.1</span>
+    <h1>Hyppigheder og frekvenser</h1>
+    <p>Indhold tilføjes snart.</p>
+  </div>
+</div>
+<div id="page-2-2-2" class="page-hidden">
+  <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
+  <div class="emne-header">
+    <span class="tag">2.2.2</span>
+    <h1>Grafiske repræsentationer</h1>
+    <p>Indhold tilføjes snart.</p>
+  </div>
+</div>
+<div id="page-2-2-3" class="page-hidden">
+  <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
+  <div class="emne-header">
+    <span class="tag">2.2.3</span>
+    <h1>Positionsmål</h1>
+    <p>Indhold tilføjes snart.</p>
+  </div>
+</div>
+<div id="page-2-2-4" class="page-hidden">
+  <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
+  <div class="emne-header">
+    <span class="tag">2.2.4</span>
+    <h1>Spredningsmål</h1>
+    <p>Indhold tilføjes snart.</p>
+  </div>
+</div>
+<div id="page-2-3" class="page-hidden">
+  <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
+  <div class="emne-header">
+    <span class="tag">2.3</span>
+    <h1>Udtræk fra databaser</h1>
+    <p>Indhold tilføjes snart.</p>
+  </div>
 </div>
 <div id="page-1-3-1" class="page-hidden">
   <a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a>
@@ -4368,7 +4917,7 @@ function check311MedalDone() {
 function updateEmneStatus() {
   try {
     var data = loadAllProgress();
-    document.querySelectorAll('#page-f1 .emne-card').forEach(function(card) {
+    document.querySelectorAll('#page-f1 .emne-card, #page-f2 .emne-card').forEach(function(card) {
       var slug = card.getAttribute('onclick').match(/showPage\('([^']+)'\)/);
       if (!slug) return;
       var nr = slug[1].split('-').join('.');
@@ -4616,6 +5165,49 @@ function checkIntervalGroup(ids, answers, resultId) {
   if (anyWrong) {
     var r = document.getElementById(resultId);
     if (r) { r.className='ow-result err'; r.textContent='Tjek parentestype og semikolon — prøv igen.'; }
+  }
+  return allCorrect;
+}
+
+// Fortolker et frekvens-/andelssvar der kan skrives som decimaltal (0,25), brøk (3/12) eller procent (25%)
+function parseFrequencyValue(raw) {
+  var s = (raw || '').trim().replace(',', '.');
+  if (s === '') return NaN;
+  var isPercent = false;
+  if (s.indexOf('%') !== -1) { isPercent = true; s = s.replace('%', '').trim(); }
+  var val;
+  if (s.indexOf('/') !== -1) {
+    var parts = s.split('/');
+    var num = parseFloat(parts[0]), den = parseFloat(parts[1]);
+    val = (isNaN(num) || isNaN(den) || den === 0) ? NaN : num / den;
+  } else {
+    val = parseFloat(s);
+  }
+  if (isNaN(val)) return NaN;
+  return isPercent ? val / 100 : val;
+}
+
+// Tjekker en gruppe numeriske inputfelter (fx en tabelrække) mod en facitliste i rækkefølge, med brugerdefineret tolerance.
+// useFrequencyParsing=true tillader decimal/brøk/procent-svar (bruges til f(x)/F(x)-rækker).
+function checkNumericTableGroup(ids, answers, tolerance, resultId, useFrequencyParsing) {
+  var allCorrect = true;
+  var anyWrong = false;
+  ids.forEach(function(id, idx) {
+    var input = document.getElementById('ow-' + id);
+    if (!input || input.classList.contains('correct')) return;
+    var val = useFrequencyParsing ? parseFrequencyValue(input.value) : parseFloat(input.value.replace(',', '.').trim());
+    if (!isNaN(val) && Math.abs(val - answers[idx]) < tolerance) {
+      input.classList.remove('wrong'); input.classList.add('correct');
+    } else {
+      allCorrect = false;
+      anyWrong = true;
+      input.classList.add('wrong');
+      setTimeout(function(){input.classList.remove('wrong');}, 1200);
+    }
+  });
+  if (anyWrong) {
+    var r = document.getElementById(resultId);
+    if (r) { r.className='ow-result err'; r.textContent='Nogle felter er ikke rigtige — tjek de røde felter og prøv igen.'; }
   }
   return allCorrect;
 }
@@ -8444,6 +9036,688 @@ function restartOpgaverScreening() {
   var state=document.getElementById('energy-state-screening'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
 }
 
+// ── 2.1.1 HYPPIGHEDER OG FREKVENSER ─────────────────────────────────────────
+var quiz211Answered = {}, quiz211Correct = 0, quiz211Total = 4;
+
+function quizAnswer211(qnum, result, evt) {
+  if (quiz211Answered[qnum]) return;
+  quiz211Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq211-' + qnum);
+  var fb = document.getElementById('qf211-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz211Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  if (Object.keys(quiz211Answered).length >= quiz211Total) {
+    var box=document.getElementById('quiz-score-211'); box.style.display='block';
+    document.getElementById('quiz-score-211-title').textContent = quiz211Correct===quiz211Total ? 'Perfekt – '+quiz211Correct+'/'+quiz211Total+'!' : quiz211Correct+'/'+quiz211Total+' rigtige';
+    document.getElementById('quiz-score-211-text').textContent = quiz211Correct===quiz211Total ? 'Du har styr på hyppigheder og frekvenser!' : 'Se de markerede svar og prøv igen.';
+  }
+}
+
+function quizRetry211() {
+  quiz211Answered={}; quiz211Correct=0;
+  [1,2,3,4].forEach(function(n){
+    var qq=document.getElementById('qq211-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.classList.remove('correct','wrong');});
+    var fb=document.getElementById('qf211-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-211').style.display='none';
+}
+
+var opg211Level = 1, opg211Started = false, opg211MedalShown = false;
+var opg211BronzeDone = false, opg211SilverDone = false, opg211GoldDone = false;
+
+// Bronze: hyppigheds-/frekvensfordeling for søskende-datasættet (N=30)
+// x=0..5 → h(x)=[5,9,9,4,2,1], f(x)=h(x)/30
+function checkBronze211() {
+  var xIds = ['211b-x0','211b-x1','211b-x2','211b-x3','211b-x4','211b-x5'];
+  var xOk = checkNumericTableGroup(xIds, [0,1,2,3,4,5], 0.05, 'ow-r-211-low', false);
+  var hIds = ['211b-h0','211b-h1','211b-h2','211b-h3','211b-h4','211b-h5'];
+  var hOk = checkNumericTableGroup(hIds, [5,9,9,4,2,1], 0.05, 'ow-r-211-low', false);
+  var fIds = ['211b-f0','211b-f1','211b-f2','211b-f3','211b-f4','211b-f5'];
+  var fAns = [5/30,9/30,9/30,4/30,2/30,1/30];
+  var fOk = checkNumericTableGroup(fIds, fAns, 0.01, 'ow-r-211-low', true);
+  var r = document.getElementById('ow-r-211-low');
+  if (xOk && hOk && fOk) {
+    opg211BronzeDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt! Tabellen er korrekt udfyldt.'; }
+    runOpgaveSparkle(document.getElementById('opg211-low'));
+    checkOpg211Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek de røde felter og prøv igen.';
+  }
+}
+
+// Sølv: summerede frekvenser F(x)=H(x)/20 for x=1..7
+function checkSilver211() {
+  var ids = ['211s-F1','211s-F2','211s-F3','211s-F4','211s-F5','211s-F6','211s-F7'];
+  var ans = [0.1,0.25,0.45,0.7,0.85,0.95,1.0];
+  var ok = checkNumericTableGroup(ids, ans, 0.01, 'ow-r-211-mid', true);
+  var r = document.getElementById('ow-r-211-mid');
+  if (ok) {
+    opg211SilverDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg211-mid'));
+    checkOpg211Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek de røde felter og prøv igen.';
+  }
+}
+
+// Guld: udled h(x) og f(x) fra den givne summerede hyppighed H(x)
+// x=2,4,6,8,10 → h(x)=[5,7,8,7,3], f(x)=h(x)/30
+function checkGold211() {
+  var hIds = ['211g-h1','211g-h2','211g-h3','211g-h4','211g-h5'];
+  var hAns = [5,7,8,7,3];
+  var hOk = checkNumericTableGroup(hIds, hAns, 0.05, 'ow-r-211-high', false);
+  var fIds = ['211g-f1','211g-f2','211g-f3','211g-f4','211g-f5'];
+  var fAns = [5/30,7/30,8/30,7/30,3/30];
+  var fOk = checkNumericTableGroup(fIds, fAns, 0.01, 'ow-r-211-high', true);
+  var r = document.getElementById('ow-r-211-high');
+  if (hOk && fOk) {
+    opg211GoldDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg211-high'));
+    checkOpg211Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek de røde felter og prøv igen.';
+  }
+}
+
+function checkOpg211Medal() {
+  if (opg211MedalShown) return;
+  var ok = false;
+  if (opg211Level === 1) ok = opg211BronzeDone;
+  else if (opg211Level === 2) ok = opg211BronzeDone && opg211SilverDone;
+  else if (opg211Level === 3) ok = opg211BronzeDone && opg211SilverDone && opg211GoldDone;
+  if (ok) {
+    opg211MedalShown = true;
+    var prev = parseInt(loadProgress('medal_211',0));
+    if (opg211Level > prev) saveProgress('medal_211', opg211Level);
+    setTimeout(function(){ showMedal(opg211Level); }, 400);
+  }
+}
+
+function updateEnergy211(val) {
+  if (opg211Started) return;
+  val = parseInt(val);
+  var state = document.getElementById('energy-state-211');
+  if (val < 40) { opg211Level=1; state.textContent='Træt – 1 sæt'; state.style.color='#dc2626'; }
+  else if (val < 75) { opg211Level=2; state.textContent='Klar – 2 sæt'; state.style.color='#ca8a04'; }
+  else { opg211Level=3; state.textContent='On fire! – 3 sæt'; state.style.color='#16a34a'; }
+  ['opg211-low','opg211-mid','opg211-high'].forEach(function(id){
+    var w=document.getElementById(id); if(w){w.classList.add('opgave-hidden');w.style.display='';}
+  });
+  document.getElementById('ready-btn-wrap-211').style.display='block';
+}
+
+function startOpgaver211() {
+  opg211Started=true; opg211MedalShown=false;
+  opg211BronzeDone=false; opg211SilverDone=false; opg211GoldDone=false;
+  document.getElementById('ready-btn-wrap-211').style.display='none';
+  document.getElementById('restart-btn-211').style.display='block';
+  var ew=document.querySelector('#t211-opg .energy-wrap'); if(ew)ew.classList.add('slider-locked');
+  if(opg211Level>=1) showWidget(document.getElementById('opg211-low'));
+  if(opg211Level>=2 && document.getElementById('opg211-mid')) showWidget(document.getElementById('opg211-mid'));
+  if(opg211Level>=3 && document.getElementById('opg211-high')) showWidget(document.getElementById('opg211-high'));
+}
+
+function restartOpgaver211() {
+  opg211Started=false; opg211Level=1; opg211MedalShown=false;
+  opg211BronzeDone=false; opg211SilverDone=false; opg211GoldDone=false;
+  var ew=document.querySelector('#t211-opg .energy-wrap'); if(ew)ew.classList.remove('slider-locked');
+  document.getElementById('restart-btn-211').style.display='none';
+  document.getElementById('ready-btn-wrap-211').style.display='block';
+  ['opg211-low','opg211-mid','opg211-high'].forEach(function(id){
+    var w=document.getElementById(id); if(!w)return;
+    w.classList.add('opgave-hidden'); w.style.display=''; w.style.background=''; w.style.borderColor='';
+    w.querySelectorAll('.ow-input').forEach(function(inp){inp.value='';inp.className='ow-input';});
+    w.querySelectorAll('.ow-result').forEach(function(r){r.className='ow-result';r.textContent='';});
+  });
+  var slider=document.getElementById('energy-slider-211'); if(slider)slider.value=1;
+  var state=document.getElementById('energy-state-211'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
+}
+
+// ── GENERISK "PINDEDIAGRAM" TRÆK-MODUL (bruges til flere øvelser på tværs af F2) ──
+// Klik/træk sætter en søjle (bars) eller et punkt (dots) ved hver fast x-værdi op til den valgte højde.
+var pindeStates = {}, pindeHandlers = {};
+
+function niceStepFor(max) {
+  if (max <= 1.1) return 0.1;
+  if (max <= 5) return 0.5;
+  if (max <= 20) return 2;
+  return Math.ceil(max/10);
+}
+function formatPindeLabel(v) {
+  return (Math.round(v*100)/100).toString().replace('.', ',');
+}
+
+function initPindeState(canvasId, xValues, correctValues, xMin, xMax, yMax, resultId, tolerance, mode) {
+  pindeStates[canvasId] = {
+    xValues: xValues, correctValues: correctValues,
+    heights: xValues.map(function(){ return null; }),
+    xMin: xMin, xMax: xMax, yMax: yMax,
+    resultId: resultId, tolerance: tolerance,
+    mode: mode || 'bars',
+    dragging: false, dragIndex: -1, done: false
+  };
+}
+
+// Fælles indre margin så akse-tal ikke klippes af uden for canvas'et
+var PLOT_MARGIN = { left: 38, right: 12, top: 12, bottom: 22 };
+
+function getPindePoint(canvasId, canvas, e) {
+  var st = pindeStates[canvasId];
+  var rect = canvas.getBoundingClientRect();
+  var scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height;
+  var cx = (e.clientX-rect.left)*scaleX, cy = (e.clientY-rect.top)*scaleY;
+  var plotW = canvas.width - PLOT_MARGIN.left - PLOT_MARGIN.right;
+  var plotH = canvas.height - PLOT_MARGIN.top - PLOT_MARGIN.bottom;
+  var x = ((cx - PLOT_MARGIN.left)/plotW)*(st.xMax-st.xMin)+st.xMin;
+  var y = st.yMax - ((cy - PLOT_MARGIN.top)/plotH)*st.yMax;
+  return [x,y];
+}
+
+function nearestPindeIndex(canvasId, x) {
+  var st = pindeStates[canvasId];
+  var best=0, bestD=Infinity;
+  st.xValues.forEach(function(xv,i){
+    var d=Math.abs(xv-x);
+    if(d<bestD){bestD=d;best=i;}
+  });
+  return best;
+}
+
+function drawPindeCanvas(canvasId) {
+  var st = pindeStates[canvasId];
+  var canvas = document.getElementById(canvasId); if(!canvas||!st) return;
+  var ctx = canvas.getContext('2d'); if(!ctx) return;
+  var w=canvas.width, h=canvas.height;
+  var plotW = w - PLOT_MARGIN.left - PLOT_MARGIN.right;
+  var plotH = h - PLOT_MARGIN.top - PLOT_MARGIN.bottom;
+  ctx.clearRect(0,0,w,h);
+  function px(x){ return PLOT_MARGIN.left + ((x-st.xMin)/(st.xMax-st.xMin))*plotW; }
+  function py(y){ return PLOT_MARGIN.top + plotH - (y/st.yMax)*plotH; }
+
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=0.8;
+  var yStep = niceStepFor(st.yMax);
+  for(var yy=0; yy<=st.yMax+1e-9; yy+=yStep){
+    var yp=py(yy); ctx.beginPath(); ctx.moveTo(PLOT_MARGIN.left,yp); ctx.lineTo(w-PLOT_MARGIN.right,yp); ctx.stroke();
+  }
+  st.xValues.forEach(function(xv){
+    var xp=px(xv); ctx.beginPath(); ctx.moveTo(xp,PLOT_MARGIN.top); ctx.lineTo(xp,h-PLOT_MARGIN.bottom); ctx.stroke();
+  });
+
+  ctx.strokeStyle='#374151'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(PLOT_MARGIN.left,py(0)); ctx.lineTo(w-PLOT_MARGIN.right,py(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PLOT_MARGIN.left,PLOT_MARGIN.top); ctx.lineTo(PLOT_MARGIN.left,h-PLOT_MARGIN.bottom); ctx.stroke();
+
+  ctx.fillStyle='#6b7280'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  st.xValues.forEach(function(xv){ ctx.fillText(xv, px(xv), py(0)+14); });
+  ctx.textAlign='right';
+  for(var yl=0; yl<=st.yMax+1e-9; yl+=yStep){
+    ctx.fillText(formatPindeLabel(yl), PLOT_MARGIN.left-6, py(yl)+4);
+  }
+
+  st.xValues.forEach(function(xv,i){
+    var val = st.heights[i];
+    if(val===null) return;
+    var xp=px(xv), yp=py(val), y0=py(0);
+    if (st.mode==='bars') {
+      ctx.strokeStyle='#2563eb'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(xp,y0); ctx.lineTo(xp,yp); ctx.stroke();
+    }
+    ctx.fillStyle='#2563eb';
+    ctx.beginPath(); ctx.arc(xp,yp,4,0,Math.PI*2); ctx.fill();
+  });
+}
+
+function pindeHandleDown(canvasId, e) {
+  var canvas = document.getElementById(canvasId);
+  var pt = getPindePoint(canvasId, canvas, e);
+  var idx = nearestPindeIndex(canvasId, pt[0]);
+  var st = pindeStates[canvasId];
+  st.dragging = true; st.dragIndex = idx;
+  st.heights[idx] = Math.max(0, Math.min(st.yMax, pt[1]));
+  drawPindeCanvas(canvasId);
+}
+function pindeHandleMove(canvasId, e) {
+  var st = pindeStates[canvasId];
+  if(!st || !st.dragging) return;
+  var canvas = document.getElementById(canvasId);
+  var pt = getPindePoint(canvasId, canvas, e);
+  st.heights[st.dragIndex] = Math.max(0, Math.min(st.yMax, pt[1]));
+  drawPindeCanvas(canvasId);
+}
+function pindeHandleUp(canvasId) {
+  var st = pindeStates[canvasId];
+  if(st) st.dragging=false;
+}
+
+function initPindeCanvas(canvasId, xValues, correctValues, xMin, xMax, yMax, resultId, tolerance, mode) {
+  initPindeState(canvasId, xValues, correctValues, xMin, xMax, yMax, resultId, tolerance, mode);
+  var canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  if(!pindeHandlers[canvasId]) {
+    pindeHandlers[canvasId] = {
+      down: function(e){ pindeHandleDown(canvasId, e); },
+      move: function(e){ pindeHandleMove(canvasId, e); },
+      up: function(){ pindeHandleUp(canvasId); },
+      tdown: function(e){ e.preventDefault(); pindeHandleDown(canvasId, e.touches[0]); },
+      tmove: function(e){ e.preventDefault(); pindeHandleMove(canvasId, e.touches[0]); },
+      tup: function(){ pindeHandleUp(canvasId); }
+    };
+  }
+  var hd = pindeHandlers[canvasId];
+  canvas.removeEventListener('mousedown', hd.down);
+  canvas.removeEventListener('mousemove', hd.move);
+  canvas.removeEventListener('mouseup', hd.up);
+  canvas.removeEventListener('mouseleave', hd.up);
+  canvas.removeEventListener('touchstart', hd.tdown);
+  canvas.removeEventListener('touchmove', hd.tmove);
+  canvas.removeEventListener('touchend', hd.tup);
+  drawPindeCanvas(canvasId);
+  canvas.addEventListener('mousedown', hd.down);
+  canvas.addEventListener('mousemove', hd.move);
+  canvas.addEventListener('mouseup', hd.up);
+  canvas.addEventListener('mouseleave', hd.up);
+  canvas.addEventListener('touchstart', hd.tdown, {passive:false});
+  canvas.addEventListener('touchmove', hd.tmove, {passive:false});
+  canvas.addEventListener('touchend', hd.tup);
+}
+
+function clearPinde(canvasId) {
+  var st = pindeStates[canvasId]; if(!st) return;
+  st.heights = st.xValues.map(function(){return null;});
+  st.done = false;
+  drawPindeCanvas(canvasId);
+  var r = document.getElementById(st.resultId); if(r){r.className='ow-result';r.textContent='';}
+}
+
+function checkPinde(canvasId) {
+  var st = pindeStates[canvasId]; if(!st) return false;
+  var r = document.getElementById(st.resultId);
+  var allSet = st.heights.every(function(v){ return v!==null; });
+  if(!allSet){
+    if(r){r.className='ow-result err'; r.textContent='Sæt alle søjler/punkter først.';}
+    return false;
+  }
+  var ok = st.heights.every(function(v,i){ return Math.abs(v-st.correctValues[i]) < st.tolerance; });
+  if(ok){
+    st.done = true;
+    if(r){r.className='ow-result ok'; r.textContent='Rigtigt!';}
+  } else {
+    if(r){r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek højderne og prøv igen.';}
+  }
+  return ok;
+}
+
+// ── GENERISK "TRAPPEDIAGRAM" POLYGON-MODUL (bruges efter punkterne er sat) ──
+var trappeStates = {}, trappeHandlers = {};
+
+function initTrappeState(canvasId, points, xMin, xMax, yMax, resultId, xTol, yTol) {
+  trappeStates[canvasId] = {
+    points: points, vertices: [],
+    xMin:xMin, xMax:xMax, yMax:yMax,
+    resultId: resultId, xTol:xTol, yTol:yTol, done:false
+  };
+}
+
+function getTrappePoint(canvasId, canvas, e) {
+  var st = trappeStates[canvasId];
+  var rect = canvas.getBoundingClientRect();
+  var scaleX = canvas.width/rect.width, scaleY = canvas.height/rect.height;
+  var cx=(e.clientX-rect.left)*scaleX, cy=(e.clientY-rect.top)*scaleY;
+  var plotW = canvas.width - PLOT_MARGIN.left - PLOT_MARGIN.right;
+  var plotH = canvas.height - PLOT_MARGIN.top - PLOT_MARGIN.bottom;
+  var x = ((cx - PLOT_MARGIN.left)/plotW)*(st.xMax-st.xMin)+st.xMin;
+  var y = st.yMax - ((cy - PLOT_MARGIN.top)/plotH)*st.yMax;
+  return [x,y,cx,cy];
+}
+
+function drawTrappeCanvas(canvasId) {
+  var st = trappeStates[canvasId];
+  var canvas = document.getElementById(canvasId); if(!canvas||!st) return;
+  var ctx = canvas.getContext('2d'); if(!ctx) return;
+  var w=canvas.width,h=canvas.height;
+  var plotW = w - PLOT_MARGIN.left - PLOT_MARGIN.right;
+  var plotH = h - PLOT_MARGIN.top - PLOT_MARGIN.bottom;
+  ctx.clearRect(0,0,w,h);
+  function px(x){return PLOT_MARGIN.left + ((x-st.xMin)/(st.xMax-st.xMin))*plotW;}
+  function py(y){return PLOT_MARGIN.top + plotH - (y/st.yMax)*plotH;}
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=0.8;
+  var yStep = niceStepFor(st.yMax);
+  for(var yy=0; yy<=st.yMax+1e-9; yy+=yStep){var yp=py(yy);ctx.beginPath();ctx.moveTo(PLOT_MARGIN.left,yp);ctx.lineTo(w-PLOT_MARGIN.right,yp);ctx.stroke();}
+  st.points.forEach(function(p){var xp=px(p[0]);ctx.beginPath();ctx.moveTo(xp,PLOT_MARGIN.top);ctx.lineTo(xp,h-PLOT_MARGIN.bottom);ctx.stroke();});
+  ctx.strokeStyle='#374151'; ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(PLOT_MARGIN.left,py(0));ctx.lineTo(w-PLOT_MARGIN.right,py(0));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(PLOT_MARGIN.left,PLOT_MARGIN.top);ctx.lineTo(PLOT_MARGIN.left,h-PLOT_MARGIN.bottom);ctx.stroke();
+  ctx.fillStyle='#6b7280'; ctx.font='10px sans-serif'; ctx.textAlign='center';
+  st.points.forEach(function(p){ctx.fillText(p[0],px(p[0]),py(0)+14);});
+  ctx.textAlign='right';
+  for(var yl=0; yl<=st.yMax+1e-9; yl+=yStep){ctx.fillText(formatPindeLabel(yl), PLOT_MARGIN.left-6, py(yl)+4);}
+  ctx.fillStyle='#9ca3af';
+  st.points.forEach(function(p){ctx.beginPath();ctx.arc(px(p[0]),py(p[1]),3,0,Math.PI*2);ctx.fill();});
+  if(st.vertices.length>0){
+    ctx.strokeStyle='#2563eb'; ctx.lineWidth=2.5; ctx.lineJoin='round';
+    ctx.beginPath();
+    ctx.moveTo(px(st.vertices[0][0]),py(st.vertices[0][1]));
+    st.vertices.forEach(function(v){ctx.lineTo(px(v[0]),py(v[1]));});
+    ctx.stroke();
+    ctx.fillStyle='#2563eb';
+    st.vertices.forEach(function(v){ctx.beginPath();ctx.arc(px(v[0]),py(v[1]),3.5,0,Math.PI*2);ctx.fill();});
+  }
+}
+
+function trappeClickHandler(canvasId, e) {
+  var st = trappeStates[canvasId]; if(!st) return;
+  var canvas = document.getElementById(canvasId);
+  var pt = getTrappePoint(canvasId, canvas, e);
+  var x=pt[0], y=pt[1];
+  y = Math.round(y/0.05)*0.05;
+  var snap = e.ctrlKey || e.metaKey;
+  if (snap && st.vertices.length>0) {
+    var prev = st.vertices[st.vertices.length-1];
+    var plotW = canvas.width - PLOT_MARGIN.left - PLOT_MARGIN.right;
+    var plotH = canvas.height - PLOT_MARGIN.top - PLOT_MARGIN.bottom;
+    var prevPx = PLOT_MARGIN.left + ((prev[0]-st.xMin)/(st.xMax-st.xMin))*plotW;
+    var prevPy = PLOT_MARGIN.top + plotH - (prev[1]/st.yMax)*plotH;
+    var dxPix = Math.abs(pt[2]-prevPx), dyPix = Math.abs(pt[3]-prevPy);
+    if (dxPix > dyPix) { y = prev[1]; } else { x = prev[0]; }
+  }
+  st.vertices.push([x,y]);
+  drawTrappeCanvas(canvasId);
+}
+
+function initTrappeCanvas(canvasId, points, xMin, xMax, yMax, resultId, xTol, yTol) {
+  initTrappeState(canvasId, points, xMin, xMax, yMax, resultId, xTol, yTol);
+  var canvas = document.getElementById(canvasId); if(!canvas) return;
+  if(!trappeHandlers[canvasId]){
+    trappeHandlers[canvasId] = { click: function(e){ trappeClickHandler(canvasId, e); } };
+  }
+  var hd = trappeHandlers[canvasId];
+  canvas.removeEventListener('click', hd.click);
+  drawTrappeCanvas(canvasId);
+  canvas.addEventListener('click', hd.click);
+}
+
+function clearTrappe(canvasId) {
+  var st = trappeStates[canvasId]; if(!st) return;
+  st.vertices = []; st.done=false;
+  drawTrappeCanvas(canvasId);
+  var r=document.getElementById(st.resultId); if(r){r.className='ow-result';r.textContent='';}
+}
+
+function undoTrappeVertex(canvasId) {
+  var st = trappeStates[canvasId]; if(!st) return;
+  st.vertices.pop();
+  drawTrappeCanvas(canvasId);
+}
+
+// Beregner den forventede knækpunkt-rækkefølge for en korrekt trappe:
+// starter fladt ved 0 fra venstre kant frem til første punkt, derefter vandret/lodret mellem hvert punkt,
+// og slutter fladt fra sidste punkt og ud til højre kant (F(x)=0 før første observation, F(x)=100% efter sidste)
+function expectedTrappeVertices(points, xMin, xMax) {
+  var out = [];
+  if (xMin !== undefined && xMin < points[0][0]) {
+    out.push([xMin, 0]);
+    out.push([points[0][0], 0]);
+  }
+  out.push(points[0]);
+  for(var i=0;i<points.length-1;i++){
+    out.push([points[i+1][0], points[i][1]]);
+    out.push([points[i+1][0], points[i+1][1]]);
+  }
+  if (xMax !== undefined && xMax > points[points.length-1][0]) {
+    out.push([xMax, points[points.length-1][1]]);
+  }
+  return out;
+}
+
+function checkTrappe(canvasId) {
+  var st = trappeStates[canvasId]; if(!st) return false;
+  var r = document.getElementById(st.resultId);
+  var expected = expectedTrappeVertices(st.points, st.xMin, st.xMax);
+  if (st.vertices.length !== expected.length) {
+    if(r){
+      r.className='ow-result err';
+      var diff = st.vertices.length - expected.length;
+      var hint = diff > 0
+        ? 'Du har sat ' + st.vertices.length + ' knækpunkter, men der skal være ' + expected.length + ' — du har ' + diff + ' for mange. Brug "Fortryd sidste" til at fjerne dem.'
+        : 'Du har sat ' + st.vertices.length + ' knækpunkter, men der skal være ' + expected.length + ' — du mangler ' + (-diff) + '.';
+      r.textContent = hint;
+    }
+    return false;
+  }
+  var ok = st.vertices.every(function(v,i){
+    return Math.abs(v[0]-expected[i][0]) < st.xTol && Math.abs(v[1]-expected[i][1]) < st.yTol;
+  });
+  if(ok){
+    st.done=true;
+    if(r){r.className='ow-result ok'; r.textContent='Flot! Trappediagrammet er korrekt.';}
+  } else {
+    if(r){
+      r.className='ow-result err';
+      var firstBad = -1;
+      for (var i=0;i<st.vertices.length;i++){
+        if (Math.abs(st.vertices[i][0]-expected[i][0]) >= st.xTol || Math.abs(st.vertices[i][1]-expected[i][1]) >= st.yTol) { firstBad = i; break; }
+      }
+      r.textContent = firstBad >= 0
+        ? 'Ikke helt rigtigt — knækpunkt nr. ' + (firstBad+1) + ' (talt fra start) rammer ikke helt rigtigt. Tjek at trinene rammer de rigtige punkter.'
+        : 'Ikke helt rigtigt — tjek at trinene rammer de rigtige punkter.';
+    }
+  }
+  return ok;
+}
+
+// ── 2.1.2 GRAFISKE REPRÆSENTATIONER ─────────────────────────────────────────
+var quiz212Answered = {}, quiz212Correct = 0, quiz212Total = 4;
+
+function quizAnswer212(qnum, result, evt) {
+  if (quiz212Answered[qnum]) return;
+  quiz212Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq212-' + qnum);
+  var fb = document.getElementById('qf212-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz212Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  if (Object.keys(quiz212Answered).length >= quiz212Total) {
+    var box=document.getElementById('quiz-score-212'); box.style.display='block';
+    document.getElementById('quiz-score-212-title').textContent = quiz212Correct===quiz212Total ? 'Perfekt – '+quiz212Correct+'/'+quiz212Total+'!' : quiz212Correct+'/'+quiz212Total+' rigtige';
+    document.getElementById('quiz-score-212-text').textContent = quiz212Correct===quiz212Total ? 'Du har styr på de grafiske repræsentationer!' : 'Se de markerede svar og prøv igen.';
+  }
+}
+
+function quizRetry212() {
+  quiz212Answered={}; quiz212Correct=0;
+  [1,2,3,4].forEach(function(n){
+    var qq=document.getElementById('qq212-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.classList.remove('correct','wrong');});
+    var fb=document.getElementById('qf212-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-212').style.display='none';
+}
+
+var opg212Level = 1, opg212Started = false, opg212MedalShown = false;
+var opg212Bronze1Done = false, opg212Bronze2Done = false;
+var opg212SilverPointsDone = false, opg212SilverTrappeDone = false;
+var opg212GoldTableDone = false, opg212GoldPointsDone = false, opg212GoldTrappeDone = false;
+
+// Øvelse 2125: pindediagram for hyppighed, x=[1,3,6,9,12,18,21,24,27], h(x)=[3,5,7,12,15,6,4,2,1]
+function checkBronze2125() {
+  var ok = checkPinde('canvas-2125');
+  if (ok) {
+    opg212Bronze1Done = true;
+    runOpgaveSparkle(document.getElementById('opg212-low'));
+    checkOpg212Medal();
+  }
+}
+
+// Øvelse 2126: pindediagram for frekvens, x=[1..6], f(x)=[0.05,0.10,0.20,0.30,0.25,0.10]
+function checkBronze2126() {
+  var ok = checkPinde('canvas-2126');
+  if (ok) {
+    opg212Bronze2Done = true;
+    runOpgaveSparkle(document.getElementById('opg212-low'));
+    checkOpg212Medal();
+  }
+}
+
+// Øvelse 2127 del 1: punkter for summeret frekvens F(x), x=[20,25,30,35,40,45,50]
+function checkSilverPoints212() {
+  var ok = checkPinde('canvas-2127-points');
+  if (ok) {
+    opg212SilverPointsDone = true;
+    var wrap = document.getElementById('t2127-trappe-wrap');
+    if (wrap) {
+      wrap.style.display = 'block';
+      var pts = pindeStates['canvas-2127-points'].xValues.map(function(x,i){ return [x, pindeStates['canvas-2127-points'].correctValues[i]]; });
+      initTrappeCanvas('canvas-2127-trappe', pts, 15, 55, 1.05, 'ow-r-2127-trappe', 1.5, 0.05);
+    }
+    runOpgaveSparkle(document.getElementById('opg212-mid'));
+    checkOpg212Medal();
+  }
+}
+
+// Øvelse 2127 del 2: trappediagram
+function checkSilverTrappe212() {
+  var ok = checkTrappe('canvas-2127-trappe');
+  if (ok) {
+    opg212SilverTrappeDone = true;
+    runOpgaveSparkle(document.getElementById('opg212-mid'));
+    checkOpg212Medal();
+  }
+}
+
+// Øvelse 2128 del 1: summeret frekvenstabel, x=[0,2,4,6,8,10], h(x)=[14,16,12,9,6,3], N=60
+function checkGoldTable212() {
+  var ids = ['2128-F1','2128-F2','2128-F3','2128-F4','2128-F5','2128-F6'];
+  var ans = [14/60, 30/60, 42/60, 51/60, 57/60, 60/60];
+  var ok = checkNumericTableGroup(ids, ans, 0.01, 'ow-r-2128-table', true);
+  var r = document.getElementById('ow-r-2128-table');
+  if (ok) {
+    opg212GoldTableDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    var wrap = document.getElementById('t2128-canvas-wrap');
+    if (wrap) {
+      wrap.style.display = 'block';
+      initPindeCanvas('canvas-2128-points', [0,2,4,6,8,10], ans, -1, 11, 1.05, 'ow-r-2128-points', 0.03, 'dots');
+    }
+    runOpgaveSparkle(document.getElementById('opg212-high'));
+    checkOpg212Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek de røde felter og prøv igen.';
+  }
+}
+
+// Øvelse 2128 del 2: punkter
+function checkGoldPoints212() {
+  var ok = checkPinde('canvas-2128-points');
+  if (ok) {
+    opg212GoldPointsDone = true;
+    var wrap = document.getElementById('t2128-trappe-wrap');
+    if (wrap) {
+      wrap.style.display = 'block';
+      var pts = pindeStates['canvas-2128-points'].xValues.map(function(x,i){ return [x, pindeStates['canvas-2128-points'].correctValues[i]]; });
+      initTrappeCanvas('canvas-2128-trappe', pts, -1, 11, 1.05, 'ow-r-2128-trappe', 0.4, 0.05);
+    }
+    runOpgaveSparkle(document.getElementById('opg212-high'));
+    checkOpg212Medal();
+  }
+}
+
+// Øvelse 2128 del 3: trappediagram
+function checkGoldTrappe212() {
+  var ok = checkTrappe('canvas-2128-trappe');
+  if (ok) {
+    opg212GoldTrappeDone = true;
+    runOpgaveSparkle(document.getElementById('opg212-high'));
+    checkOpg212Medal();
+  }
+}
+
+function checkOpg212Medal() {
+  if (opg212MedalShown) return;
+  var bronzeOk = opg212Bronze1Done && opg212Bronze2Done;
+  var silverOk = opg212SilverTrappeDone;
+  var goldOk = opg212GoldTrappeDone;
+  var ok = false;
+  if (opg212Level === 1) ok = bronzeOk;
+  else if (opg212Level === 2) ok = bronzeOk && silverOk;
+  else if (opg212Level === 3) ok = bronzeOk && silverOk && goldOk;
+  if (ok) {
+    opg212MedalShown = true;
+    var prev = parseInt(loadProgress('medal_212',0));
+    if (opg212Level > prev) saveProgress('medal_212', opg212Level);
+    setTimeout(function(){ showMedal(opg212Level); }, 400);
+  }
+}
+
+function updateEnergy212(val) {
+  if (opg212Started) return;
+  val = parseInt(val);
+  var state = document.getElementById('energy-state-212');
+  if (val < 40) { opg212Level=1; state.textContent='Træt – 1 sæt'; state.style.color='#dc2626'; }
+  else if (val < 75) { opg212Level=2; state.textContent='Klar – 2 sæt'; state.style.color='#ca8a04'; }
+  else { opg212Level=3; state.textContent='On fire! – 3 sæt'; state.style.color='#16a34a'; }
+  ['opg212-low','opg212-mid','opg212-high'].forEach(function(id){
+    var w=document.getElementById(id); if(w){w.classList.add('opgave-hidden');w.style.display='';}
+  });
+  document.getElementById('ready-btn-wrap-212').style.display='block';
+}
+
+function startOpgaver212() {
+  opg212Started=true; opg212MedalShown=false;
+  opg212Bronze1Done=false; opg212Bronze2Done=false;
+  opg212SilverPointsDone=false; opg212SilverTrappeDone=false;
+  opg212GoldTableDone=false; opg212GoldPointsDone=false; opg212GoldTrappeDone=false;
+  document.getElementById('ready-btn-wrap-212').style.display='none';
+  document.getElementById('restart-btn-212').style.display='block';
+  var ew=document.querySelector('#t212-opg .energy-wrap'); if(ew)ew.classList.add('slider-locked');
+  if(opg212Level>=1){
+    showWidget(document.getElementById('opg212-low'));
+    initPindeCanvas('canvas-2125', [1,3,6,9,12,18,21,24,27], [3,5,7,12,15,6,4,2,1], -1, 29, 16, 'ow-r-2125', 0.6, 'bars');
+    initPindeCanvas('canvas-2126', [1,2,3,4,5,6], [0.05,0.10,0.20,0.30,0.25,0.10], 0, 7, 0.35, 'ow-r-2126', 0.02, 'bars');
+  }
+  if(opg212Level>=2 && document.getElementById('opg212-mid')){
+    showWidget(document.getElementById('opg212-mid'));
+    initPindeCanvas('canvas-2127-points', [20,25,30,35,40,45,50], [0.10,0.30,0.40,0.70,0.80,0.90,1.00], 15, 55, 1.05, 'ow-r-2127-points', 0.03, 'dots');
+  }
+  if(opg212Level>=3 && document.getElementById('opg212-high')) showWidget(document.getElementById('opg212-high'));
+}
+
+function restartOpgaver212() {
+  opg212Started=false; opg212Level=1; opg212MedalShown=false;
+  opg212Bronze1Done=false; opg212Bronze2Done=false;
+  opg212SilverPointsDone=false; opg212SilverTrappeDone=false;
+  opg212GoldTableDone=false; opg212GoldPointsDone=false; opg212GoldTrappeDone=false;
+  var ew=document.querySelector('#t212-opg .energy-wrap'); if(ew)ew.classList.remove('slider-locked');
+  document.getElementById('restart-btn-212').style.display='none';
+  document.getElementById('ready-btn-wrap-212').style.display='block';
+  ['opg212-low','opg212-mid','opg212-high'].forEach(function(id){
+    var w=document.getElementById(id); if(!w)return;
+    w.classList.add('opgave-hidden'); w.style.display=''; w.style.background=''; w.style.borderColor='';
+    w.querySelectorAll('.ow-input').forEach(function(inp){inp.value='';inp.className='ow-input';});
+    w.querySelectorAll('.ow-result').forEach(function(r){r.className='ow-result';r.textContent='';});
+  });
+  var t2127 = document.getElementById('t2127-trappe-wrap'); if(t2127) t2127.style.display='none';
+  var t2128c = document.getElementById('t2128-canvas-wrap'); if(t2128c) t2128c.style.display='none';
+  var t2128t = document.getElementById('t2128-trappe-wrap'); if(t2128t) t2128t.style.display='none';
+  pindeStates = {}; trappeStates = {};
+  var slider=document.getElementById('energy-slider-212'); if(slider)slider.value=1;
+  var state=document.getElementById('energy-state-212'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
+}
+
 function closeMedal() {
 
   document.getElementById('medal-overlay').classList.remove('show');
@@ -8491,13 +9765,15 @@ var emneData = {
   '3.5.1': { navn: 'Mindste kvadraters metode',              opgaver: [],                     materiale: ['chk-351-bog','chk-351-yt'] },
   '3.5.2': { navn: 'Korrelationskoefficienten',               opgaver: [],                     materiale: ['chk-352-bog'] },
   'screening': { navn: 'Matematikscreening 2025',              opgaver: [],                     materiale: ['chk-screening-bog131','chk-screening-bog312','chk-screening-bog313','chk-screening-bog321','chk-screening-bog322','chk-screening-bog325'] },
+  '2.1.1': { navn: 'Hyppigheder og frekvenser',                 opgaver: [],                     materiale: ['chk-211-bog1','chk-211-bog2','chk-211-yt'] },
+  '2.1.2': { navn: 'Grafiske repræsentationer',                 opgaver: [],                     materiale: ['chk-212-bog','chk-212-yt'] },
 };
 
 // ── FREMGANG SIDE ─────────────────────────────────────────────────────────
 // Emner med et Bevis-afsnit der kan optjene et hjerte på F1-oversigten. Kun disse emner kan nogensinde vise et hjerte.
 var emnerMedBevis = ['3.2.2'];
-var emneRaekkefoelge = ['1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7','3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening'];
-var emneNavneAlle = {'1.3.1':'Simple ligninger','3.1.1':'Lodret-kriteriet og definition','3.1.2':'Funktion givet ved graf','3.1.3':'Regneforskrift og graf','3.1.4':'Grafiske l\u00f8sninger','3.1.5':'Monotoniforhold','3.1.6':'Egenskaber ved grafer','3.1.7':'Omvendt funktion','3.2.1':'Grundbegreber','3.2.2':'Forskrift ud fra to punkter','3.2.3':'V\u00e6kstegenskaber','3.2.4':'Stykkevis line\u00e6re funktioner','3.2.5':'Sk\u00e6ring mellem line\u00e6re grafer','3.5.1':'Mindste kvadraters metode','3.5.2':'Korrelationskoefficienten','screening':'Matematikscreening 2025'};
+var emneRaekkefoelge = ['1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7','3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening','2.1.1','2.1.2'];
+var emneNavneAlle = {'1.3.1':'Simple ligninger','3.1.1':'Lodret-kriteriet og definition','3.1.2':'Funktion givet ved graf','3.1.3':'Regneforskrift og graf','3.1.4':'Grafiske l\u00f8sninger','3.1.5':'Monotoniforhold','3.1.6':'Egenskaber ved grafer','3.1.7':'Omvendt funktion','3.2.1':'Grundbegreber','3.2.2':'Forskrift ud fra to punkter','3.2.3':'V\u00e6kstegenskaber','3.2.4':'Stykkevis line\u00e6re funktioner','3.2.5':'Sk\u00e6ring mellem line\u00e6re grafer','3.5.1':'Mindste kvadraters metode','3.5.2':'Korrelationskoefficienten','screening':'Matematikscreening 2025','2.1.1':'Hyppigheder og frekvenser','2.1.2':'Grafiske repræsentationer'};
 
 function updateFremgang() {
   var data = loadAllProgress();
@@ -8505,9 +9781,14 @@ function updateFremgang() {
   if (!list) return;
   list.innerHTML = '';
 
-  var alleEmner = [
-    '1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7',
-    '3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening'
+  var forloeb = [
+    { titel: 'F1 – Lineære funktioner', emner: [
+      '1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7',
+      '3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening'
+    ] },
+    { titel: 'F2 – Deskriptiv statistik', emner: [
+      '2.1.1','2.1.2','2.1.3','2.1.4','2.2.1','2.2.2','2.2.3','2.2.4','2.3'
+    ] }
   ];
   var emneNavne = {
     '1.3.1':'Simple ligninger','3.1.1':'Lodret-kriteriet og definition',
@@ -8518,41 +9799,52 @@ function updateFremgang() {
     '3.2.3':'Vækstegenskaber','3.2.4':'Stykkevis lineære funktioner',
     '3.2.5':'Skæring mellem lineære grafer',
     '3.5.1':'Mindste kvadraters metode','3.5.2':'Korrelationskoefficienten',
-    'screening':'Matematikscreening 2025'
+    'screening':'Matematikscreening 2025',
+    '2.1.1':'Hyppigheder og frekvenser','2.1.2':'Grafiske repræsentationer',
+    '2.1.3':'Positionsmål','2.1.4':'Spredningsmål',
+    '2.2.1':'Hyppigheder og frekvenser','2.2.2':'Grafiske repræsentationer',
+    '2.2.3':'Positionsmål','2.2.4':'Spredningsmål',
+    '2.3':'Udtræk fra databaser'
   };
 
   var harFremgang = false;
-  var html = '<p class="fp-forloeb-titel">F1 – Lineære funktioner</p>';
+  var html = '';
 
-  alleEmner.forEach(function(nr) {
-    var ed = emneData[nr];
-    var opgCount = ed ? ed.opgaver.length : 0;
-    var matCount = ed ? ed.materiale.length : 0;
-    var opgLoest = 0, matLoest = 0;
+  forloeb.forEach(function(f) {
+    var blokHtml = '';
+    f.emner.forEach(function(nr) {
+      var ed = emneData[nr];
+      var opgCount = ed ? ed.opgaver.length : 0;
+      var matCount = ed ? ed.materiale.length : 0;
+      var opgLoest = 0, matLoest = 0;
 
-    if (ed) {
-      ed.opgaver.forEach(function(id) { if (data['opg_' + id]) opgLoest++; });
-      ed.materiale.forEach(function(id) { if (data['mat_' + id]) matLoest++; });
+      if (ed) {
+        ed.opgaver.forEach(function(id) { if (data['opg_' + id]) opgLoest++; });
+        ed.materiale.forEach(function(id) { if (data['mat_' + id]) matLoest++; });
+      }
+
+      if (opgLoest === 0 && matLoest === 0) return;
+      harFremgang = true;
+
+      var medalKey = 'medal_' + nr.split('.').join('');
+      var medalVal = parseInt(data[medalKey] || 0);
+      var allDone = (medalVal >= 1 && matLoest === matCount && matCount > 0);
+      var pills = '';
+      if (matLoest > 0) pills += '<span class="fp-pill mat">Materiale: ' + matLoest + (matCount > 0 ? '/' + matCount : '') + '</span>';
+      var medalKey = 'medal_' + nr.replace(/\./g, '');
+      var medalVal = parseInt(data[medalKey] || 0);
+      if (medalVal > 0) pills += '<span class="fp-medal">' + {1:'\uD83E\uDD49',2:'\uD83E\uDD48',3:'\uD83E\uDD47'}[medalVal] + '</span>';
+
+      var slug = nr.split('.').join('-');
+      blokHtml += '<div class="fp-emne-card' + (allDone ? ' all-done' : '') + '" data-slug="' + slug + '" style="display:flex;align-items:center;gap:10px;cursor:pointer">' +
+        '<span style="font-size:0.72rem;font-weight:700;color:#b45309;flex-shrink:0;width:38px">' + nr + '</span>' +
+        '<span style="font-size:0.88rem;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + emneNavne[nr] + '</span>' +
+        '<div style="display:flex;gap:6px;flex-shrink:0;align-items:center">' + pills + (allDone ? '<span class="fp-done-badge">\u2713 Alt klaret</span>' : '') + '</div>' +
+        '</div>';
+    });
+    if (blokHtml) {
+      html += '<p class="fp-forloeb-titel">' + f.titel + '</p>' + blokHtml;
     }
-
-    if (opgLoest === 0 && matLoest === 0) return;
-    harFremgang = true;
-
-    var medalKey = 'medal_' + nr.split('.').join('');
-    var medalVal = parseInt(data[medalKey] || 0);
-    var allDone = (medalVal >= 1 && matLoest === matCount && matCount > 0);
-    var pills = '';
-    if (matLoest > 0) pills += '<span class="fp-pill mat">Materiale: ' + matLoest + (matCount > 0 ? '/' + matCount : '') + '</span>';
-    var medalKey = 'medal_' + nr.replace(/\./g, '');
-    var medalVal = parseInt(data[medalKey] || 0);
-    if (medalVal > 0) pills += '<span class="fp-medal">' + {1:'\uD83E\uDD49',2:'\uD83E\uDD48',3:'\uD83E\uDD47'}[medalVal] + '</span>';
-
-    var slug = nr.split('.').join('-');
-    html += '<div class="fp-emne-card' + (allDone ? ' all-done' : '') + '" data-slug="' + slug + '" style="display:flex;align-items:center;gap:10px;cursor:pointer">' +
-      '<span style="font-size:0.72rem;font-weight:700;color:#b45309;flex-shrink:0;width:38px">' + nr + '</span>' +
-      '<span style="font-size:0.88rem;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + emneNavne[nr] + '</span>' +
-      '<div style="display:flex;gap:6px;flex-shrink:0;align-items:center">' + pills + (allDone ? '<span class="fp-done-badge">\u2713 Alt klaret</span>' : '') + '</div>' +
-      '</div>';
   });
 
   if (!harFremgang) {
@@ -8560,6 +9852,7 @@ function updateFremgang() {
   }
 
   list.innerHTML = html;
+
 
 }
 
@@ -8651,7 +9944,7 @@ function showPage(id) {
   var el = document.getElementById('page-' + id);
   if (el) el.classList.remove('page-hidden');
   window.scrollTo(0, 0);
-  if (id === 'f1') updateEmneStatus();
+  if (id === 'f1' || id === 'f2') updateEmneStatus();
 }
 
 document.addEventListener('click', function(e) {
