@@ -1110,25 +1110,33 @@ document.addEventListener("DOMContentLoaded", function() {
     <h1>Positionsmål</h1>
     
   </div>
-<div class="tabs"><button class="tab-btn active" data-tab="t213-mat">Materiale</button><button class="tab-btn" data-tab="t213-quiz">Tjekspørgsmål</button><button class="tab-btn" data-tab="t213-opg">Opgaver</button></div><div id="t213-mat" class="tab-panel active"><div class="simple-resource-list"><div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=270','_blank')"><input type="checkbox" class="card-check" id="chk-213-lrebog" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">2.1.3</div></div><canvas class="sparkle-canvas"></canvas></div></div></div><div id="t213-quiz" class="tab-panel"><div class="quiz-question" id="qq213-1"><div class="quiz-q-text">1. I eksempel 2131 (sygedage hos 40 medarbejdere) er typetallet 4. Hvad betyder det?</div><div class="quiz-options">
-        <button class="quiz-option" onclick="quizAnswer213(1,'wrong',event)">A) 4 er gennemsnittet af antal sygedage</button>
-        <button class="quiz-option" onclick="quizAnswer213(1,'correct',event)">B) 4 sygedage er den observation, der forekommer med størst hyppighed</button>
-        <button class="quiz-option" onclick="quizAnswer213(1,'wrong',event)">C) 4 medarbejdere har slet ingen sygedage</button>
-        <button class="quiz-option" onclick="quizAnswer213(1,'wrong',event)">D) 4 er medianen af observationssættet</button>
-      </div><div class="quiz-feedback" id="qf213-1"></div></div><div class="quiz-question" id="qq213-2"><div class="quiz-q-text">2. Hvad er gennemsnittet for følgende data?
+<div class="tabs"><button class="tab-btn active" data-tab="t213-mat">Materiale</button><button class="tab-btn" data-tab="t213-quiz">Tjekspørgsmål</button><button class="tab-btn" data-tab="t213-opg">Opgaver</button></div><div id="t213-mat" class="tab-panel active"><div class="simple-resource-list"><div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=270','_blank')"><input type="checkbox" class="card-check" id="chk-213-lrebog" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">2.1.3 Positionsmål</div></div><canvas class="sparkle-canvas"></canvas></div><div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=0jSWRxWxhQU','_blank')"><input type="checkbox" class="card-check" id="chk-213-youtub" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Middeltal og kvartiler</div></div><canvas class="sparkle-canvas"></canvas></div></div></div><div id="t213-quiz" class="tab-panel"><div class="quiz-question" id="qq213-1"><div class="quiz-q-text">1. Hvad er typetallet i et observationssæt?</div><div class="quiz-q-note">Vælg alle rigtige svar</div><div class="quiz-options">
+        <button class="quiz-option" type="button" data-letter="A" onclick="quizMulti213(1,'A',this)"><span class="mbox"></span> A) Den observation som har højest tilhørende frekvens</button>
+        <button class="quiz-option" type="button" data-letter="B" onclick="quizMulti213(1,'B',this)"><span class="mbox"></span> B) Den hyppighed som er størst i et observationssæt.</button>
+        <button class="quiz-option" type="button" data-letter="C" onclick="quizMulti213(1,'C',this)"><span class="mbox"></span> C) Den observation om forekommer oftest i et observationssæt.</button>
+        <button class="quiz-option" type="button" data-letter="D" onclick="quizMulti213(1,'D',this)"><span class="mbox"></span> D) Den observation som har højest tilhørende kumuleret frekvens..</button>
+      </div><button class="quiz-check-btn" type="button" style="margin-top:10px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;font-weight:600;cursor:pointer;font-family:inherit" onclick="checkMulti213(1,['A','C'])">Tjek svar</button><div class="quiz-feedback" id="qf213-1"></div></div><div class="quiz-question" id="qq213-2"><div class="quiz-q-text">2. Færdiggør sætningen:
+Til bestemmelse af middeltal kan man bruge[...]</div><div class="quiz-q-note">Vælg alle rigtige svar</div><div class="quiz-options">
+        <button class="quiz-option" type="button" data-letter="A" onclick="quizMulti213(2,'A',this)"><span class="mbox"></span> A) det samlede datasæt.</button>
+        <button class="quiz-option" type="button" data-letter="B" onclick="quizMulti213(2,'B',this)"><span class="mbox"></span> B) observationsværdier og tilførende frekvenser.</button>
+        <button class="quiz-option" type="button" data-letter="C" onclick="quizMulti213(2,'C',this)"><span class="mbox"></span> C) observationsværdier (udelukkende).</button>
+        <button class="quiz-option" type="button" data-letter="D" onclick="quizMulti213(2,'D',this)"><span class="mbox"></span> D) observationsværdier og tilhørende hyppigheder.</button>
+      </div><button class="quiz-check-btn" type="button" style="margin-top:10px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;font-weight:600;cursor:pointer;font-family:inherit" onclick="checkMulti213(2,['A','B','D'])">Tjek svar</button><div class="quiz-feedback" id="qf213-2"></div></div><div class="quiz-question" id="qq213-3"><div class="quiz-q-text">3. En gymnasieklasse har samlet data over hvor mange timer hver elev bruger på sport om ugen. Ud fra dette har beregnet summeret frekvens i trappediagrammet.
+Vælg de sande udsagn:</div><img src="https://brianveispennerup.github.io/HHXB/Figur_2136.png" style="max-width:100%;border:1px solid var(--border);border-radius:8px;margin:8px 0;display:block"><div class="quiz-q-note">Vælg alle rigtige svar</div><div class="quiz-options">
+        <button class="quiz-option" type="button" data-letter="A" onclick="quizMulti213(3,'A',this)"><span class="mbox"></span> A) 25% af klassens elever dyrker 2 timer sport om ugen.</button>
+        <button class="quiz-option" type="button" data-letter="B" onclick="quizMulti213(3,'B',this)"><span class="mbox"></span> B) 20% af klassens elever dyrker præcist 1 time sport om ugen.</button>
+        <button class="quiz-option" type="button" data-letter="C" onclick="quizMulti213(3,'C',this)"><span class="mbox"></span> C) Mindst halvdelen klassens elever dyrker højest 4 timer sport om ugen.</button>
+        <button class="quiz-option" type="button" data-letter="D" onclick="quizMulti213(3,'D',this)"><span class="mbox"></span> D) Mindst 25% af klassens elever dyrker maksimalt 2 timer sport om ugen.</button>
+      </div><button class="quiz-check-btn" type="button" style="margin-top:10px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;font-weight:600;cursor:pointer;font-family:inherit" onclick="checkMulti213(3,['C','D'])">Tjek svar</button><div class="quiz-feedback" id="qf213-3"></div></div><div class="quiz-score" id="quiz-score-213" style="display:none"><h3 id="quiz-score-213-title"></h3><p id="quiz-score-213-text"></p><button class="quiz-retry" onclick="quizRetry213()">Prøv igen</button></div></div><div id="t213-opg" class="tab-panel"><div class="energy-wrap" data-scaffold-opgaver="1"><div class="energy-header"><span class="energy-question">Hvor meget energi har du i dag?</span><span class="energy-state" id="energy-state-213" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span></div><div class="energy-slider-track"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span><input type="range" class="energy-slider" id="energy-slider-213" min="0" max="100" value="1" oninput="updateEnergy213(this.value)"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span></div></div><div class="ready-btn-wrap" id="ready-btn-wrap-213" style="display:block"><button class="ready-btn" onclick="startOpgaver213()"><div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div><span class="ready-btn-cta">Ja, klar!</span></button></div><button class="restart-btn" id="restart-btn-213" onclick="restartOpgaver213()" style="display:none">↩ Vælg nyt niveau</button><div class="opgave-widget opgave-hidden" id="opg213-low"><div class="ow-item" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--border)"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Bestemmelse af korrekt formel</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Hvis man vil beregne middeltallet af et observationssæt hvor man kun har fået angivet observationsværdier og frekvens hvilken formel skal man så anvende?</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Man skal anvende formel</label><input class="ow-input" id="ow-213b0-a0" type="text" style="width:200px" placeholder="fx (1111)"></div></div><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Typetal og midddeltal</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Du har fået givet følgende datasæt:
 
 $$\begin{array}{|c|c|c|c|}
 \hline
-x &amp; 1 &amp; 2 &amp; 3 \\
+x &amp; 1 &amp; 2  &amp; 3 \\
 \hline
-h(x) &amp; 0,7 &amp; 0,2 &amp; 0,1 \\
+f(x) &amp; 0,3 &amp; 0,5 &amp; 0,2 \\
 \hline
-\end{array}$$</div><div class="quiz-options">
-        <button class="quiz-option" onclick="quizAnswer213(2,'wrong',event)">A) 4</button>
-        <button class="quiz-option" onclick="quizAnswer213(2,'wrong',event)">B) 3,1</button>
-        <button class="quiz-option" onclick="quizAnswer213(2,'wrong',event)">C) 1</button>
-        <button class="quiz-option" onclick="quizAnswer213(2,'correct',event)">D) 1,4</button>
-      </div><div class="quiz-feedback" id="qf213-2"></div></div><div class="quiz-score" id="quiz-score-213" style="display:none"><h3 id="quiz-score-213-title"></h3><p id="quiz-score-213-text"></p><button class="quiz-retry" onclick="quizRetry213()">Prøv igen</button></div></div><div id="t213-opg" class="tab-panel"><p class="opgave-placeholder" style="color:#9ca3af;font-size:0.88rem">Opgaver er endnu ikke tilføjet.</p></div></div>
+\end{array}$$</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Hvad er typetallet?</label><input class="ow-input" id="ow-213b1-a0" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Hvad er middeltallet?</label><input class="ow-input" id="ow-213b1-a1" type="text" style="width:120px"></div></div><button onclick="checkBronze213()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button><div class="ow-result" id="ow-r-213-low" style="margin-top:10px"></div></div><div class="opgave-widget opgave-hidden" id="opg213-mid"><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Kvartiler og fraktiler</span></div><img src="https://brianveispennerup.github.io/HHXB/Figur_2136.png" style="max-width:100%;border:1px solid var(--border);border-radius:8px;margin:6px 0 10px;display:block"><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Du har fået givet følgende trappediagram. Bestem følgende kvartiler og fraktiler:</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Q1 er:</label><input class="ow-input" id="ow-213s0-a0" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">M er:</label><input class="ow-input" id="ow-213s0-a1" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Q3 er:</label><input class="ow-input" id="ow-213s0-a2" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">10%-fraktilen er:</label><input class="ow-input" id="ow-213s0-a3" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">20%-fraktilen er:</label><input class="ow-input" id="ow-213s0-a4" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">25%-fraktilen er:</label><input class="ow-input" id="ow-213s0-a5" type="text" style="width:120px"></div></div><button onclick="checkSilver213()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button><div class="ow-result" id="ow-r-213-mid" style="margin-top:10px"></div></div><div class="opgave-widget opgave-hidden" id="opg213-high"><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Bestemmelse af middeltal ud fra trappediagram</span></div><img src="https://brianveispennerup.github.io/HHXB/Figur_2136.png" style="max-width:100%;border:1px solid var(--border);border-radius:8px;margin:6px 0 10px;display:block"><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Du har fået givet følgende trappediagram. Du skal bestemme middeltal og middelværdi.
+Hint: Lav en tabel med observationer, summeret frekvenser og til slut frekvenser ud fra trappediagrammet.</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Typetallet er:</label><input class="ow-input" id="ow-213g0-a0" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Middeltallet er:</label><input class="ow-input" id="ow-213g0-a1" type="text" style="width:120px"></div></div><button onclick="checkGold213()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button><div class="ow-result" id="ow-r-213-high" style="margin-top:10px"></div></div></div></div>
 <div id="page-2-1-4" class="page-hidden">
   <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
   <div class="emne-header">
@@ -9735,10 +9743,30 @@ function restartOpgaver212() {
 }
 
 function closeMedal() {
-
   document.getElementById('medal-overlay').classList.remove('show');
-  restartOpgaver();
-  showPage('f1');
+
+  // Find the currently visible emne page so we can (a) restart the RIGHT
+  // opgave-widget (not always the legacy unsuffixed 1.3.1 one) and (b)
+  // return to the forløb it actually belongs to (read straight off its
+  // own back-link, so no separate emne→forløb table is needed).
+  var visible = document.querySelector('[id^="page-"]:not(.page-hidden)');
+  var slug = null, target = 'f1';
+  if (visible) {
+    var idMatch = visible.id.match(/^page-(\d[\d-]*)$/);
+    if (idMatch) slug = idMatch[1].replace(/-/g, '');
+    var back = visible.querySelector('.back-link');
+    if (back) {
+      var m = (back.getAttribute('onclick') || '').match(/showPage\('([^']+)'\)/);
+      if (m) target = m[1];
+    }
+  }
+
+  var suffixedRestart = slug && window['restartOpgaver' + slug];
+  if (typeof suffixedRestart === 'function') suffixedRestart();
+  else restartOpgaver();
+
+  if (typeof updateFremgang === 'function') updateFremgang();
+  showPage(target);
 }
 
 // ── LOCALSTORAGE ──────────────────────────────────────────────────────────
@@ -9783,7 +9811,7 @@ var emneData = {
   'screening': { navn: 'Matematikscreening 2025', opgaver: [], materiale: ['chk-screening-bog131','chk-screening-bog312','chk-screening-bog313','chk-screening-bog321','chk-screening-bog322','chk-screening-bog325'] },
   '2.1.1': { navn: 'Hyppigheder og frekvenser', opgaver: [], materiale: ['chk-211-bog1','chk-211-bog2','chk-211-yt'] },
   '2.1.2': { navn: 'Grafiske repræsentationer', opgaver: [], materiale: ['chk-212-bog','chk-212-yt'] },
-  '2.1.3': { navn: 'Positionsmål', opgaver: [], materiale: ['chk-213-lrebog'] },
+  '2.1.3': { navn: 'Positionsmål', opgaver: [], materiale: ['chk-213-lrebog','chk-213-youtub'] },
 };
 
 // ── FREMGANG SIDE ─────────────────────────────────────────────────────────
@@ -10082,7 +10110,157 @@ function owCheck(id, answer) {
 }
 
 // ===== SCAFFOLD: nye emner tilføjet via scaffolding-værktøjet =====
-var quiz213Answered = {}, quiz213Correct = 0, quiz213Total = 2;
+function checkGold213() {
+  var i0ok0 = checkSingleNumericField('213g0-a0', 4, 0.05);
+  var i0ok1 = checkSingleNumericField('213g0-a1', 3.7, 0.05);
+  var itemOk0 = (i0ok0 && i0ok1);
+  var r = document.getElementById('ow-r-213-high');
+  if (itemOk0) {
+    opg213GoldDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg213-high'));
+    checkOpg213Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek de røde felter og prøv igen.';
+  }
+}
+
+function checkSilver213() {
+  var i0ok0 = checkSingleNumericField('213s0-a0', 2, 0.05);
+  var i0ok1 = checkSingleNumericField('213s0-a1', 4, 0.05);
+  var i0ok2 = checkSingleNumericField('213s0-a2', 5, 0.05);
+  var i0ok3 = checkSingleNumericField('213s0-a3', 1, 0.05);
+  var i0ok4 = checkSingleNumericField('213s0-a4', 1, 0.05);
+  var i0ok5 = checkSingleNumericField('213s0-a5', 2, 0.05);
+  var itemOk0 = (i0ok0 && i0ok1 && i0ok2 && i0ok3 && i0ok4 && i0ok5);
+  var r = document.getElementById('ow-r-213-mid');
+  if (itemOk0) {
+    opg213SilverDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg213-mid'));
+    checkOpg213Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek de røde felter og prøv igen.';
+  }
+}
+
+function checkBronze213() {
+  var i0ok0 = checkTekstField('213b0-a0', "(2133)");
+  var itemOk0 = (i0ok0);
+  var i1ok0 = checkSingleNumericField('213b1-a0', 2, 0.05);
+  var i1ok1 = checkSingleNumericField('213b1-a1', 1.9, 0.05);
+  var itemOk1 = (i1ok0 && i1ok1);
+  var r = document.getElementById('ow-r-213-low');
+  if (itemOk0 && itemOk1) {
+    opg213BronzeDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg213-low'));
+    checkOpg213Medal();
+  } else if (r) {
+    var unfinished = [];
+    if (!itemOk0) unfinished.push("Bestemmelse af korrekt formel");
+    if (!itemOk1) unfinished.push("Typetal og midddeltal");
+    r.className='ow-result err'; r.textContent='Mangler stadig: ' + unfinished.join(', ') + '.';
+  }
+}
+
+var opg213Level = 1, opg213Started = false, opg213MedalShown = false, opg213BronzeDone = false, opg213SilverDone = false, opg213GoldDone = false;
+
+function updateEnergy213(val) {
+  if (opg213Started) return;
+  val = parseInt(val);
+  var state = document.getElementById('energy-state-213');
+  var lvl;
+  if (val < 40) lvl = 1; else if (val < 75) lvl = 2; else lvl = 3;
+  opg213Level = Math.min(lvl, 3);
+  if (opg213Level === 1) { state.textContent='Træt – 1 sæt'; state.style.color='#dc2626'; }
+  else if (opg213Level === 2) { state.textContent='Klar – 2 sæt'; state.style.color='#ca8a04'; }
+  else { state.textContent='On fire! – 3 sæt'; state.style.color='#16a34a'; }
+  ['opg213-low','opg213-mid','opg213-high'].forEach(function(id){
+    var w=document.getElementById(id); if(w){w.classList.add('opgave-hidden');w.style.display='';}
+  });
+  document.getElementById('ready-btn-wrap-213').style.display='block';
+}
+
+function startOpgaver213() {
+  opg213Started=true; opg213MedalShown=false;
+  opg213BronzeDone=false; opg213SilverDone=false; opg213GoldDone=false;
+  document.getElementById('ready-btn-wrap-213').style.display='none';
+  document.getElementById('restart-btn-213').style.display='block';
+  var ew=document.querySelector('#t213-opg .energy-wrap'); if(ew)ew.classList.add('slider-locked');
+  if(opg213Level>=1 && document.getElementById('opg213-low')){
+    showWidget(document.getElementById('opg213-low'));
+  }
+  if(opg213Level>=2 && document.getElementById('opg213-mid')){
+    showWidget(document.getElementById('opg213-mid'));
+  }
+  if(opg213Level>=3 && document.getElementById('opg213-high')){
+    showWidget(document.getElementById('opg213-high'));
+  }
+}
+
+function restartOpgaver213() {
+  opg213Started=false; opg213Level=1; opg213MedalShown=false;
+  opg213BronzeDone=false; opg213SilverDone=false; opg213GoldDone=false;
+  var ew=document.querySelector('#t213-opg .energy-wrap'); if(ew)ew.classList.remove('slider-locked');
+  document.getElementById('restart-btn-213').style.display='none';
+  document.getElementById('ready-btn-wrap-213').style.display='block';
+  ['opg213-low','opg213-mid','opg213-high'].forEach(function(id){
+    var w=document.getElementById(id); if(!w)return;
+    w.classList.add('opgave-hidden'); w.style.display=''; w.style.background=''; w.style.borderColor='';
+    w.querySelectorAll('.ow-input').forEach(function(inp){inp.value='';inp.className='ow-input';});
+    w.querySelectorAll('.ow-result').forEach(function(r){r.className='ow-result';r.textContent='';});
+  });
+  var slider=document.getElementById('energy-slider-213'); if(slider)slider.value=1;
+  var state=document.getElementById('energy-state-213'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
+}
+
+function checkOpg213Medal() {
+  if (opg213MedalShown) return;
+  var ok = false;
+  if (opg213Level === 1) ok = opg213BronzeDone;
+  else if (opg213Level === 2) ok = opg213BronzeDone && opg213SilverDone;
+  else if (opg213Level === 3) ok = opg213BronzeDone && opg213SilverDone && opg213GoldDone;
+  if (ok) {
+    opg213MedalShown = true;
+    var prev = parseInt(loadProgress('medal_213',0));
+    if (opg213Level > prev) saveProgress('medal_213', opg213Level);
+    setTimeout(function(){ showMedal(opg213Level); }, 400);
+  }
+}
+
+// ── Ekstra svartype-tjekkere (koordinat/tekst) ──
+function checkKoordinatField(id, correct, tolerance) {
+  tolerance = tolerance || 0.05;
+  var input = document.getElementById('ow-' + id);
+  if (!input) return false;
+  function parts(s){
+    var t = (s||'').trim();
+    if (t.charAt(0)==='(' && t.charAt(t.length-1)===')') t = t.slice(1,-1);
+    return t.split(',').map(function(p){ return p.trim(); });
+  }
+  var up = parts(input.value), cp = parts(correct);
+  var ok = up.length === cp.length && up.length > 0 && up.every(function(u, i){
+    var c = cp[i];
+    var un = parseFloat(u.replace(',','.')), cn = parseFloat(c.replace(',','.'));
+    if (!isNaN(un) && !isNaN(cn)) return Math.abs(un-cn) < tolerance;
+    return u.toLowerCase() === c.toLowerCase();
+  });
+  if (ok) { input.classList.remove('wrong'); input.classList.add('correct'); }
+  else { input.classList.add('wrong'); setTimeout(function(){ input.classList.remove('wrong'); }, 1200); }
+  return ok;
+}
+function checkTekstField(id, correct) {
+  var input = document.getElementById('ow-' + id);
+  if (!input) return false;
+  function norm(s){ return (s||'').trim().toLowerCase().replace(/\s+/g, ' '); }
+  var ok = norm(input.value) === norm(correct);
+  if (ok) { input.classList.remove('wrong'); input.classList.add('correct'); }
+  else { input.classList.add('wrong'); setTimeout(function(){ input.classList.remove('wrong'); }, 1200); }
+  return ok;
+}
+
+var quiz213Answered = {}, quiz213Correct = 0, quiz213Total = 3, quiz213MultiSel = {};
 
 function quizAnswer213(qnum, result, evt) {
   if (quiz213Answered[qnum]) return;
@@ -10107,9 +10285,45 @@ function quiz213CheckDone() {
   document.getElementById('quiz-score-213-text').textContent = quiz213Correct===quiz213Total ? 'Flot – du har styr på emnet!' : 'Se de markerede svar og prøv igen.';
 }
 
+function quizMulti213(qnum, letter, btn) {
+  if (quiz213Answered[qnum]) return;
+  var key = qnum + '_' + letter;
+  var box = btn.querySelector('.mbox');
+  if (quiz213MultiSel[key]) {
+    delete quiz213MultiSel[key];
+    btn.style.background = ''; btn.style.borderColor = '';
+    if (box) { box.style.background=''; box.style.borderColor=''; box.style.color=''; box.textContent=''; }
+  } else {
+    quiz213MultiSel[key] = true;
+    btn.style.background = '#eff6ff'; btn.style.borderColor = '#2563eb';
+    if (box) { box.style.background='#2563eb'; box.style.borderColor='#2563eb'; box.style.color='white'; box.textContent='\u2713'; }
+  }
+}
+
+function checkMulti213(qnum, correctLetters) {
+  if (quiz213Answered[qnum]) return;
+  quiz213Answered[qnum] = true;
+  var qq = document.getElementById('qq213-' + qnum);
+  var fb = document.getElementById('qf213-' + qnum);
+  var allOk = true;
+  qq.querySelectorAll('.quiz-option').forEach(function(b){
+    b.style.pointerEvents = 'none';
+    var letter = b.getAttribute('data-letter');
+    var key = qnum + '_' + letter;
+    var wasSel = !!quiz213MultiSel[key];
+    var isCorrect = correctLetters.indexOf(letter) !== -1;
+    if (wasSel && isCorrect) b.classList.add('correct');
+    else if (wasSel && !isCorrect) { b.classList.add('wrong'); allOk = false; }
+    else if (!wasSel && isCorrect) allOk = false;
+  });
+  if (allOk) { fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!'; quiz213Correct++; runQuizSparkle(qq); }
+  else { fb.className='quiz-feedback show err'; fb.textContent='Ikke helt — se de markerede svar.'; }
+  quiz213CheckDone();
+}
+
 function quizRetry213() {
-  quiz213Answered={}; quiz213Correct=0;
-  [1,2].forEach(function(n){
+  quiz213Answered={}; quiz213Correct=0; quiz213MultiSel={};
+  [1,2,3].forEach(function(n){
     var qq=document.getElementById('qq213-'+n); if(!qq)return;
     qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.style.pointerEvents='';b.style.background='';b.style.borderColor='';b.classList.remove('correct','wrong');var box=b.querySelector('.mbox');if(box){box.style.background='';box.style.borderColor='';box.style.color='';box.textContent='';}});
     var fb=document.getElementById('qf213-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
