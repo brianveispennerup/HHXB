@@ -778,6 +778,80 @@ async function runTrashBinAndImageSuggestTests(){
   test('Samme forslag virker på tjekspørgsmåls billedefelt', D.getElementById('qf-billede').value === 'https://brianveispennerup.github.io/HHXB/Figur_888_.png');
 }
 
+async function runPanelToggleAndTemplateTests(){
+  section('Panel-toggle: knapperne skal blive tilgængelige efter man skjuler panelet');
+  const w = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D = w.document;
+  const app = D.getElementById('app');
+  const sidebarToggle = D.getElementById('sidebarToggle');
+  const logToggle = D.getElementById('logToggle');
+
+  test('sidebarToggle er IKKE indlejret i selve sidebaren (ellers forsvinder den når den skjules)',
+    !D.getElementById('sidebar').contains(sidebarToggle));
+  test('logToggle er IKKE indlejret i selve log-panelet',
+    !D.getElementById('log').contains(logToggle));
+
+  w.ScaffoldUI.toggleSidebar();
+  test('Sidebar skjult efter 1. klik', app.classList.contains('sidebar-collapsed'));
+  test('Toggle-knappen er stadig i dokumentet efter sidebaren skjules', D.body.contains(sidebarToggle));
+  w.ScaffoldUI.toggleSidebar();
+  test('Sidebar vises igen efter 2. klik (kan faktisk hentes tilbage)', !app.classList.contains('sidebar-collapsed'));
+
+  w.ScaffoldUI.toggleLog();
+  test('Log-panel skjult efter 1. klik', app.classList.contains('log-collapsed'));
+  test('Toggle-knappen er stadig i dokumentet efter log-panelet skjules', D.body.contains(logToggle));
+  w.ScaffoldUI.toggleLog();
+  test('Log-panel vises igen efter 2. klik (kan faktisk hentes tilbage)', !app.classList.contains('log-collapsed'));
+
+  section('Tom skabelon: download + genindlæsning i værktøjet');
+  let capturedBytes = null;
+  w.Blob = class { constructor(parts){ this._parts = parts; } };
+  w.URL.createObjectURL = (blob) => { capturedBytes = blob._parts[0]; return 'blob:stub'; };
+  w.URL.revokeObjectURL = () => {};
+  const origCreateElement = D.createElement.bind(D);
+  D.createElement = function(tag){
+    const el = origCreateElement(tag);
+    if (tag === 'a') { el.click = function(){}; }
+    return el;
+  };
+
+  w.ScaffoldUI.downloadBlankTemplate();
+  test('Download producerer indhold', !!capturedBytes && capturedBytes.length > 1000);
+  let templateText = '';
+  for (let i = 0; i < capturedBytes.length; i++) templateText += String.fromCharCode(capturedBytes[i]);
+  test('Skabelonen starter med gyldig DOCTYPE', templateText.startsWith('<!DOCTYPE html>'));
+  test('Skabelonen har INGEN forløb-kort (helt tom)', !/<div class="forloeb-card/.test(templateText));
+  test('Skabelonen beholder delt infrastruktur (showPage)', /function showPage/.test(templateText));
+  test('Skabelonen beholder det rettede closeMedal (fra tidligere fix)', /back-link/.test(templateText.match(/function closeMedal[\s\S]*?\n\}/)[0]));
+  test('Skabelonen har IKKE efterladt gamle emne-specifikke funktioner (fx quizAnswer312)', !/function quizAnswer312/.test(templateText));
+
+  D.createElement = origCreateElement;
+  const w2 = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w2.ScaffoldUI.__debugInit(templateText, 'Index.html');
+  const D2 = w2.document;
+  test('Skabelonen kan genindlæses i værktøjet', D2.getElementById('app').className.includes('show'));
+
+  w2.ScaffoldUI.activateForloeb('F1', 'Nyt forløb fra bunden');
+  D2.getElementById('af-titel').value = 'Nyt forløb fra bunden';
+  w2.ScaffoldUI.submitActivateForloeb('F1');
+  w2.ScaffoldUI.showNewKapitelForm('f1');
+  D2.getElementById('nk-titel').value = 'Kapitel 1.1';
+  w2.ScaffoldUI.submitNewKapitel('f1');
+  w2.ScaffoldUI.showNewEmneForm('f1', 'Kapitel 1.1');
+  D2.getElementById('ne-nr').value = '1.1.1'; D2.getElementById('ne-navn').value = 'Første emne'; D2.getElementById('ne-desc').value = '';
+  w2.ScaffoldUI.submitNewEmne('f1', 'Kapitel 1.1');
+
+  const siteFromTemplate = w2.Scaffold.parseSite(w2.ScaffoldUI.__debugDoc());
+  test('Kan bygge et helt nyt forløb oven på skabelonen', siteFromTemplate.forloeb.some(f => f.id === 'f1' && f.aktiv));
+  test('Kan bygge et helt nyt emne oven på skabelonen', !!siteFromTemplate.emner['1.1.1']);
+
+  const resultFromTemplate = w2.ScaffoldUI.__debugGenerate();
+  test('Genereret output fra skabelonen har ingen valideringsproblemer', resultFromTemplate.newProblems.length === 0, JSON.stringify(resultFromTemplate.newProblems));
+}
+
 (async () => {
   const ctx = await run();
   await runGeneration(ctx);
@@ -786,6 +860,7 @@ async function runTrashBinAndImageSuggestTests(){
   await runCloseMedalSelfHealTest();
   await runMultiOpgaveAndUiTests();
   await runTrashBinAndImageSuggestTests();
+  await runPanelToggleAndTemplateTests();
 
   console.log('\n========================================');
   console.log('Resultat: ' + passed + '/' + (passed + failed) + ' tests bestået');
