@@ -1115,7 +1115,20 @@ document.addEventListener("DOMContentLoaded", function() {
         <button class="quiz-option" onclick="quizAnswer213(1,'correct',event)">B) 4 sygedage er den observation, der forekommer med størst hyppighed</button>
         <button class="quiz-option" onclick="quizAnswer213(1,'wrong',event)">C) 4 medarbejdere har slet ingen sygedage</button>
         <button class="quiz-option" onclick="quizAnswer213(1,'wrong',event)">D) 4 er medianen af observationssættet</button>
-      </div><div class="quiz-feedback" id="qf213-1"></div></div><div class="quiz-score" id="quiz-score-213" style="display:none"><h3 id="quiz-score-213-title"></h3><p id="quiz-score-213-text"></p><button class="quiz-retry" onclick="quizRetry213()">Prøv igen</button></div></div><div id="t213-opg" class="tab-panel"><p class="opgave-placeholder" style="color:#9ca3af;font-size:0.88rem">Opgaver er endnu ikke tilføjet.</p></div></div>
+      </div><div class="quiz-feedback" id="qf213-1"></div></div><div class="quiz-question" id="qq213-2"><div class="quiz-q-text">2. Hvad er gennemsnittet for følgende data?
+
+$$\begin{array}{|c|c|c|c|}
+\hline
+x &amp; 1 &amp; 2 &amp; 3 \\
+\hline
+h(x) &amp; 0,7 &amp; 0,2 &amp; 0,1 \\
+\hline
+\end{array}$$</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer213(2,'wrong',event)">A) 4</button>
+        <button class="quiz-option" onclick="quizAnswer213(2,'wrong',event)">B) 3,1</button>
+        <button class="quiz-option" onclick="quizAnswer213(2,'wrong',event)">C) 1</button>
+        <button class="quiz-option" onclick="quizAnswer213(2,'correct',event)">D) 1,4</button>
+      </div><div class="quiz-feedback" id="qf213-2"></div></div><div class="quiz-score" id="quiz-score-213" style="display:none"><h3 id="quiz-score-213-title"></h3><p id="quiz-score-213-text"></p><button class="quiz-retry" onclick="quizRetry213()">Prøv igen</button></div></div><div id="t213-opg" class="tab-panel"><p class="opgave-placeholder" style="color:#9ca3af;font-size:0.88rem">Opgaver er endnu ikke tilføjet.</p></div></div>
 <div id="page-2-1-4" class="page-hidden">
   <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
   <div class="emne-header">
@@ -10069,7 +10082,7 @@ function owCheck(id, answer) {
 }
 
 // ===== SCAFFOLD: nye emner tilføjet via scaffolding-værktøjet =====
-var quiz213Answered = {}, quiz213Correct = 0, quiz213Total = 1;
+var quiz213Answered = {}, quiz213Correct = 0, quiz213Total = 2;
 
 function quizAnswer213(qnum, result, evt) {
   if (quiz213Answered[qnum]) return;
@@ -10096,7 +10109,7 @@ function quiz213CheckDone() {
 
 function quizRetry213() {
   quiz213Answered={}; quiz213Correct=0;
-  [1].forEach(function(n){
+  [1,2].forEach(function(n){
     var qq=document.getElementById('qq213-'+n); if(!qq)return;
     qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.style.pointerEvents='';b.style.background='';b.style.borderColor='';b.classList.remove('correct','wrong');var box=b.querySelector('.mbox');if(box){box.style.background='';box.style.borderColor='';box.style.color='';box.textContent='';}});
     var fb=document.getElementById('qf213-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
