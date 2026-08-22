@@ -641,6 +641,26 @@ function insertAfterFunction(jsText, fnName, text){
   return jsText.slice(0, loc.end) + text + jsText.slice(loc.end);
 }
 
+// Deletes ONE quiz question by removing its DOM node and decrementing the
+// shared "total" counter — nothing else. This is safe even for an emne
+// containing hand-built/custom questions (multi-select, per-option images,
+// bespoke check logic), because it never rebuilds quizAnswer{slug} or
+// touches any OTHER question's own onclick handlers — those keep working
+// exactly as before. Full add/edit still requires syncQuizForNr's wholesale
+// rebuild, which stays blocked for hasCustomQuiz emner as it always has.
+function deleteQuizQuestionSafe(doc, jsText, nr, index){
+  var slug = slugOf(nr);
+  var page = doc.getElementById(pageIdOf(nr));
+  if (!page) return jsText;
+  var qEls = page.querySelectorAll('.quiz-question');
+  if (index < 0 || index >= qEls.length) return jsText;
+  qEls[index].remove();
+  jsText = jsText.replace(new RegExp('(quiz' + slug + 'Total\\s*=\\s*)(\\d+)'), function(m, pre, num){
+    return pre + (parseInt(num, 10) - 1);
+  });
+  return jsText;
+}
+
 // ---------- top-level sync orchestrator ----------
 // Regenerates every fully-derived JS fragment (emneData, emneRaekkefoelge,
 // emneNavneAlle, updateFremgang's local forloeb+emneNavne, and every emne's
@@ -1239,6 +1259,182 @@ function buildCatalogCheckFn(nr, niveau, items){
   }
   lines.push('}');
   return lines.join('\n');
+}
+
+// ============================================================
+// REVERSE PARSER: reconstructs {bronze:[...], solv:[...], guld:[...]}
+// from an EXISTING tool-managed opgave shell's DOM + JS. This is what makes
+// a previously tool-built shell (from an earlier session) fully editable
+// again — add/edit/delete individual opgaver — instead of permanently
+// locked read-only the moment the tool is reopened. Only ever called on
+// shells with data-scaffold-opgaver="1" (opgaveShellToolManaged), since
+// this is a precise mirror of this tool's own known generation format —
+// never attempted on hand-built markup, which this can't safely interpret.
+// ============================================================
+function parseOpgaveSlotsFromDom(doc, jsText, nr){
+  var slug = slugOf(nr);
+  var result = { bronze: [], solv: [], guld: [] };
+
+  NIVEAU_ORDER.forEach(function(n){
+    var info = NIVEAU_INFO[n];
+    var container = doc.getElementById('opg' + slug + '-' + info.slot);
+    if (!container) return;
+    var itemEls = container.querySelectorAll(':scope > .ow-item');
+    if (!itemEls.length) return;
+
+    var fnLoc = locateFunction(jsText, 'check' + info.fnPart + slug);
+    var fnBody = fnLoc ? jsText.slice(fnLoc.start, fnLoc.end) : '';
+    var startLoc = locateFunction(jsText, 'startOpgaver' + slug);
+    var startBody = startLoc ? jsText.slice(startLoc.start, startLoc.end) : '';
+
+    var items = [];
+    Array.prototype.forEach.call(itemEls, function(itemEl, idx){
+      var idBase = slug + info.letter + idx;
+      var titleSpan = itemEl.querySelector('.ow-title span');
+      var titel = titleSpan ? titleSpan.textContent : '';
+      var imgEl = itemEl.querySelector(':scope > img');
+      var billede = imgEl ? imgEl.getAttribute('src') : '';
+      var instrDiv = null;
+      Array.prototype.forEach.call(itemEl.querySelectorAll(':scope > div'), function(d){
+        if (!instrDiv && /color:\s*#6b7280/.test(d.getAttribute('style') || '')) instrDiv = d;
+      });
+      var instruktion = instrDiv ? instrDiv.textContent : '';
+
+      var table = itemEl.querySelector('table');
+      var canvasEl = itemEl.querySelector('canvas');
+      var item = null;
+
+      if (table){
+        item = parseTabelItem(itemEl, table, idBase, titel, instruktion, billede, fnBody);
+      } else if (canvasEl){
+        var canvasId = canvasEl.id;
+        var isTegn = new RegExp('checkTegn\\(\\s*[\'"]' + escRe(canvasId) + '[\'"]').test(fnBody);
+        if (isTegn){
+          item = parseTegnItem(canvasId, titel, instruktion, startBody);
+        } else {
+          item = parsePindeItem(canvasId, titel, instruktion, startBody);
+        }
+      } else if (itemEl.querySelector('.ow-input')){
+        item = parseTalsvarItem(itemEl, idBase, titel, instruktion, billede, fnBody);
+      }
+      if (item) items.push(item);
+    });
+    result[n] = items;
+  });
+
+  return result;
+}
+
+function escRe(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function parseTalsvarItem(itemEl, idBase, titel, instruktion, billede, fnBody){
+  var felter = [];
+  Array.prototype.forEach.call(itemEl.querySelectorAll('.ow-input'), function(inp, i){
+    var id = idBase + '-a' + i;
+    var labelEl = inp.previousElementSibling;
+    var label = labelEl ? labelEl.textContent : '';
+    var hint = inp.getAttribute('placeholder') || '';
+    var felt = { label: label, hint: hint, svartype: 'tal', svar: 0, tolerance: 0.05 };
+
+    var reNum = new RegExp('checkSingleNumericField\\(\\s*[\'"]' + escRe(id) + '[\'"]\\s*,\\s*(-?[\\d.]+)\\s*,\\s*([\\d.]+)\\s*\\)');
+    var reKoord = new RegExp('checkKoordinatField\\(\\s*[\'"]' + escRe(id) + '[\'"]\\s*,\\s*"((?:[^"\\\\]|\\\\.)*)"\\s*,\\s*([\\d.]+)\\s*\\)');
+    var reFunk = new RegExp('checkFormulaField\\(\\s*[\'"]' + escRe(id) + '[\'"]\\s*,\\s*"((?:[^"\\\\]|\\\\.)*)"\\s*,\\s*\\[[^\\]]*\\]\\s*,\\s*([\\d.]+)\\s*\\)');
+    var reTekst = new RegExp('checkTekstField\\(\\s*[\'"]' + escRe(id) + '[\'"]\\s*,\\s*"((?:[^"\\\\]|\\\\.)*)"\\s*\\)');
+    var m;
+    if ((m = reNum.exec(fnBody))){
+      felt.svartype = 'tal'; felt.svar = parseFloat(m[1]); felt.tolerance = parseFloat(m[2]);
+    } else if ((m = reKoord.exec(fnBody))){
+      felt.svartype = 'koordinat'; felt.svar = JSON.parse('"' + m[1] + '"'); felt.tolerance = parseFloat(m[2]);
+    } else if ((m = reFunk.exec(fnBody))){
+      felt.svartype = 'funktion'; felt.svar = JSON.parse('"' + m[1] + '"'); felt.tolerance = parseFloat(m[2]);
+    } else if ((m = reTekst.exec(fnBody))){
+      felt.svartype = 'tekst'; felt.svar = JSON.parse('"' + m[1] + '"');
+    }
+    felter.push(felt);
+  });
+  return { type: 'talsvar', titel: titel, instruktion: instruktion, billede: billede, felter: felter };
+}
+
+function parseTabelItem(itemEl, table, idBase, titel, instruktion, billede, fnBody){
+  var hintDiv = null;
+  Array.prototype.forEach.call(itemEl.querySelectorAll(':scope > div'), function(d){
+    if (!hintDiv && /color:\s*#9ca3af/.test(d.getAttribute('style') || '')) hintDiv = d;
+  });
+  var hint = hintDiv ? hintDiv.textContent : '';
+  var headCells = table.querySelectorAll('tr:first-child td');
+  var kolonner = [];
+  Array.prototype.forEach.call(headCells, function(td, ci){
+    var inputInCol = table.querySelector('tr:nth-child(2) td:nth-child(' + (ci + 1) + ') input');
+    if (inputInCol){
+      var key = inputInCol.id.replace('ow-' + idBase + '-', '').replace(/\d+$/, '');
+      kolonner.push({ label: td.textContent, type: 'input', key: key, tolerance: 0.05 });
+    } else {
+      kolonner.push({ label: td.textContent, type: 'given', key: 'g' + ci });
+    }
+  });
+  var raekker = [];
+  var bodyRows = table.querySelectorAll('tr:not(:first-child)');
+  Array.prototype.forEach.call(bodyRows, function(tr, ri){
+    var row = [];
+    Array.prototype.forEach.call(tr.querySelectorAll('td'), function(td, ci){
+      var k = kolonner[ci];
+      if (k.type === 'given'){
+        row.push(parseFloat(td.textContent.replace(',', '.')));
+      } else {
+        var inp = td.querySelector('input');
+        var id = inp ? inp.id.replace('ow-', '') : '';
+        var re = new RegExp('\\[[^\\]]*[\'"]' + escRe(id) + '[\'"][^\\]]*\\]\\s*,\\s*\\[([^\\]]*)\\]');
+        var m = re.exec(fnBody);
+        var val = NaN;
+        if (m){
+          var ids = fnBody.match(new RegExp('checkNumericTableGroup\\(\\[([^\\]]*)\\]'));
+          // Find this id's positional index among the group's id list to pick the matching answer.
+          var callMatch = fnBody.match(new RegExp('checkNumericTableGroup\\(\\[([^\\]]*)\\]\\s*,\\s*\\[([^\\]]*)\\]\\s*,\\s*([\\d.]+)'));
+          if (callMatch){
+            var idList = callMatch[1].split(',').map(function(s){ return s.trim().replace(/^['"]|['"]$/g, ''); });
+            var ansList = callMatch[2].split(',').map(function(s){ return parseFloat(s.trim()); });
+            var pos = idList.indexOf(id);
+            if (pos !== -1) val = ansList[pos];
+            var tol = parseFloat(callMatch[3]);
+            if (kolonner[ci]) kolonner[ci].tolerance = tol;
+          }
+        }
+        row.push(val);
+      }
+    });
+    raekker.push(row);
+  });
+  return { type: 'tabel', titel: titel, instruktion: instruktion, billede: billede, kolonner: kolonner, raekker: raekker, hint: hint };
+}
+
+function parsePindeItem(canvasId, titel, instruktion, startBody){
+  var re = new RegExp('initPindeCanvas\\(\\s*[\'"]' + escRe(canvasId) + '[\'"]\\s*,\\s*\\[([^\\]]*)\\]\\s*,\\s*\\[([^\\]]*)\\]\\s*,\\s*([\\d.-]+)\\s*,\\s*([\\d.-]+)\\s*,\\s*([\\d.-]+)\\s*,\\s*[\'"][^\'"]*[\'"]\\s*,\\s*([\\d.]+)\\s*,\\s*[\'"](\\w+)[\'"]\\s*\\)');
+  var m = re.exec(startBody);
+  if (!m) return null;
+  return {
+    type: 'pinde', titel: titel, instruktion: instruktion, billede: '',
+    mode: m[7],
+    xValues: m[1].split(',').map(function(s){ return parseFloat(s.trim()); }),
+    correctValues: m[2].split(',').map(function(s){ return parseFloat(s.trim()); }),
+    xMin: parseFloat(m[3]), xMax: parseFloat(m[4]), yMax: parseFloat(m[5]), tolerance: parseFloat(m[6])
+  };
+}
+
+function parseTegnItem(canvasId, titel, instruktion, startBody){
+  var re = new RegExp('initTegnCanvas\\(\\s*[\'"]' + escRe(canvasId) + '[\'"]\\s*,\\s*\'((?:[^\'\\\\]|\\\\.)*)\'\\s*,\\s*(\\[[\\s\\S]*?\\])\\s*,\\s*[\'"][^\'"]*[\'"]\\s*\\)');
+  var m = re.exec(startBody);
+  if (!m) return null;
+  var billede = m[1].replace(/\\'/g, "'");
+  var layersLit = m[2];
+  var layers;
+  try {
+    // The literal is plain JS object/array syntax (built by this same
+    // engine), not JSON — evaluate it in a sandboxed function scope.
+    layers = Function('"use strict"; return (' + layersLit + ');')();
+  } catch (e) {
+    return null;
+  }
+  return { type: 'tegn', titel: titel, instruktion: instruktion, billede: billede, layers: layers };
 }
 
 function buildOpgaveShellJS(nr, slotAssignment){
@@ -1891,6 +2087,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
          renderCatalogItemBodyHtml: renderCatalogItemBodyHtml,
          buildCatalogCheckFn: buildCatalogCheckFn, buildOpgaveShellJS: buildOpgaveShellJS, ensureTegnModule: ensureTegnModule,
          ensureAnswerTypeHelpers: ensureAnswerTypeHelpers, ensureCloseMedalFix: ensureCloseMedalFix,
+         deleteQuizQuestionSafe: deleteQuizQuestionSafe, parseOpgaveSlotsFromDom: parseOpgaveSlotsFromDom,
          tegnBezierSegments: tegnBezierSegments, tegnSampleBezier: tegnSampleBezier };
 });
 
@@ -2608,9 +2805,12 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     var e = s.emner[quizState.nr];
 
     if (e.hasCustomQuiz){
-      html += '<div class="warn-box">Dette emne bruger et brugerdefineret spørgsmålsformat (fx multi-select eller billeder), som værktøjet ikke kan redigere sikkert. Rediger denne side manuelt / via Claude i stedet.</div>';
+      html += '<div class="warn-box">Dette emne har mindst ét brugerdefineret spørgsmål (fx flere-rigtige-svar eller billeder), som værktøjet ikke kan redigere eller tilføje nye spørgsmål til sikkert. Du kan stadig slette spørgsmål enkeltvis — de øvrige (inkl. det brugerdefinerede) forbliver helt urørt.</div>';
       e.quiz.forEach(function(q, i){
-        html += '<div class="card"><b>' + (i+1) + '. ' + h(q.tekst) + '</b><div class="meta">(skrivebeskyttet)</div></div>';
+        html += '<div class="card"><div class="top"><div><b>' + (i+1) + '. ' + h(q.tekst) + '</b>' +
+          (!q.standard ? ' <span class="tag disabledtag">brugerdefineret</span>' : '') +
+          '<div class="meta">' + (q.standard ? q.options.map(function(o){ return (o.korrekt?'✓ ':'') + h(o.tekst); }).join(' · ') : '(skrivebeskyttet indhold)') + '</div></div>' +
+          '<div class="actions"><button class="btn-sm danger" onclick="ScaffoldUI.deleteQuizQuestionSafe(' + i + ')">Slet</button></div></div></div>';
       });
       $content.innerHTML = html;
       document.getElementById('quiz-emne-select').addEventListener('change', function(ev){ quizState.nr = ev.target.value; renderQuizTab(); });
@@ -2769,6 +2969,16 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     log('del', 'Slettede spørgsmål ' + (i+1) + ' i ' + quizState.nr);
     renderQuizTab();
   };
+  // Used specifically for emner with a mixed standard+custom quiz — removes
+  // just the one question's markup and decrements the shared answer-count,
+  // without touching quizAnswer{slug}'s wholesale logic (see
+  // Scaffold.deleteQuizQuestionSafe for why that's the safe boundary here).
+  ScaffoldUI.deleteQuizQuestionSafe = function(i){
+    if (!confirmDanger('Slet dette spørgsmål?')) return;
+    jsText = Scaffold.deleteQuizQuestionSafe(doc, jsText, quizState.nr, i);
+    log('del', 'Slettede spørgsmål ' + (i+1) + ' i ' + quizState.nr);
+    renderQuizTab();
+  };
 
   // ================================================================
   // TAB: Opgaver — katalog-baseret bronze/sølv/guld opgavebygger
@@ -2783,8 +2993,27 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     guld:   { medal: '🥇', label: 'Guld' }
   };
 
+  // Lazily reconstructs opgaveSlotsByNr[nr] from an EXISTING tool-managed
+  // opgave shell the first time this emne is visited in a session, so
+  // opgaver built in an earlier session become fully add/edit/delete-able
+  // again — not permanently locked read-only just because the tool was
+  // reopened. Hand-built shells are never attempted (the caller in
+  // renderOpgaverTab keeps those read-only, as it always has).
   function slotsFor(nr){
-    if (!opgaveSlotsByNr[nr]) opgaveSlotsByNr[nr] = { bronze: [], solv: [], guld: [] };
+    if (opgaveSlotsByNr[nr]) return opgaveSlotsByNr[nr];
+    var e = site().emner[nr];
+    if (e && e.hasOpgaveShell && e.opgaveShellToolManaged){
+      try {
+        opgaveSlotsByNr[nr] = Scaffold.parseOpgaveSlotsFromDom(doc, jsText, nr);
+        dirtyOpgaveNrs[nr] = true; // in-memory model is now authoritative
+        return opgaveSlotsByNr[nr];
+      } catch (err){
+        // Safety net: if anything about the existing shell doesn't match
+        // what the parser expects, fall through to a fresh empty model
+        // rather than risk showing corrupted data.
+      }
+    }
+    opgaveSlotsByNr[nr] = { bronze: [], solv: [], guld: [] };
     return opgaveSlotsByNr[nr];
   }
 
@@ -2806,13 +3035,14 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     var html = '<h2>Opgaver</h2>';
     html += '<div class="field emnepicker"><label>Emne</label><select id="opg-emne-select">' + allEmneOptions(s, opgState.nr) + '</select></div>';
 
-    if (e.hasOpgaveShell && !dirtyOpgaveNrs[opgState.nr]){
-      html += '<div class="warn-box">Dette emne har allerede opgaver ' +
-        (e.opgaveShellToolManaged ? '(bygget via kataloget i en tidligere session)' : '(håndbygget)') +
-        '. Værktøjet kan ikke redigere eksisterende opgave-widgets sikkert, så de er skrivebeskyttede her — rediger dem manuelt / via Claude i stedet.</div>';
+    if (e.hasOpgaveShell && !e.opgaveShellToolManaged){
+      html += '<div class="warn-box">Dette emne har allerede opgaver (håndbygget). Værktøjet kan ikke redigere hånd-byggede opgave-widgets sikkert, så de er skrivebeskyttede her — rediger dem manuelt / via Claude i stedet.</div>';
       $content.innerHTML = html;
       document.getElementById('opg-emne-select').addEventListener('change', function(ev){ opgState.nr = ev.target.value; renderOpgaverTab(); });
       return;
+    }
+    if (e.hasOpgaveShell && e.opgaveShellToolManaged){
+      html += '<div class="meta" style="margin-bottom:10px">Disse opgaver blev bygget via kataloget i en tidligere session — indlæst og fuldt redigerbare igen.</div>';
     }
 
     html += '<p><small>Vælg en eller flere opgavetyper fra kataloget til hvert niveau — de tjekkes samlet med ét "Tjek svar". Sværhedsgraden styres af elevens "energi-slider" — bronze låses altid op, sølv/guld kræver højere niveau.</small></p>';

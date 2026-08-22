@@ -852,6 +852,127 @@ async function runPanelToggleAndTemplateTests(){
   test('Genereret output fra skabelonen har ingen valideringsproblemer', resultFromTemplate.newProblems.length === 0, JSON.stringify(resultFromTemplate.newProblems));
 }
 
+async function runReopenEditAndQuizDeleteTests(){
+  section('Genåbning: tidligere sessions tool-byggede opgaver bliver fuldt redigerbare igen');
+
+  // Build a "prior session" output file with real tool-managed opgaver on it.
+  const w0 = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w0.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D0 = w0.document;
+  w0.ScaffoldUI.activateForloeb('F7', 'Genåbningstest');
+  D0.getElementById('af-titel').value = 'Genåbningstest';
+  w0.ScaffoldUI.submitActivateForloeb('F7');
+  w0.ScaffoldUI.showNewKapitelForm('f7');
+  D0.getElementById('nk-titel').value = 'K1';
+  w0.ScaffoldUI.submitNewKapitel('f7');
+  w0.ScaffoldUI.showNewEmneForm('f7', 'K1');
+  D0.getElementById('ne-nr').value = '7.7.9'; D0.getElementById('ne-navn').value = 'Test'; D0.getElementById('ne-desc').value = '';
+  w0.ScaffoldUI.submitNewEmne('f7', 'K1');
+  w0.ScaffoldUI.renderOpgaverTab();
+  D0.getElementById('opg-emne-select').value = '7.7.9'; chg(D0.getElementById('opg-emne-select'));
+  w0.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D0.getElementById('ot-type').value = 'talsvar';
+  w0.ScaffoldUI.showOpgaveDetailForm('bronze', 'talsvar');
+  D0.getElementById('of-titel').value = 'Opgave A';
+  D0.getElementById('of-instr').value = 'Find x';
+  D0.getElementById('of-billede').value = '';
+  D0.getElementById('of-flabel-0').value = 'x';
+  D0.getElementById('of-fsvar-0').value = '4';
+  w0.ScaffoldUI.submitTalsvar('bronze');
+  w0.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D0.getElementById('ot-type').value = 'talsvar';
+  w0.ScaffoldUI.showOpgaveDetailForm('bronze', 'talsvar');
+  D0.getElementById('of-titel').value = 'Opgave B';
+  D0.getElementById('of-instr').value = 'Find y';
+  D0.getElementById('of-billede').value = '';
+  D0.getElementById('of-flabel-0').value = 'y';
+  D0.getElementById('of-fsvar-0').value = '9';
+  w0.ScaffoldUI.submitTalsvar('bronze');
+  const priorSessionOutput = w0.ScaffoldUI.__debugGenerate();
+  test('Forudsætning: bygget fil har 0 valideringsproblemer', priorSessionOutput.newProblems.length === 0);
+
+  // Now open THAT file as if starting a brand-new session.
+  const w = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w.ScaffoldUI.__debugInit(priorSessionOutput.html, 'Index.html');
+  const D = w.document;
+  const Scaffold = w.Scaffold;
+
+  w.ScaffoldUI.renderOpgaverTab();
+  D.getElementById('opg-emne-select').value = '7.7.9'; chg(D.getElementById('opg-emne-select'));
+
+  test('Fanen er IKKE skrivebeskyttet for et tool-bygget skal fra en tidligere session',
+    !D.getElementById('content').textContent.includes('skrivebeskyttede'));
+  test('Viser en note om at opgaverne er indlæst fra en tidligere session',
+    D.getElementById('content').textContent.includes('tidligere session'));
+  const editBtns = Array.from(D.querySelectorAll('.btn-sm')).filter(b => b.textContent === 'Redigér');
+  test('Begge tidligere opgaver har en Redigér-knap', editBtns.length === 2);
+
+  w.ScaffoldUI.editOpgaveSlot('bronze', 0);
+  test('Redigeringsformular forudfyldt med det oprindelige indhold',
+    D.getElementById('of-titel').value === 'Opgave A' && D.getElementById('of-fsvar-0').value === '4');
+  D.getElementById('of-titel').value = 'Opgave A (redigeret efter genåbning)';
+  w.ScaffoldUI.submitTalsvar('bronze', 0);
+
+  w.ScaffoldUI.deleteOpgaveSlot('bronze', 1);
+  let slots = w.ScaffoldUI.__debugOpgaveSlots('7.7.9');
+  test('Efter redigering + sletning: kun 1 opgave tilbage, med det nye navn',
+    slots.bronze.length === 1 && slots.bronze[0].titel === 'Opgave A (redigeret efter genåbning)');
+
+  w.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D.getElementById('ot-type').value = 'talsvar';
+  w.ScaffoldUI.showOpgaveDetailForm('bronze', 'talsvar');
+  D.getElementById('of-titel').value = 'Splinterny opgave';
+  D.getElementById('of-instr').value = '';
+  D.getElementById('of-billede').value = '';
+  D.getElementById('of-flabel-0').value = 'z';
+  D.getElementById('of-fsvar-0').value = '7';
+  w.ScaffoldUI.submitTalsvar('bronze');
+
+  const result = w.ScaffoldUI.__debugGenerate();
+  test('Fuld redigerings-cyklus efter genåbning giver 0 valideringsproblemer', result.newProblems.length === 0, JSON.stringify(result.newProblems));
+
+  // Runtime check: both the edited-and-kept opgave AND the newly added one must actually work together.
+  const dom2 = new JSDOM(result.html, { runScripts: 'dangerously', resources: 'usable', url: 'http://localhost/' });
+  const w2 = dom2.window, D2 = w2.document;
+  w2.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',canvas:{width:280,height:280}});
+  w2.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+  await new Promise(r => setTimeout(r, 30));
+  w2.updateEnergy779(20);
+  w2.startOpgaver779();
+  await new Promise(r => setTimeout(r, 30));
+  D2.getElementById('ow-779b0-a0').value = '4';
+  w2.checkBronze779();
+  test('Kun redigeret opgave udfyldt: fejler stadig samlet', D2.getElementById('ow-r-779-low').textContent.includes('Mangler stadig'));
+  D2.getElementById('ow-779b1-a0').value = '7';
+  w2.checkBronze779();
+  test('Redigeret opgave + ny opgave sammen giver Rigtigt!', D2.getElementById('ow-r-779-low').textContent === 'Rigtigt!');
+
+  section('Tjekspørgsmål: sikker enkeltvis sletning i blandede quizzer (custom + standard)');
+  const w3 = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w3.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D3 = w3.document;
+  w3.ScaffoldUI.renderQuizTab();
+  D3.getElementById('quiz-emne-select').value = '3.1.1'; chg(D3.getElementById('quiz-emne-select'));
+
+  test('Advarsel nævner at sletning stadig er muligt', D3.getElementById('content').textContent.includes('slette spørgsmål enkeltvis'));
+  const delBtns = Array.from(D3.querySelectorAll('.btn-sm.danger')).filter(b => b.textContent === 'Slet');
+  test('Alle 3 spørgsmål (inkl. det brugerdefinerede) har en Slet-knap', delBtns.length === 3);
+  test('Ingen Redigér-knapper vises (redigering forbliver blokeret for blandet quiz)',
+    !Array.from(D3.querySelectorAll('.btn-sm')).some(b => b.textContent === 'Redigér'));
+  test('Det brugerdefinerede spørgsmål er tydeligt mærket', D3.getElementById('content').textContent.includes('brugerdefineret'));
+
+  delBtns[0].click();
+  const quizResult = w3.ScaffoldUI.__debugGenerate();
+  test('Sikker sletning giver 0 valideringsproblemer', quizResult.newProblems.length === 0, JSON.stringify(quizResult.newProblems));
+  const siteAfter = Scaffold.parseSite(w3.ScaffoldUI.__debugDoc());
+  test('3.1.1 har nu 2 spørgsmål tilbage', siteAfter.emner['3.1.1'].quiz.length === 2);
+  test('Det brugerdefinerede spørgsmål overlevede fuldstændig urørt', siteAfter.emner['3.1.1'].quiz.some(q => !q.standard));
+  test('quiz311Total blev dekrementeret korrekt i JS', /quiz311Total\s*=\s*2/.test(quizResult.html));
+}
+
 (async () => {
   const ctx = await run();
   await runGeneration(ctx);
@@ -861,6 +982,7 @@ async function runPanelToggleAndTemplateTests(){
   await runMultiOpgaveAndUiTests();
   await runTrashBinAndImageSuggestTests();
   await runPanelToggleAndTemplateTests();
+  await runReopenEditAndQuizDeleteTests();
 
   console.log('\n========================================');
   console.log('Resultat: ' + passed + '/' + (passed + failed) + ' tests bestået');
