@@ -1222,7 +1222,27 @@ Udfyld tabellen ud fra det givet data:</div><div style="font-size:0.78rem;color:
     <h1>Grafiske repræsentationer</h1>
     
   </div>
-<div class="tabs"><button class="tab-btn active" data-tab="t222-mat">Materiale</button><button class="tab-btn" data-tab="t222-quiz">Tjekspørgsmål</button><button class="tab-btn" data-tab="t222-opg">Opgaver</button></div><div id="t222-mat" class="tab-panel active"><div class="simple-resource-list"><div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=274','_blank')"><input type="checkbox" class="card-check" id="chk-222-lrebog" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">2.2.2</div></div><canvas class="sparkle-canvas"></canvas></div><div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=3BikvK7D1lE','_blank')"><input type="checkbox" class="card-check" id="chk-222-youtub" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Histogrammer og sumkurver</div></div><canvas class="sparkle-canvas"></canvas></div></div></div><div id="t222-quiz" class="tab-panel"><div class="quiz-score" id="quiz-score-222" style="display:none"><h3 id="quiz-score-222-title"></h3><p id="quiz-score-222-text"></p><button class="quiz-retry" onclick="quizRetry222()">Prøv igen</button></div></div><div id="t222-opg" class="tab-panel"><p class="opgave-placeholder" style="color:#9ca3af;font-size:0.88rem">Opgaver er endnu ikke tilføjet.</p></div></div>
+<div class="tabs"><button class="tab-btn active" data-tab="t222-mat">Materiale</button><button class="tab-btn" data-tab="t222-quiz">Tjekspørgsmål</button><button class="tab-btn" data-tab="t222-opg">Opgaver</button></div><div id="t222-mat" class="tab-panel active"><div class="simple-resource-list"><div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=274','_blank')"><input type="checkbox" class="card-check" id="chk-222-lrebog" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">2.2.2</div></div><canvas class="sparkle-canvas"></canvas></div><div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=3BikvK7D1lE','_blank')"><input type="checkbox" class="card-check" id="chk-222-youtub" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Histogrammer og sumkurver</div></div><canvas class="sparkle-canvas"></canvas></div></div></div><div id="t222-quiz" class="tab-panel"><div class="quiz-question" id="qq222-1"><div class="quiz-q-text">1. Hvilke udsagn er sande om Diagram A og B</div><img src="https://brianveispennerup.github.io/HHXB/Figur_2222.png" style="max-width:100%;border:1px solid var(--border);border-radius:8px;margin:8px 0;display:block"><div class="quiz-q-note">Vælg alle rigtige svar</div><div class="quiz-options">
+        <button class="quiz-option" type="button" data-letter="A" onclick="quizMulti222(1,'A',this)"><span class="mbox"></span> A) Diagram A er et pindediagram og diagram B er et histogram</button>
+        <button class="quiz-option" type="button" data-letter="B" onclick="quizMulti222(1,'B',this)"><span class="mbox"></span> B) Diagram A er et histogram og diagram B er et pindediagram</button>
+        <button class="quiz-option" type="button" data-letter="C" onclick="quizMulti222(1,'C',this)"><span class="mbox"></span> C) Ved Diagram A skulle der have været en y-akse, så man kunne se intervalfrekvenserne.</button>
+        <button class="quiz-option" type="button" data-letter="D" onclick="quizMulti222(1,'D',this)"><span class="mbox"></span> D) Ved Diagrm A kunne der have været en y-akse, hvor man kunne se intervalfrekvenser.</button>
+      </div><button class="quiz-check-btn" type="button" style="margin-top:10px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;font-weight:600;cursor:pointer;font-family:inherit" onclick="checkMulti222(1,['B','D'])">Tjek svar</button><div class="quiz-feedback" id="qf222-1"></div></div><div class="quiz-question" id="qq222-2"><div class="quiz-q-text">2. Angiv de rigtige udsagn</div><div class="quiz-q-note">Vælg alle rigtige svar</div><div class="quiz-options">
+        <button class="quiz-option" type="button" data-letter="A" onclick="quizMulti222(2,'A',this)"><span class="mbox"></span> A) Et histogram og pindediagram er grundlæggende det samme, da det er lige meget om man har angivet fx frekvenser på y-aksen eller i en kasse.</button>
+        <button class="quiz-option" type="button" data-letter="B" onclick="quizMulti222(2,'B',this)"><span class="mbox"></span> B) Et histogram og pindediagram er grundlæggende ikke det samme, histogram bruges til diskrete observationer og pindediagram bruges til grupperede.</button>
+        <button class="quiz-option" type="button" data-letter="C" onclick="quizMulti222(2,'C',this)"><span class="mbox"></span> C) Et histogram og pindediagram er grundlæggende ikke det samme, histogram bruges til grupperede observationer og pindediagram bruges til diskrete.</button>
+      </div><button class="quiz-check-btn" type="button" style="margin-top:10px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;font-weight:600;cursor:pointer;font-family:inherit" onclick="checkMulti222(2,['C'])">Tjek svar</button><div class="quiz-feedback" id="qf222-2"></div></div><div class="quiz-question" id="qq222-3"><div class="quiz-q-text">3. Angiv det sande udsagn</div><div class="quiz-q-note">Vælg alle rigtige svar</div><div class="quiz-options">
+        <button class="quiz-option" type="button" data-letter="A" onclick="quizMulti222(3,'A',this)"><span class="mbox"></span> A) Når intervallerne i det grupperede data er ens længde kan man erstatte "frekvensarealet" med blot at skrive frekvenser på y-aksen</button>
+        <button class="quiz-option" type="button" data-letter="B" onclick="quizMulti222(3,'B',this)"><span class="mbox"></span> B) Når intervallerne i det grupperede data er forskellige længde kan man erstatte "frekvensarealet" med blot at skrive frekvenser på y-aksen</button>
+        <button class="quiz-option" type="button" data-letter="C" onclick="quizMulti222(3,'C',this)"><span class="mbox"></span> C) Histogrammet vil have samme form om man bruger interval hyppigheder eller frekvenser</button>
+      </div><button class="quiz-check-btn" type="button" style="margin-top:10px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;font-weight:600;cursor:pointer;font-family:inherit" onclick="checkMulti222(3,['A','C'])">Tjek svar</button><div class="quiz-feedback" id="qf222-3"></div></div><div class="quiz-question" id="qq222-4"><div class="quiz-q-text">4. Hvad antager vi når vi tegner en sumkurve?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer222(4,'wrong',event)">A) At intervallerne har ens længde</button>
+        <button class="quiz-option" onclick="quizAnswer222(4,'wrong',event)">B) At sumkurven skal gå til 1 når vi har summeret frekvens.</button>
+        <button class="quiz-option" onclick="quizAnswer222(4,'correct',event)">C) At observationerne indenfor hvert interval er jævnt fordelt.</button>
+      </div><div class="quiz-feedback" id="qf222-4"></div></div><div class="quiz-question" id="qq222-5"><div class="quiz-q-text">5. En sumkurve skal altid summere til 1 (100%).</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer222(5,'wrong',event)">A) Ja</button>
+        <button class="quiz-option" onclick="quizAnswer222(5,'correct',event)">B) Nej</button>
+      </div><div class="quiz-feedback" id="qf222-5"></div></div><div class="quiz-score" id="quiz-score-222" style="display:none"><h3 id="quiz-score-222-title"></h3><p id="quiz-score-222-text"></p><button class="quiz-retry" onclick="quizRetry222()">Prøv igen</button></div></div><div id="t222-opg" class="tab-panel"><p class="opgave-placeholder" style="color:#9ca3af;font-size:0.88rem">Opgaver er endnu ikke tilføjet.</p></div></div>
 <div id="page-2-2-3" class="page-hidden">
   <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
   <div class="emne-header">
@@ -10209,6 +10229,77 @@ function checkSilver221() {
   } else if (r) {
     r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek de røde felter og prøv igen.';
   }
+}
+
+var quiz222Answered = {}, quiz222Correct = 0, quiz222Total = 5, quiz222MultiSel = {};
+
+function quizAnswer222(qnum, result, evt) {
+  if (quiz222Answered[qnum]) return;
+  quiz222Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq222-' + qnum);
+  var fb = document.getElementById('qf222-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz222Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  quiz222CheckDone();
+}
+
+function quiz222CheckDone() {
+  if (Object.keys(quiz222Answered).length < quiz222Total) return;
+  var box=document.getElementById('quiz-score-222'); if(!box)return; box.style.display='block';
+  document.getElementById('quiz-score-222-title').textContent = quiz222Correct===quiz222Total ? 'Perfekt – '+quiz222Correct+'/'+quiz222Total+'!' : quiz222Correct+'/'+quiz222Total+' rigtige';
+  document.getElementById('quiz-score-222-text').textContent = quiz222Correct===quiz222Total ? 'Flot – du har styr på emnet!' : 'Se de markerede svar og prøv igen.';
+}
+
+function quizMulti222(qnum, letter, btn) {
+  if (quiz222Answered[qnum]) return;
+  var key = qnum + '_' + letter;
+  var box = btn.querySelector('.mbox');
+  if (quiz222MultiSel[key]) {
+    delete quiz222MultiSel[key];
+    btn.style.background = ''; btn.style.borderColor = '';
+    if (box) { box.style.background=''; box.style.borderColor=''; box.style.color=''; box.textContent=''; }
+  } else {
+    quiz222MultiSel[key] = true;
+    btn.style.background = '#eff6ff'; btn.style.borderColor = '#2563eb';
+    if (box) { box.style.background='#2563eb'; box.style.borderColor='#2563eb'; box.style.color='white'; box.textContent='\u2713'; }
+  }
+}
+
+function checkMulti222(qnum, correctLetters) {
+  if (quiz222Answered[qnum]) return;
+  quiz222Answered[qnum] = true;
+  var qq = document.getElementById('qq222-' + qnum);
+  var fb = document.getElementById('qf222-' + qnum);
+  var allOk = true;
+  qq.querySelectorAll('.quiz-option').forEach(function(b){
+    b.style.pointerEvents = 'none';
+    var letter = b.getAttribute('data-letter');
+    var key = qnum + '_' + letter;
+    var wasSel = !!quiz222MultiSel[key];
+    var isCorrect = correctLetters.indexOf(letter) !== -1;
+    if (wasSel && isCorrect) b.classList.add('correct');
+    else if (wasSel && !isCorrect) { b.classList.add('wrong'); allOk = false; }
+    else if (!wasSel && isCorrect) allOk = false;
+  });
+  if (allOk) { fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!'; quiz222Correct++; runQuizSparkle(qq); }
+  else { fb.className='quiz-feedback show err'; fb.textContent='Ikke helt — se de markerede svar.'; }
+  quiz222CheckDone();
+}
+
+function quizRetry222() {
+  quiz222Answered={}; quiz222Correct=0; quiz222MultiSel={};
+  [1,2,3,4,5].forEach(function(n){
+    var qq=document.getElementById('qq222-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.style.pointerEvents='';b.style.background='';b.style.borderColor='';b.classList.remove('correct','wrong');var box=b.querySelector('.mbox');if(box){box.style.background='';box.style.borderColor='';box.style.color='';box.textContent='';}});
+    var fb=document.getElementById('qf222-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-222').style.display='none';
 }
 
 function checkBronze221() {
