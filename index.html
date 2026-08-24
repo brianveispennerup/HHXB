@@ -1210,9 +1210,9 @@ h(x) &amp; 3 &amp; 12 &amp; 6 &amp; 3 &amp; 1 \\
   <div class="emne-header">
     <span class="tag">2.2.2</span>
     <h1>Grafiske repræsentationer</h1>
-    <p>Indhold tilføjes snart.</p>
+    
   </div>
-</div>
+<div class="tabs"><button class="tab-btn active" data-tab="t222-mat">Materiale</button><button class="tab-btn" data-tab="t222-quiz">Tjekspørgsmål</button><button class="tab-btn" data-tab="t222-opg">Opgaver</button></div><div id="t222-mat" class="tab-panel active"><div class="simple-resource-list"><div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=274','_blank')"><input type="checkbox" class="card-check" id="chk-222-lrebog" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">2.2.2</div></div><canvas class="sparkle-canvas"></canvas></div><div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=3BikvK7D1lE','_blank')"><input type="checkbox" class="card-check" id="chk-222-youtub" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Histogrammer og sumkurver</div></div><canvas class="sparkle-canvas"></canvas></div></div></div><div id="t222-quiz" class="tab-panel"><div class="quiz-score" id="quiz-score-222" style="display:none"><h3 id="quiz-score-222-title"></h3><p id="quiz-score-222-text"></p><button class="quiz-retry" onclick="quizRetry222()">Prøv igen</button></div></div><div id="t222-opg" class="tab-panel"><p class="opgave-placeholder" style="color:#9ca3af;font-size:0.88rem">Opgaver er endnu ikke tilføjet.</p></div></div>
 <div id="page-2-2-3" class="page-hidden">
   <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
   <div class="emne-header">
@@ -9866,6 +9866,7 @@ var emneData = {
   '2.1.3': { navn: 'Positionsmål', opgaver: [], materiale: ['chk-213-lrebog','chk-213-youtub','chk-213-youtub2'] },
   '2.1.4': { navn: 'Spredningsmål', opgaver: [], materiale: ['chk-214-lrebog','chk-214-youtub'] },
   '2.2.1': { navn: 'Hyppigheder og frekvenser', opgaver: [], materiale: ['chk-221-lrebog','chk-221-youtub'] },
+  '2.2.2': { navn: 'Grafiske repræsentationer', opgaver: [], materiale: ['chk-222-lrebog','chk-222-youtub'] },
   '2.2.3': { navn: 'Positionsmål', opgaver: [], materiale: [] },
   '2.2.4': { navn: 'Spredningsmål', opgaver: [], materiale: [] },
 };
@@ -9873,8 +9874,8 @@ var emneData = {
 // ── FREMGANG SIDE ─────────────────────────────────────────────────────────
 // Emner med et Bevis-afsnit der kan optjene et hjerte på F1-oversigten. Kun disse emner kan nogensinde vise et hjerte.
 var emnerMedBevis = ['3.2.2'];
-var emneRaekkefoelge = ['1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7','3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening','2.1.1','2.1.2','2.1.3','2.1.4','2.2.1','2.2.3','2.2.4'];
-var emneNavneAlle = {'1.3.1':'Simple ligninger','3.1.1':'Lodret-kriteriet og definition','3.1.2':'Funktion givet ved graf','3.1.3':'Regneforskrift og graf','3.1.4':'Grafiske løsninger','3.1.5':'Monotoniforhold','3.1.6':'Egenskaber ved grafer','3.1.7':'Omvendt funktion','3.2.1':'Grundbegreber','3.2.2':'Forskrift ud fra to punkter','3.2.3':'Vækstegenskaber','3.2.4':'Stykkevis lineære funktioner','3.2.5':'Skæring mellem lineære grafer','3.5.1':'Mindste kvadraters metode','3.5.2':'Korrelationskoefficienten','screening':'Matematikscreening 2025','2.1.1':'Hyppigheder og frekvenser','2.1.2':'Grafiske repræsentationer','2.1.3':'Positionsmål','2.1.4':'Spredningsmål','2.2.1':'Hyppigheder og frekvenser','2.2.3':'Positionsmål','2.2.4':'Spredningsmål'};
+var emneRaekkefoelge = ['1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7','3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening','2.1.1','2.1.2','2.1.3','2.1.4','2.2.1','2.2.2','2.2.3','2.2.4'];
+var emneNavneAlle = {'1.3.1':'Simple ligninger','3.1.1':'Lodret-kriteriet og definition','3.1.2':'Funktion givet ved graf','3.1.3':'Regneforskrift og graf','3.1.4':'Grafiske løsninger','3.1.5':'Monotoniforhold','3.1.6':'Egenskaber ved grafer','3.1.7':'Omvendt funktion','3.2.1':'Grundbegreber','3.2.2':'Forskrift ud fra to punkter','3.2.3':'Vækstegenskaber','3.2.4':'Stykkevis lineære funktioner','3.2.5':'Skæring mellem lineære grafer','3.5.1':'Mindste kvadraters metode','3.5.2':'Korrelationskoefficienten','screening':'Matematikscreening 2025','2.1.1':'Hyppigheder og frekvenser','2.1.2':'Grafiske repræsentationer','2.1.3':'Positionsmål','2.1.4':'Spredningsmål','2.2.1':'Hyppigheder og frekvenser','2.2.2':'Grafiske repræsentationer','2.2.3':'Positionsmål','2.2.4':'Spredningsmål'};
 
 function updateFremgang() {
   var data = loadAllProgress();
