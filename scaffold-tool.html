@@ -18,6 +18,7 @@
   small{color:var(--muted);}
   button{font-family:inherit;cursor:pointer;border:none;border-radius:6px;font-size:0.85rem;}
   input,select,textarea{font-family:inherit;font-size:0.85rem;padding:7px 9px;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--text);width:100%;}
+  input[type=color]{padding:2px;height:38px;cursor:pointer;}
   textarea{resize:vertical;min-height:50px;}
   label{display:block;font-size:0.78rem;font-weight:600;color:var(--muted);margin-bottom:3px;}
   .field{margin-bottom:10px;}
@@ -131,6 +132,7 @@
     <button class="navbtn" data-tab="materiale">Materiale</button>
     <button class="navbtn" data-tab="quiz">Tjekspørgsmål</button>
     <button class="navbtn" data-tab="opgaver">Opgaver</button>
+    <button class="navbtn" data-tab="tema">Tema</button>
     <button class="navbtn katexbtn" onclick="ScaffoldUI.openKatexModal()">📐 KaTeX-skabeloner</button>
     <button class="navbtn katexbtn" id="trashNavBtn" onclick="ScaffoldUI.openTrashModal()">🗑 Papirkurv</button>
     <div class="navspacer"></div>
@@ -663,9 +665,140 @@ function deleteQuizQuestionSafe(doc, jsText, nr, index){
 
 // ---------- top-level sync orchestrator ----------
 // Regenerates every fully-derived JS fragment (emneData, emneRaekkefoelge,
-// emneNavneAlle, updateFremgang's local forloeb+emneNavne, and every emne's
-// quiz function block) from the current DOM-derived `site` model plus the
-// independently-tracked `opgaverByNr` map. Nothing else in jsText is touched.
+// ============================================================
+// SITE THEMES — a purely additive/reversible visual layer (background
+// image, CSS variable/color overrides, a floating-particle effect, and
+// medal emoji swap) applied on top of the existing design, never touching
+// content. Built-in presets live in SITE_THEMES; users can also define
+// their own via the tool's UI, persisted into the generated file itself
+// (var CUSTOM_THEMES = {...}) so they're still there next time the file is
+// reopened. Every application removes and rebuilds one clearly-marked CSS
+// block and one clearly-marked JS block wholesale — simpler and far more
+// robust than trying to diff/reverse specific prior values, and works
+// identically for built-in or custom themes.
+// ============================================================
+var SITE_THEMES = {
+  standard: { navn: 'Standard', particle: '', bgImage: '', cssVars: {}, medaljer: { 1: '\uD83E\uDD49', 2: '\uD83E\uDD48', 3: '\uD83E\uDD47' } },
+  jul:      { navn: 'Jul \uD83C\uDF84', particle: '\u2744', bgImage: '', cssVars: {}, medaljer: { 1: '\uD83C\uDF84', 2: '\u2B50', 3: '\uD83C\uDF85' } }
+};
+
+var THEME_CSS_START = '/* SCAFFOLD-THEME-CSS-START */';
+var THEME_CSS_END = '/* SCAFFOLD-THEME-CSS-END */';
+var THEME_JS_START = '// SCAFFOLD-THEME-JS-START';
+var THEME_JS_END = '// SCAFFOLD-THEME-JS-END';
+
+var PARTICLE_CSS =
+'.theme-particle-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}\n' +
+'.theme-particle{position:absolute;top:-10px;animation:themeParticleFall linear infinite;will-change:transform}\n' +
+'@keyframes themeParticleFall{to{transform:translateY(110vh) translateX(var(--tp-drift,0))}}';
+
+var PARTICLE_JS =
+'function initThemeParticles() {\n' +
+'  if (document.querySelector(\'.theme-particle-overlay\')) return;\n' +
+'  if (typeof THEME_PARTICLE === \'undefined\' || !THEME_PARTICLE) return;\n' +
+'  var overlay = document.createElement(\'div\');\n' +
+'  overlay.className = \'theme-particle-overlay\';\n' +
+'  document.body.appendChild(overlay);\n' +
+'  for (var i = 0; i < 45; i++) {\n' +
+'    var f = document.createElement(\'div\');\n' +
+'    f.className = \'theme-particle\';\n' +
+'    f.textContent = THEME_PARTICLE;\n' +
+'    f.style.left = (Math.random() * 100) + \'vw\';\n' +
+'    f.style.fontSize = (Math.random() * 12 + 8) + \'px\';\n' +
+'    f.style.opacity = (Math.random() * 0.5 + 0.4).toFixed(2);\n' +
+'    f.style.animationDuration = (Math.random() * 9 + 7) + \'s\';\n' +
+'    f.style.animationDelay = (Math.random() * 10) + \'s\';\n' +
+'    f.style.setProperty(\'--tp-drift\', (Math.random() * 80 - 40) + \'px\');\n' +
+'    overlay.appendChild(f);\n' +
+'  }\n' +
+'}\n' +
+'document.addEventListener(\'DOMContentLoaded\', initThemeParticles);';
+
+function currentThemeId(jsText){
+  var m = jsText.match(/var SITE_THEME\s*=\s*["']([^"']*)["']/);
+  return m ? m[1] : 'standard';
+}
+
+// Custom themes are persisted as a single JSON blob so this is a plain
+// parse, not a bespoke reverse-engineering job like the opgave shells.
+function currentCustomThemes(jsText){
+  var m = jsText.match(/var CUSTOM_THEMES\s*=\s*(\{[\s\S]*?\});/);
+  if (!m) return {};
+  try { return JSON.parse(m[1]); } catch (e){ return {}; }
+}
+
+function allThemes(jsText){
+  var out = {};
+  Object.keys(SITE_THEMES).forEach(function(id){ out[id] = SITE_THEMES[id]; });
+  var custom = currentCustomThemes(jsText);
+  Object.keys(custom).forEach(function(id){ out[id] = custom[id]; });
+  return out;
+}
+
+function cssVarBlock(cssVars){
+  var keys = Object.keys(cssVars || {});
+  if (!keys.length) return '';
+  return ':root{' + keys.map(function(k){ return k + ':' + cssVars[k] + ';'; }).join('') + '}';
+}
+
+// Applies `themeId` as the active theme. `customThemesOverride`, if given,
+// replaces the persisted custom-theme set (used when saving/deleting a
+// custom theme) — otherwise the existing persisted set is kept as-is.
+function applyTheme(doc, jsText, themeId, customThemesOverride){
+  var custom = customThemesOverride !== undefined ? customThemesOverride : currentCustomThemes(jsText);
+  var registry = {};
+  Object.keys(SITE_THEMES).forEach(function(id){ registry[id] = SITE_THEMES[id]; });
+  Object.keys(custom).forEach(function(id){ registry[id] = custom[id]; });
+  var theme = registry[themeId] || SITE_THEMES.standard;
+  if (!registry[themeId]) themeId = 'standard';
+
+  // 1. Wipe any existing theme blocks (CSS + JS) — always start clean.
+  var styleEl = doc.querySelector('head style');
+  if (styleEl){
+    var css = styleEl.textContent;
+    var csIdx = css.indexOf(THEME_CSS_START), ceIdx = css.indexOf(THEME_CSS_END);
+    if (csIdx !== -1 && ceIdx !== -1) css = css.slice(0, csIdx) + css.slice(ceIdx + THEME_CSS_END.length);
+    styleEl.textContent = css;
+  }
+  var jsStart = jsText.indexOf(THEME_JS_START), jsEnd = jsText.indexOf(THEME_JS_END);
+  if (jsStart !== -1 && jsEnd !== -1) jsText = jsText.slice(0, jsStart) + jsText.slice(jsEnd + THEME_JS_END.length);
+
+  // 2. Rebuild the CSS block (only written at all if there's something to override).
+  var cssParts = [];
+  var varsBlock = cssVarBlock(theme.cssVars);
+  if (varsBlock) cssParts.push(varsBlock);
+  if (theme.bgImage){
+    cssParts.push("body{background-image:url('" + String(theme.bgImage).replace(/'/g, "\\'") + "');background-size:cover;background-attachment:fixed;background-position:center}");
+  }
+  if (theme.particle) cssParts.push(PARTICLE_CSS);
+  if (cssParts.length && styleEl){
+    styleEl.textContent += '\n' + THEME_CSS_START + '\n' + cssParts.join('\n') + '\n' + THEME_CSS_END;
+  }
+
+  // 3. Rebuild the JS block.
+  var jsParts = [];
+  jsParts.push("var SITE_THEME = " + JSON.stringify(themeId) + ";");
+  jsParts.push("var medaljer = " + JSON.stringify(theme.medaljer) + ";");
+  if (Object.keys(custom).length) jsParts.push("var CUSTOM_THEMES = " + JSON.stringify(custom) + ";");
+  if (theme.particle){
+    jsParts.push("var THEME_PARTICLE = " + JSON.stringify(theme.particle) + ";");
+    jsParts.push(PARTICLE_JS);
+  }
+  jsText = appendToScaffoldSection(jsText, THEME_JS_START + '\n' + jsParts.join('\n') + '\n' + THEME_JS_END + '\n');
+
+  return jsText;
+}
+
+// Self-heals a genuine duplicate: the progress page had its own hardcoded
+// copy of the medal emoji triple instead of reading the shared `medaljer`
+// var, so a theme's emoji swap never reached it. Only rewrites the exact
+// original literal — never touches a hand-modified version.
+function ensureFremgangMedalEmojiFix(jsText){
+  var old = "{1:'\uD83E\uDD49',2:'\uD83E\uDD48',3:'\uD83E\uDD47'}[medalVal]";
+  if (jsText.indexOf(old) === -1) return jsText;
+  return jsText.split(old).join('medaljer[medalVal]');
+}
+
 // Self-heals a real site-wide bug: closeMedal() was hardcoded from when
 // 1.3.1 was the only topic on the site — it always called the legacy
 // unsuffixed restartOpgaver() and always navigated back to showPage('f1'),
@@ -710,6 +843,7 @@ function ensureCloseMedalFix(jsText){
 
 function regenerateDerivedJS(jsText, site, opgaverByNr, dirtyQuizNrs, dirtyOpgaveNrs, opgaveSlotsByNr){
   jsText = ensureCloseMedalFix(jsText);
+  jsText = ensureFremgangMedalEmojiFix(jsText);
 
   var r1 = replaceVarStatement(jsText, 'emneData', buildEmneDataBlock(site, opgaverByNr));
   if (r1 !== null) jsText = r1;
@@ -899,6 +1033,39 @@ function addEmne(doc, forloebId, kapitelTitel, nr, navn, desc){
   if (lastPage) lastPage.parentNode.insertBefore(page, lastPage.nextSibling);
   else doc.body.appendChild(page);
 }
+// Moves an emne's card to a different kapitel — possibly in a different
+// forløb — without touching its nr, slug, page id, or any opgave/quiz/
+// materiale content, which are all keyed by nr and stay completely
+// unaffected by which kapitel visually groups the card. If the target
+// forløb differs from the current one, the emne page's own back-link is
+// updated to point at the new forløb so "← tilbage" still goes somewhere
+// sensible.
+function moveEmne(doc, nr, newForloebId, newKapitelTitel){
+  var slug = dashOf(nr);
+  var card = doc.querySelector('.emne-card[onclick="showPage(\'' + slug + '\')"]');
+  if (!card) throw new Error('Emne-kort ikke fundet: ' + nr);
+  var targetKap = findKapitelGrid(doc, newForloebId, newKapitelTitel);
+  if (!targetKap) throw new Error('Målkapitel ikke fundet: ' + newKapitelTitel);
+
+  // Was this emne previously under a DIFFERENT forløb? (walk up from the
+  // card's current grid to the enclosing page-fX to find out)
+  var oldPage = card.closest('[id^="page-f"]');
+  var oldForloebId = oldPage ? oldPage.id.replace('page-', '') : null;
+
+  targetKap.grid.appendChild(card);
+
+  if (oldForloebId && oldForloebId !== newForloebId){
+    var page = doc.getElementById(pageIdOf(nr));
+    var back = page ? page.querySelector('.back-link') : null;
+    if (back){
+      var forloebLabel = (doc.querySelector('#page-home .forloeb-grid .forloeb-card[onclick="showPage(\'' + newForloebId + '\')"] .forloeb-nr') || {}).textContent || newForloebId.toUpperCase();
+      var forloebTitel = (doc.querySelector('#page-home .forloeb-grid .forloeb-card[onclick="showPage(\'' + newForloebId + '\')"] .forloeb-titel') || {}).textContent || '';
+      back.setAttribute('onclick', "showPage('" + newForloebId + "')");
+      back.textContent = '\u2190 ' + (forloebLabel + ' ' + forloebTitel).trim();
+    }
+  }
+}
+
 function editEmne(doc, nr, navn, desc){
   var page = doc.getElementById(pageIdOf(nr));
   if (page){
@@ -2076,7 +2243,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
          syncQuizForNr: syncQuizForNr, esc1: esc1, escAttr: escAttr, escHtml: escHtml,
          addOrActivateForloeb: addOrActivateForloeb, editForloebTitel: editForloebTitel, deleteForloeb: deleteForloeb,
          addKapitel: addKapitel, findKapitelGrid: findKapitelGrid, renameKapitel: renameKapitel, deleteKapitel: deleteKapitel,
-         addEmne: addEmne, editEmne: editEmne, deleteEmne: deleteEmne, ensureFullPage: ensureFullPage,
+         addEmne: addEmne, editEmne: editEmne, deleteEmne: deleteEmne, moveEmne: moveEmne, ensureFullPage: ensureFullPage,
          nextMaterialeId: nextMaterialeId, addMateriale: addMateriale, editMateriale: editMateriale, deleteMateriale: deleteMateriale,
          getQuizQuestionEls: getQuizQuestionEls, rebuildQuizPanel: rebuildQuizPanel,
          syncOpgavePlaceholder: syncOpgavePlaceholder, validateDocument: validateDocument, suggestOpgaveId: suggestOpgaveId,
@@ -2087,6 +2254,8 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
          renderCatalogItemBodyHtml: renderCatalogItemBodyHtml,
          buildCatalogCheckFn: buildCatalogCheckFn, buildOpgaveShellJS: buildOpgaveShellJS, ensureTegnModule: ensureTegnModule,
          ensureAnswerTypeHelpers: ensureAnswerTypeHelpers, ensureCloseMedalFix: ensureCloseMedalFix,
+         applyTheme: applyTheme, currentThemeId: currentThemeId, SITE_THEMES: SITE_THEMES,
+         currentCustomThemes: currentCustomThemes, allThemes: allThemes,
          deleteQuizQuestionSafe: deleteQuizQuestionSafe, parseOpgaveSlotsFromDom: parseOpgaveSlotsFromDom,
          tegnBezierSegments: tegnBezierSegments, tegnSampleBezier: tegnSampleBezier };
 });
@@ -2319,6 +2488,128 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     if (el.setSelectionRange) el.setSelectionRange(cut, cut);
   };
 
+  // ---------------- Tema (rent visuelt lag — snefald, medalje-emojis) ----------------
+  function renderTemaTab(){
+    var current = Scaffold.currentThemeId(jsText);
+    var themes = Scaffold.allThemes(jsText);
+    var customIds = Object.keys(Scaffold.currentCustomThemes(jsText));
+    var html = '<h2>Tema</h2>';
+    html += '<p><small>Et tema ændrer kun udseendet — baggrund, farver, en valgfri partikel-effekt (fx sne) og medaljeikoner — og rører aldrig indhold. Det kan altid skiftes tilbage til Standard uden at miste noget.</small></p>';
+    html += '<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:14px">';
+    Object.keys(themes).forEach(function(id){
+      var t = themes[id];
+      var isCurrent = id === current;
+      var isCustom = customIds.indexOf(id) !== -1;
+      html += '<div class="card" style="width:230px;' + (isCurrent ? 'border-color:var(--accent2);border-width:2px' : '') +
+        (t.bgImage ? ';background-image:url(' + Scaffold.escAttr(t.bgImage) + ');background-size:cover' : '') + '">' +
+        '<div style="' + (t.bgImage ? 'background:rgba(255,255,255,.88);border-radius:6px;padding:8px' : '') + '">' +
+        '<div style="font-size:1.05rem;font-weight:700;margin-bottom:6px">' + h(t.navn) + '</div>' +
+        '<div style="font-size:1.5rem;margin-bottom:8px">' + [1,2,3].map(function(l){ return t.medaljer[l]; }).join(' ') + '</div>' +
+        '<div class="meta" style="margin-bottom:10px">' +
+          (t.particle ? 'Partikel-effekt: ' + h(t.particle) : 'Ingen partikel-effekt') +
+          (t.bgImage ? ' · Baggrundsbillede' : '') +
+          (Object.keys(t.cssVars || {}).length ? ' · Egne farver' : '') +
+        '</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+        (isCurrent ? '<div class="tag">Aktivt</div>' : '<button class="btn-sm" onclick="ScaffoldUI.applyTheme(' + attrArg(id) + ')">Brug dette tema</button>') +
+        (isCustom ? '<button class="btn-sm" onclick="ScaffoldUI.showEditThemeForm(' + attrArg(id) + ')">Redigér</button>' +
+          '<button class="btn-sm danger" onclick="ScaffoldUI.deleteCustomTheme(' + attrArg(id) + ')">Slet</button>' : '') +
+        '</div></div></div>';
+    });
+    html += '</div>';
+    html += '<button class="btn-add" style="margin-top:16px" onclick="ScaffoldUI.showEditThemeForm()">+ Lav dit eget tema</button>';
+    html += '<div id="inlineForm"></div>';
+    $content.innerHTML = html;
+  }
+  ScaffoldUI.renderTemaTab = renderTemaTab;
+  ScaffoldUI.applyTheme = function(themeId){
+    jsText = Scaffold.applyTheme(doc, jsText, themeId);
+    var themes = Scaffold.allThemes(jsText);
+    log('edit', 'Skiftede tema til "' + themes[themeId].navn + '"');
+    renderTemaTab();
+  };
+  ScaffoldUI.deleteCustomTheme = function(themeId){
+    var themes = Scaffold.allThemes(jsText);
+    if (!confirmDanger('Slet temaet "' + themes[themeId].navn + '"?')) return;
+    var custom = Scaffold.currentCustomThemes(jsText);
+    delete custom[themeId];
+    var activeId = Scaffold.currentThemeId(jsText);
+    var fallback = activeId === themeId ? 'standard' : activeId;
+    jsText = Scaffold.applyTheme(doc, jsText, fallback, custom);
+    log('del', 'Slettede tema "' + themes[themeId].navn + '"');
+    renderTemaTab();
+  };
+
+  var THEME_CSS_FIELDS = [
+    { key: '--bg', label: 'Sidebaggrund', siteDefault: '#f0f0ed' },
+    { key: '--surface', label: 'Kort-baggrund', siteDefault: '#ffffff' },
+    { key: '--accent', label: 'Primærfarve (knapper, links)', siteDefault: '#2563eb' }
+  ];
+  function toHexColor(v){
+    if (!v) return '';
+    var m = String(v).trim().match(/^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/);
+    return m ? v : '';
+  }
+  ScaffoldUI.showEditThemeForm = function(themeId){
+    var custom = Scaffold.currentCustomThemes(jsText);
+    var existing = themeId ? custom[themeId] : null;
+    var idField = themeId
+      ? '<input type="hidden" id="tf-id" value="' + Scaffold.escAttr(themeId) + '">'
+      : '';
+    showInlineForm(
+      '<div class="form-box"><h3>' + (existing ? 'Redigér tema' : 'Lav dit eget tema') + '</h3>' + idField +
+      '<div class="field"><label>Navn</label><input id="tf-navn" value="' + (existing ? Scaffold.escAttr(existing.navn) : '') + '" placeholder="fx Efterår 🍂"></div>' +
+      '<div class="field"><label>Baggrundsbillede-URL (valgfri)</label><input id="tf-bgimage" value="' + (existing ? Scaffold.escAttr(existing.bgImage || '') : '') + '" placeholder="https://..."></div>' +
+      '<label>Farver (kun de du markerer bliver ændret — resten beholder sitets normale udseende)</label>' +
+      '<div class="row" style="flex-wrap:wrap">' +
+      THEME_CSS_FIELDS.map(function(f){
+        var savedVal = existing ? toHexColor((existing.cssVars || {})[f.key]) : '';
+        var checked = !!savedVal;
+        var fid = f.key.replace('--','');
+        return '<div class="field" style="flex:0 0 150px">' +
+          '<label style="display:flex;align-items:center;gap:5px;font-size:0.78rem"><input type="checkbox" id="tf-use-' + fid + '"' + (checked ? ' checked' : '') + ' onchange="document.getElementById(\'tf-color-' + fid + '\').disabled=!this.checked">' + h(f.label) + '</label>' +
+          '<input type="color" id="tf-color-' + fid + '" value="' + (savedVal || f.siteDefault) + '"' + (checked ? '' : ' disabled') + '></div>';
+      }).join('') +
+      '</div>' +
+      '<div class="field"><label>Partikel-effekt — ét emoji der falder ned over siden (valgfri, fx ❄️ 🍂 🍁 ❤️ ⭐)</label><input id="tf-particle" value="' + (existing ? Scaffold.escAttr(existing.particle || '') : '') + '" maxlength="4" style="max-width:100px"></div>' +
+      '<label>Medaljeikoner (bronze / sølv / guld)</label>' +
+      '<div class="row">' +
+      [1,2,3].map(function(l){
+        return '<input id="tf-medal-' + l + '" value="' + (existing ? Scaffold.escAttr(existing.medaljer[l]) : '') + '" maxlength="4" style="max-width:70px;text-align:center;font-size:1.3rem">';
+      }).join('') +
+      '</div>' +
+      '<div class="form-actions"><button class="btn-primary" onclick="ScaffoldUI.submitTheme()">' + (existing ? 'Gem' : 'Opret tema') + '</button>' +
+      '<button class="btn-cancel" onclick="ScaffoldUI.renderTemaTab()">Annullér</button></div></div>');
+  };
+  ScaffoldUI.submitTheme = function(){
+    var idEl = document.getElementById('tf-id');
+    var navn = document.getElementById('tf-navn').value.trim();
+    if (!navn){ alert('Udfyld et navn.'); return; }
+    var bgImage = document.getElementById('tf-bgimage').value.trim();
+    var particle = document.getElementById('tf-particle').value.trim();
+    var cssVars = {};
+    THEME_CSS_FIELDS.forEach(function(f){
+      var fid = f.key.replace('--','');
+      var useEl = document.getElementById('tf-use-' + fid);
+      var colorEl = document.getElementById('tf-color-' + fid);
+      if (useEl && useEl.checked && colorEl && colorEl.value) cssVars[f.key] = colorEl.value;
+    });
+    var medaljer = {};
+    [1,2,3].forEach(function(l){
+      var v = document.getElementById('tf-medal-' + l).value.trim();
+      medaljer[l] = v || Scaffold.SITE_THEMES.standard.medaljer[l];
+    });
+
+    var custom = Scaffold.currentCustomThemes(jsText);
+    var themeId = idEl ? idEl.value : 'custom_' + Date.now();
+    custom[themeId] = { navn: navn, bgImage: bgImage, particle: particle, cssVars: cssVars, medaljer: medaljer };
+
+    var applyNow = Scaffold.currentThemeId(jsText) === themeId;
+    jsText = Scaffold.applyTheme(doc, jsText, applyNow ? themeId : Scaffold.currentThemeId(jsText), custom);
+    log(idEl ? 'edit' : 'add', (idEl ? 'Redigerede' : 'Oprettede') + ' tema "' + navn + '"');
+    renderTemaTab();
+  };
+
   function h(str){ return Scaffold.escHtml(str); }
 
   // Produces a single-quoted JS string literal, safe to embed inside a
@@ -2422,6 +2713,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     else if (currentTab === 'materiale') renderMaterialeTab();
     else if (currentTab === 'quiz') renderQuizTab();
     else if (currentTab === 'opgaver') renderOpgaverTab();
+    else if (currentTab === 'tema') renderTemaTab();
   }
 
   // ---------------- shared: emne picker ----------------
@@ -2580,6 +2872,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
           (e.desc ? '<div class="meta">' + h(e.desc) + '</div>' : '') +
           '<div class="meta">' + (e.hasFullPage ? 'Fuld side' : 'Stub — "Indhold tilføjes snart"') + '</div></div>' +
           '<div class="actions"><button class="btn-sm" onclick="ScaffoldUI.editEmne(' + attrArg(nr) + ')">Redigér</button>' +
+          '<button class="btn-sm" onclick="ScaffoldUI.showMoveEmneForm(' + attrArg(nr) + ')">Flyt</button>' +
           '<button class="btn-sm danger" onclick="ScaffoldUI.deleteEmne(' + attrArg(nr) + ',' + attrArg(kapState.forloebId) + ',' + attrArg(k.titel) + ')">Slet</button></div></div></div>';
       });
       html += '<button class="btn-add" onclick="ScaffoldUI.showNewEmneForm(' + attrArg(kapState.forloebId) + ',' + attrArg(k.titel) + ')">+ Tilføj emne i dette kapitel</button></div>';
@@ -2682,6 +2975,44 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     if (!navn){ alert('Udfyld navn.'); return; }
     Scaffold.editEmne(doc, nr, navn, desc);
     log('edit', 'Redigerede emne ' + nr);
+    renderKapitlerTab();
+  };
+  function moveKapitelOptionsHtml(forloebId){
+    var s = site();
+    var kaps = s.kapitler.filter(function(k){ return k.forloebId === forloebId; });
+    if (!kaps.length) return '<option value="">(ingen kapitler i dette forløb endnu)</option>';
+    return kaps.map(function(k){ return '<option value="' + Scaffold.escAttr(k.titel) + '">' + h(k.titel) + '</option>'; }).join('');
+  }
+  // Moves an emne (and everything under it — materiale, tjekspørgsmål,
+  // opgaver) to a different kapitel, optionally in a different forløb.
+  // Nothing about the emne's own content changes — only which kapitel it's
+  // grouped under, and its "← tilbage" link if the forløb changed too.
+  ScaffoldUI.showMoveEmneForm = function(nr){
+    var s = site();
+    var e = s.emner[nr];
+    if (!e) return;
+    var aktive = s.forloeb.filter(function(f){ return f.aktiv; });
+    showInlineForm(
+      '<div class="form-box"><h3>Flyt emne ' + h(nr) + ' — ' + h(e.navn) + '</h3>' +
+      '<div class="field"><label>Nyt forløb</label><select id="me-forloeb" onchange="ScaffoldUI.updateMoveKapitelOptions()">' +
+        aktive.map(function(f){ return '<option value="' + f.id + '"' + (f.id === e.forloebId ? ' selected' : '') + '>' + h(f.nr + ' – ' + f.titel) + '</option>'; }).join('') +
+      '</select></div>' +
+      '<div class="field"><label>Nyt kapitel</label><select id="me-kapitel">' + moveKapitelOptionsHtml(e.forloebId) + '</select></div>' +
+      '<p><small>Materiale, tjekspørgsmål og opgaver følger med uændret — kun placeringen flyttes.</small></p>' +
+      '<div class="form-actions"><button class="btn-primary" onclick="ScaffoldUI.submitMoveEmne(' + attrArg(nr) + ')">Flyt</button>' +
+      '<button class="btn-cancel" onclick="ScaffoldUI.renderKapitlerTab()">Annullér</button></div></div>');
+  };
+  ScaffoldUI.updateMoveKapitelOptions = function(){
+    var forloebId = document.getElementById('me-forloeb').value;
+    document.getElementById('me-kapitel').innerHTML = moveKapitelOptionsHtml(forloebId);
+  };
+  ScaffoldUI.submitMoveEmne = function(nr){
+    var forloebId = document.getElementById('me-forloeb').value;
+    var kapitelTitel = document.getElementById('me-kapitel').value;
+    if (!kapitelTitel){ alert('Vælg et kapitel (opret evt. et nyt kapitel i målforløbet først).'); return; }
+    Scaffold.moveEmne(doc, nr, forloebId, kapitelTitel);
+    log('edit', 'Flyttede emne ' + nr + ' til "' + kapitelTitel + '"');
+    kapState.forloebId = forloebId;
     renderKapitlerTab();
   };
   ScaffoldUI.deleteEmne = function(nr, forloebId, kapitelTitel){

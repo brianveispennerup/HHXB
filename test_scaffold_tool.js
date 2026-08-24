@@ -973,6 +973,170 @@ async function runReopenEditAndQuizDeleteTests(){
   test('quiz311Total blev dekrementeret korrekt i JS', /quiz311Total\s*=\s*2/.test(quizResult.html));
 }
 
+async function runMoveEmneTests(){
+  section('Flyt emne: mellem kapitler i samme forløb, og på tværs af forløb — indhold skal overleve');
+  const w = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D = w.document;
+  const Scaffold = w.Scaffold;
+  const doc = w.ScaffoldUI.__debugDoc();
+
+  Scaffold.addMateriale(doc, '2.1.3', 'Lærebog', 'Flyt-test-materiale', 'https://example.com/x');
+  let site1 = Scaffold.parseSite(doc);
+  const originalKapitel = site1.kapitler.find(k => k.emner.includes('2.1.3')).titel;
+
+  w.ScaffoldUI.renderKapitlerTab();
+  D.getElementById('kap-forloeb-select').value = 'f2'; chg(D.getElementById('kap-forloeb-select'));
+  test('"Flyt"-knap findes på emne-kortet', Array.from(D.querySelectorAll('.btn-sm')).some(b => b.textContent === 'Flyt'));
+
+  w.ScaffoldUI.showMoveEmneForm('2.1.3');
+  test('Flyt-formular viser forløb-vælger', !!D.getElementById('me-forloeb'));
+  test('Flyt-formular viser kapitel-vælger', !!D.getElementById('me-kapitel'));
+
+  const kapOptions = Array.from(D.getElementById('me-kapitel').options).map(o => o.value);
+  const sameFloebTarget = kapOptions.find(k => k !== originalKapitel);
+  D.getElementById('me-kapitel').value = sameFloebTarget;
+  w.ScaffoldUI.submitMoveEmne('2.1.3');
+
+  let site2 = Scaffold.parseSite(doc);
+  test('Emnet er flyttet til det valgte kapitel (samme forløb)',
+    site2.kapitler.find(k => k.emner.includes('2.1.3')).titel === sameFloebTarget);
+  test('Emnet er væk fra det oprindelige kapitel',
+    !site2.kapitler.find(k => k.titel === originalKapitel).emner.includes('2.1.3'));
+  test('Materiale-indhold overlevede flytning inden for samme forløb',
+    site2.emner['2.1.3'].materiale.some(m => m.titel === 'Flyt-test-materiale'));
+
+  // Cross-forløb move, exercising the dynamic kapitel-picker refresh.
+  w.ScaffoldUI.showMoveEmneForm('2.1.3');
+  D.getElementById('me-forloeb').value = 'f1';
+  w.ScaffoldUI.updateMoveKapitelOptions();
+  const f1Options = Array.from(D.getElementById('me-kapitel').options).map(o => o.value);
+  test('Kapitel-liste opdateres dynamisk til det nye forløbs kapitler', f1Options.length > 0 && f1Options.indexOf(sameFloebTarget) === -1);
+  D.getElementById('me-kapitel').value = f1Options[0];
+  w.ScaffoldUI.submitMoveEmne('2.1.3');
+
+  let site3 = Scaffold.parseSite(doc);
+  test('Emnet er nu under det nye forløb (F1)', site3.emner['2.1.3'].forloebId === 'f1');
+  const backOnclick = doc.getElementById('page-2-1-3').querySelector('.back-link').getAttribute('onclick');
+  test('Tilbage-link peger nu på det nye forløb', backOnclick.indexOf("'f1'") !== -1);
+  test('Materiale-indhold overlevede FLYTNING PÅ TVÆRS AF FORLØB',
+    site3.emner['2.1.3'].materiale.some(m => m.titel === 'Flyt-test-materiale'));
+
+  const result = w.ScaffoldUI.__debugGenerate();
+  test('Ingen valideringsproblemer efter flere flytninger', result.newProblems.length === 0, JSON.stringify(result.newProblems));
+}
+
+async function runThemeTests(){
+  section('Tema: partikel-effekt + medalje-emojis — rent visuelt, fuldt reversibelt, rører aldrig indhold');
+  const w = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D = w.document;
+  const Scaffold = w.Scaffold;
+
+  w.ScaffoldUI.renderTemaTab();
+  test('Standard vises som aktivt tema ved start', D.getElementById('content').textContent.includes('Aktivt'));
+  test('Jul-temaet er valgbart', Array.from(D.querySelectorAll('.btn-sm')).some(b => b.textContent.includes('Brug dette tema')));
+
+  w.ScaffoldUI.applyTheme('jul');
+  test('Jul-fanen viser nu Jul som aktivt', D.getElementById('content').textContent.includes('Jul'));
+
+  const result = w.ScaffoldUI.__debugGenerate();
+  test('Anvendelse af tema giver 0 valideringsproblemer', result.newProblems.length === 0, JSON.stringify(result.newProblems));
+  test('Partikel-effekt-modul injiceret', /function initThemeParticles/.test(result.html));
+  test('Partikel-CSS injiceret i head', /\.theme-particle-overlay/.test(result.html));
+  test('Medalje-emoji-override tilføjet i tema-blokken', result.html.includes('SCAFFOLD-THEME-JS-START') && /var medaljer = \{"1":"🎄","2":"⭐","3":"🎁"\}|var medaljer = \{"1":"🎄"/.test(result.html));
+  test('closeMedal-rettelsen fra tidligere er stadig anvendt (temaet fortrænger den ikke)',
+    result.html.match(/function closeMedal\(\)[\s\S]*?\n\}/)[0].includes('back-link'));
+
+  // Runtime: the particle overlay must actually render and be non-interactive.
+  const dom2 = new JSDOM(result.html, { runScripts: 'dangerously', resources: 'usable', url: 'http://localhost/' });
+  const w2 = dom2.window;
+  w2.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',canvas:{width:280,height:280}});
+  w2.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+  await new Promise(r => setTimeout(r, 100));
+  const D2 = w2.document;
+  test('SITE_THEME-variabel korrekt sat i den genererede side', w2.SITE_THEME === 'jul');
+  test('Partikel-overlay faktisk indsat ved sideindlæsning', !!D2.querySelector('.theme-particle-overlay'));
+  test('Partikler faktisk genereret', D2.querySelectorAll('.theme-particle').length > 0);
+  test('showMedal() bruger det skiftede emoji ved runtime (via override, ikke in-place ændring)', (() => {
+    const overlay = D2.getElementById('medal-overlay');
+    if (!overlay) return false;
+    w2.showMedal(1);
+    return D2.getElementById('medal-emoji').textContent === Scaffold.SITE_THEMES.jul.medaljer[1];
+  })());
+
+  // Switching back to standard must be fully reversible.
+  w.ScaffoldUI.applyTheme('standard');
+  const result2 = w.ScaffoldUI.__debugGenerate();
+  test('Tilbageskift til Standard giver 0 valideringsproblemer', result2.newProblems.length === 0, JSON.stringify(result2.newProblems));
+  test('Partikel-effekt-modul fjernet igen', !/function initThemeParticles/.test(result2.html));
+  test('Partikel-CSS fjernet igen', !/\.theme-particle-overlay/.test(result2.html));
+  test('Medalje-emojis gendannet til standard', /var medaljer = \{"1":"🥉","2":"🥈","3":"🥇"\}/.test(result2.html));
+
+  section('Tema: brugerens eget tema — opret, anvend, overlever genåbning, redigér, slet');
+  w.ScaffoldUI.renderTemaTab();
+  w.ScaffoldUI.showEditThemeForm();
+  test('"Lav dit eget tema"-formular viser alle forventede felter',
+    !!D.getElementById('tf-navn') && !!D.getElementById('tf-bgimage') && !!D.getElementById('tf-color-bg') &&
+    !!D.getElementById('tf-color-surface') && !!D.getElementById('tf-color-accent') && !!D.getElementById('tf-particle') &&
+    !!D.getElementById('tf-medal-1') && !!D.getElementById('tf-medal-2') && !!D.getElementById('tf-medal-3'));
+
+  D.getElementById('tf-navn').value = 'Sommer 🌻';
+  D.getElementById('tf-bgimage').value = 'https://example.com/summer.jpg';
+  D.getElementById('tf-use-bg').checked = true;
+  D.getElementById('tf-color-bg').value = '#fef9c3';
+  D.getElementById('tf-use-accent').checked = true;
+  D.getElementById('tf-color-accent').value = '#ca8a04';
+  D.getElementById('tf-particle').value = '🌻';
+  D.getElementById('tf-medal-1').value = '🌱';
+  D.getElementById('tf-medal-2').value = '🌼';
+  D.getElementById('tf-medal-3').value = '🌻';
+  w.ScaffoldUI.submitTheme();
+
+  const createResult = w.ScaffoldUI.__debugGenerate();
+  test('Oprettelse af eget tema giver 0 valideringsproblemer', createResult.newProblems.length === 0, JSON.stringify(createResult.newProblems));
+
+  w.ScaffoldUI.renderTemaTab();
+  const sommerCard = Array.from(D.querySelectorAll('.card')).find(c => c.textContent.includes('Sommer'));
+  const applyBtn = sommerCard ? Array.from(sommerCard.querySelectorAll('.btn-sm')).find(b => b.textContent === 'Brug dette tema') : null;
+  test('Kan vælge det nyoprettede tema', !!applyBtn);
+  applyBtn.click();
+  const appliedResult = w.ScaffoldUI.__debugGenerate();
+  test('Anvendelse af eget tema giver 0 valideringsproblemer', appliedResult.newProblems.length === 0, JSON.stringify(appliedResult.newProblems));
+  test('Baggrundsbillede sat i CSS', appliedResult.html.includes('summer.jpg'));
+  test('Egen farve sat som CSS-variabel', appliedResult.html.includes('--accent:#ca8a04'));
+
+  // Persistence: reopening the FILE (not the tool session) must still show the custom theme.
+  const w3 = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w3.confirm = () => true;
+  const D3 = w3.document;
+  w3.ScaffoldUI.__debugInit(appliedResult.html, 'Index.html');
+  w3.ScaffoldUI.renderTemaTab();
+  test('Eget tema er stadig der efter genåbning af filen', D3.getElementById('content').textContent.includes('Sommer'));
+  test('Eget tema vises som aktivt efter genåbning', D3.getElementById('content').textContent.includes('Aktivt') && D3.getElementById('content').textContent.includes('Sommer'));
+
+  const editBtn = Array.from(D3.querySelectorAll('.btn-sm')).find(b => b.textContent === 'Redigér');
+  test('Redigér-knap findes for eget tema', !!editBtn);
+  editBtn.click();
+  test('Redigeringsformular forudfyldt med eksisterende navn', D3.getElementById('tf-navn').value === 'Sommer 🌻');
+  D3.getElementById('tf-navn').value = 'Sommer (redigeret) 🌻';
+  w3.ScaffoldUI.submitTheme();
+  const editResult = w3.ScaffoldUI.__debugGenerate();
+  test('Redigering af eget tema giver 0 valideringsproblemer', editResult.newProblems.length === 0, JSON.stringify(editResult.newProblems));
+  test('Redigeret navn er gemt', editResult.html.includes('Sommer (redigeret)'));
+
+  w3.ScaffoldUI.renderTemaTab();
+  const delBtn = Array.from(D3.querySelectorAll('.btn-sm.danger')).find(b => b.textContent === 'Slet');
+  test('Slet-knap findes for eget tema', !!delBtn);
+  delBtn.click();
+  const deleteResult = w3.ScaffoldUI.__debugGenerate();
+  test('Sletning af eget tema giver 0 valideringsproblemer', deleteResult.newProblems.length === 0, JSON.stringify(deleteResult.newProblems));
+  test('Eget tema er væk og aktivt tema faldt tilbage til Standard', Scaffold.currentThemeId(deleteResult.html) === 'standard');
+}
+
 (async () => {
   const ctx = await run();
   await runGeneration(ctx);
@@ -983,6 +1147,8 @@ async function runReopenEditAndQuizDeleteTests(){
   await runTrashBinAndImageSuggestTests();
   await runPanelToggleAndTemplateTests();
   await runReopenEditAndQuizDeleteTests();
+  await runMoveEmneTests();
+  await runThemeTests();
 
   console.log('\n========================================');
   console.log('Resultat: ' + passed + '/' + (passed + failed) + ' tests bestået');
