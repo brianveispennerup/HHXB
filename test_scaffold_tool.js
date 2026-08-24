@@ -1137,6 +1137,222 @@ async function runThemeTests(){
   test('Eget tema er væk og aktivt tema faldt tilbage til Standard', Scaffold.currentThemeId(deleteResult.html) === 'standard');
 }
 
+async function runTabelColumnSyncTests(){
+  section('Tabel-opgave: kolonner tilføjet EFTER at rækker allerede har data må ikke miste/forskyde eksisterende værdier');
+  const w = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D = w.document;
+  function setLabel(id, val){ const el = D.getElementById(id); el.value = val; el.dispatchEvent(new w.Event('input')); }
+
+  w.ScaffoldUI.activateForloeb('F9', 'Tabeltest');
+  D.getElementById('af-titel').value = 'Tabeltest';
+  w.ScaffoldUI.submitActivateForloeb('F9');
+  w.ScaffoldUI.showNewKapitelForm('f9');
+  D.getElementById('nk-titel').value = 'K1';
+  w.ScaffoldUI.submitNewKapitel('f9');
+  w.ScaffoldUI.showNewEmneForm('f9', 'K1');
+  D.getElementById('ne-nr').value = '9.9.9'; D.getElementById('ne-navn').value = 'Test'; D.getElementById('ne-desc').value = '';
+  w.ScaffoldUI.submitNewEmne('f9', 'K1');
+
+  w.ScaffoldUI.renderOpgaverTab();
+  D.getElementById('opg-emne-select').value = '9.9.9'; chg(D.getElementById('opg-emne-select'));
+  w.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D.getElementById('ot-type').value = 'tabel';
+  w.ScaffoldUI.showOpgaveDetailForm('bronze', 'tabel');
+  D.getElementById('of-titel').value = 'Hyppighedstabel';
+  D.getElementById('of-instr').value = 'Færdiggør tabellen';
+
+  setLabel('ot-clabel-0', 'I');
+  D.getElementById('ot-ckey-0').value = 'I';
+  setLabel('ot-clabel-1', 'h(I)');
+  D.getElementById('ot-ctype-1').value = 'given';
+  D.getElementById('ot-ckey-1').value = 'h';
+
+  const rows = [['1','5'],['2','9'],['3','9'],['4','4'],['5','2']];
+  for (let r = 1; r < 5; r++) w.ScaffoldUI.addTabelRow();
+  D.querySelectorAll('#ot-rows .opt-row').forEach((rowEl, ri) => {
+    const inputs = rowEl.querySelectorAll('input');
+    inputs[0].value = rows[ri][0];
+    inputs[1].value = rows[ri][1];
+  });
+
+  // The exact bug scenario: add 3 MORE columns after all 5 rows already have data.
+  w.ScaffoldUI.addTabelCol();
+  test('En ny kolonnes celle vises i rækkerne med det samme — FØR man har skrevet et navn',
+    D.querySelectorAll('#ot-rows .opt-row')[0].querySelectorAll('input').length === 3);
+  w.ScaffoldUI.addTabelCol();
+  w.ScaffoldUI.addTabelCol();
+  const colIds = Array.from(D.querySelectorAll('#ot-cols .row')).map(r => r.id);
+  test('3 nye kolonner tilføjet (i alt 5)', colIds.length === 5);
+
+  setLabel('ot-clabel-' + colIds[2].replace('ot-col-',''), 'f(I)');
+  D.getElementById('ot-ctype-' + colIds[2].replace('ot-col-','')).value = 'input';
+  setLabel('ot-clabel-' + colIds[3].replace('ot-col-',''), 'H(x)');
+  D.getElementById('ot-ctype-' + colIds[3].replace('ot-col-','')).value = 'input';
+  setLabel('ot-clabel-' + colIds[4].replace('ot-col-',''), 'F(x)');
+  D.getElementById('ot-ctype-' + colIds[4].replace('ot-col-','')).value = 'input';
+
+  const rowsAfter = D.querySelectorAll('#ot-rows .opt-row');
+  test('Stadig 5 rækker efter kolonnetilføjelse', rowsAfter.length === 5);
+  const firstRowInputs = rowsAfter[0].querySelectorAll('input');
+  test('Hver række har nu 5 celler (var 2)', firstRowInputs.length === 5);
+  test('Eksisterende I-værdi overlevede kolonnetilføjelsen', firstRowInputs[0].value === '1');
+  test('Eksisterende h(I)-værdi overlevede kolonnetilføjelsen', firstRowInputs[1].value === '5');
+  test('De 3 nye celler er tomme og klar til udfyldning', firstRowInputs[2].value === '' && firstRowInputs[3].value === '' && firstRowInputs[4].value === '');
+
+  const fVals = ['5','9','9','4','2'], HVals = ['5','14','23','27','29'], FVals = ['17.2','48.3','79.3','93.1','100'];
+  rowsAfter.forEach((rowEl, ri) => {
+    const inputs = rowEl.querySelectorAll('input');
+    inputs[2].value = fVals[ri]; inputs[3].value = HVals[ri]; inputs[4].value = FVals[ri];
+  });
+  w.ScaffoldUI.submitTabel('bronze');
+  const result = w.ScaffoldUI.__debugGenerate();
+  test('Ingen valideringsproblemer efter kolonne-synkroniseret tabel', result.newProblems.length === 0, JSON.stringify(result.newProblems));
+
+  // Runtime: the 5-column table must actually check correctly for a student.
+  const dom2 = new JSDOM(result.html, { runScripts: 'dangerously', resources: 'usable', url: 'http://localhost/' });
+  const w2 = dom2.window, D2 = w2.document;
+  w2.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',canvas:{width:280,height:280}});
+  w2.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+  await new Promise(r => setTimeout(r, 30));
+  w2.updateEnergy999(20);
+  w2.startOpgaver999();
+  await new Promise(r => setTimeout(r, 30));
+  const tableInputs = D2.querySelectorAll('#opg999-low table input');
+  test('5-kolonne tabel viser 15 udfyldningsfelter til eleven (5 rækker × 3 input-kolonner)', tableInputs.length === 15);
+  tableInputs.forEach((inp, i) => { inp.value = [fVals, HVals, FVals][i % 3][Math.floor(i / 3)]; });
+  w2.checkBronze999();
+  test('Korrekt udfyldt 5-kolonne tabel giver Rigtigt!', D2.getElementById('ow-r-999-low').textContent === 'Rigtigt!');
+
+  section('Tabel-opgave: fjernelse af en kolonne må ikke forskyde de andre rækkers celler');
+  w.ScaffoldUI.showOpgaveTypeForm('solv');
+  D.getElementById('ot-type').value = 'tabel';
+  w.ScaffoldUI.showOpgaveDetailForm('solv', 'tabel');
+  setLabel('ot-clabel-0', 'x');
+  D.getElementById('ot-ckey-0').value = 'x';
+  setLabel('ot-clabel-1', 'y');
+  D.getElementById('ot-ctype-1').value = 'input';
+  D.getElementById('ot-ckey-1').value = 'y';
+  w.ScaffoldUI.addTabelCol();
+  const thirdColId = D.querySelectorAll('#ot-cols .row')[2].id;
+  setLabel('ot-clabel-' + thirdColId.replace('ot-col-',''), 'z');
+  D.getElementById('ot-ctype-' + thirdColId.replace('ot-col-','')).value = 'input';
+
+  const rowEl = D.querySelector('#ot-rows .opt-row');
+  let cells = rowEl.querySelectorAll('input');
+  cells[0].value = '1'; cells[1].value = '2'; cells[2].value = '3';
+
+  // Delete the TRUE middle column (y, at DOM position 1) — x and z's
+  // values must stay correctly attached to their own columns afterwards.
+  const middleColId = D.querySelectorAll('#ot-cols .row')[1].id;
+  D.getElementById(middleColId).remove();
+  w.ScaffoldUI.reflowTabelRows();
+
+  cells = D.querySelector('#ot-rows .opt-row').querySelectorAll('input');
+  test('Efter sletning af midterste kolonne: kun 2 celler tilbage', cells.length === 2);
+  test('x-værdien blev på sin plads', cells[0].value === '1');
+  test('z-værdien (ikke y) er den der er tilbage som 2. celle', cells[1].value === '3');
+}
+
+async function runTabelGivenTextAndMultiInputReopenTests(){
+  section('Tabel-opgave: "Givet"-kolonner må indeholde fri tekst (fx intervalnotation), ikke kun tal');
+  const w = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D = w.document;
+  const Scaffold = w.Scaffold;
+  function setLabel(id, val){ const el = D.getElementById(id); el.value = val; el.dispatchEvent(new w.Event('input')); }
+
+  w.ScaffoldUI.activateForloeb('F9', 'Test');
+  D.getElementById('af-titel').value = 'Test';
+  w.ScaffoldUI.submitActivateForloeb('F9');
+  w.ScaffoldUI.showNewKapitelForm('f9');
+  D.getElementById('nk-titel').value = 'K1';
+  w.ScaffoldUI.submitNewKapitel('f9');
+  w.ScaffoldUI.showNewEmneForm('f9', 'K1');
+  D.getElementById('ne-nr').value = '9.9.9'; D.getElementById('ne-navn').value = 'Test'; D.getElementById('ne-desc').value = '';
+  w.ScaffoldUI.submitNewEmne('f9', 'K1');
+  w.ScaffoldUI.renderOpgaverTab();
+  D.getElementById('opg-emne-select').value = '9.9.9'; chg(D.getElementById('opg-emne-select'));
+  w.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D.getElementById('ot-type').value = 'tabel';
+  w.ScaffoldUI.showOpgaveDetailForm('bronze', 'tabel');
+  D.getElementById('of-titel').value = 'Hyppighedstabel med intervaller';
+  D.getElementById('of-instr').value = 'Færdiggør tabellen';
+
+  setLabel('ot-clabel-0', 'I');
+  D.getElementById('ot-ckey-0').value = 'I';
+  setLabel('ot-clabel-1', 'h(I)');
+  D.getElementById('ot-ctype-1').value = 'given';
+  D.getElementById('ot-ckey-1').value = 'h';
+  w.ScaffoldUI.addTabelCol();
+  w.ScaffoldUI.addTabelCol();
+  w.ScaffoldUI.addTabelCol();
+  const colIds = Array.from(D.querySelectorAll('#ot-cols .row')).map(r => r.id);
+  setLabel('ot-clabel-' + colIds[2].replace('ot-col-',''), 'f(I)');
+  D.getElementById('ot-ctype-' + colIds[2].replace('ot-col-','')).value = 'input';
+  setLabel('ot-clabel-' + colIds[3].replace('ot-col-',''), 'H(x)');
+  D.getElementById('ot-ctype-' + colIds[3].replace('ot-col-','')).value = 'input';
+  setLabel('ot-clabel-' + colIds[4].replace('ot-col-',''), 'F(x)');
+  D.getElementById('ot-ctype-' + colIds[4].replace('ot-col-','')).value = 'input';
+  w.ScaffoldUI.addTabelRow();
+  w.ScaffoldUI.addTabelRow();
+
+  const rows = [
+    [']0;1]', '3', '0,3', '3', '0,3'],
+    [']1;2]', '2', '0,2', '5', '0,5'],
+    [']2;3]', '5', '0,5', '10', '1']
+  ];
+  D.querySelectorAll('#ot-rows .opt-row').forEach((rowEl, ri) => {
+    const inputs = rowEl.querySelectorAll('input');
+    rows[ri].forEach((v, ci) => { inputs[ci].value = v; });
+  });
+  w.ScaffoldUI.submitTabel('bronze');
+  const result = w.ScaffoldUI.__debugGenerate();
+  test('Tabel med intervalnotation i "Givet"-kolonne gemmes uden fejl (ingen falsk "udfyld numerisk"-advarsel)',
+    result.newProblems.length === 0, JSON.stringify(result.newProblems));
+
+  const site = Scaffold.parseSite(w.ScaffoldUI.__debugDoc());
+  const item = site.emner['9.9.9'];
+  test('Emnet med intervaltabellen findes efter gemning', !!item);
+
+  // Runtime: interval text must render to the student, numeric input cols must still check correctly.
+  const dom2 = new JSDOM(result.html, { runScripts: 'dangerously', resources: 'usable', url: 'http://localhost/' });
+  const w2 = dom2.window, D2 = w2.document;
+  w2.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',canvas:{width:280,height:280}});
+  w2.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+  await new Promise(r => setTimeout(r, 30));
+  w2.updateEnergy999(20);
+  w2.startOpgaver999();
+  await new Promise(r => setTimeout(r, 30));
+  const table = D2.querySelector('#opg999-low table');
+  const givenTexts = Array.from(table.querySelectorAll('tr:not(:first-child) td:first-child')).map(td => td.textContent);
+  test('Intervaltekst vises korrekt til eleven i alle 3 rækker', JSON.stringify(givenTexts) === JSON.stringify([']0;1]', ']1;2]', ']2;3]']));
+
+  const inputs = table.querySelectorAll('input');
+  const fVals = ['0.3','0.2','0.5'], HVals = ['3','5','10'], FVals = ['0.3','0.5','1'];
+  for (let r = 0; r < 3; r++) { inputs[r*3].value = fVals[r]; inputs[r*3+1].value = HVals[r]; inputs[r*3+2].value = FVals[r]; }
+  w2.checkBronze999();
+  test('Korrekt udfyldte numeriske celler giver stadig Rigtigt! (intervaltekst forstyrrer ikke tjekket)',
+    D2.getElementById('ow-r-999-low').textContent === 'Rigtigt!');
+
+  section('Tabel-opgave: genåbning skal finde det RIGTIGE facit for hver af flere "Udfyldes"-kolonner');
+  const w3 = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w3.ScaffoldUI.__debugInit(result.html, 'Index.html');
+  const D3 = w3.document;
+  w3.ScaffoldUI.renderOpgaverTab();
+  D3.getElementById('opg-emne-select').value = '9.9.9'; chg(D3.getElementById('opg-emne-select'));
+  const editBtn = Array.from(D3.querySelectorAll('.btn-sm')).find(b => b.textContent === 'Redigér');
+  editBtn.click();
+  const reopenedFirstRow = Array.from(D3.querySelectorAll('#ot-rows .opt-row')[0].querySelectorAll('input')).map(i => i.value);
+  test('Genåbnet tabel: alle 3 "Udfyldes"-kolonners facit er korrekte (ikke kun den første)',
+    reopenedFirstRow[2] === '0.3' && reopenedFirstRow[3] === '3' && reopenedFirstRow[4] === '0.3',
+    JSON.stringify(reopenedFirstRow));
+  test('Genåbnet tabel: intervaltekst i "Givet"-kolonnen overlevede uændret', reopenedFirstRow[0] === ']0;1]');
+}
+
 (async () => {
   const ctx = await run();
   await runGeneration(ctx);
@@ -1149,6 +1365,8 @@ async function runThemeTests(){
   await runReopenEditAndQuizDeleteTests();
   await runMoveEmneTests();
   await runThemeTests();
+  await runTabelColumnSyncTests();
+  await runTabelGivenTextAndMultiInputReopenTests();
 
   console.log('\n========================================');
   console.log('Resultat: ' + passed + '/' + (passed + failed) + ' tests bestået');

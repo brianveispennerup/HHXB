@@ -1546,24 +1546,27 @@ function parseTabelItem(itemEl, table, idBase, titel, instruktion, billede, fnBo
     Array.prototype.forEach.call(tr.querySelectorAll('td'), function(td, ci){
       var k = kolonner[ci];
       if (k.type === 'given'){
-        row.push(parseFloat(td.textContent.replace(',', '.')));
+        // Free text, not necessarily a number — e.g. interval notation
+        // like "]0;1]" — so keep it exactly as shown, never parseFloat it.
+        row.push(td.textContent);
       } else {
         var inp = td.querySelector('input');
         var id = inp ? inp.id.replace('ow-', '') : '';
-        var re = new RegExp('\\[[^\\]]*[\'"]' + escRe(id) + '[\'"][^\\]]*\\]\\s*,\\s*\\[([^\\]]*)\\]');
-        var m = re.exec(fnBody);
         var val = NaN;
-        if (m){
-          var ids = fnBody.match(new RegExp('checkNumericTableGroup\\(\\[([^\\]]*)\\]'));
-          // Find this id's positional index among the group's id list to pick the matching answer.
-          var callMatch = fnBody.match(new RegExp('checkNumericTableGroup\\(\\[([^\\]]*)\\]\\s*,\\s*\\[([^\\]]*)\\]\\s*,\\s*([\\d.]+)'));
-          if (callMatch){
-            var idList = callMatch[1].split(',').map(function(s){ return s.trim().replace(/^['"]|['"]$/g, ''); });
-            var ansList = callMatch[2].split(',').map(function(s){ return parseFloat(s.trim()); });
-            var pos = idList.indexOf(id);
-            if (pos !== -1) val = ansList[pos];
-            var tol = parseFloat(callMatch[3]);
-            if (kolonner[ci]) kolonner[ci].tolerance = tol;
+        // A table can have several checkNumericTableGroup(...) calls — one
+        // per input column — so we must find the SPECIFIC call whose id
+        // list actually contains this column's id, not just the first
+        // occurrence in the function body.
+        var groupRe = /checkNumericTableGroup\(\[([^\]]*)\]\s*,\s*\[([^\]]*)\]\s*,\s*([\d.]+)/g;
+        var gm;
+        while ((gm = groupRe.exec(fnBody))){
+          var idList = gm[1].split(',').map(function(s){ return s.trim().replace(/^['"]|['"]$/g, ''); });
+          var pos = idList.indexOf(id);
+          if (pos !== -1){
+            var ansList = gm[2].split(',').map(function(s){ return parseFloat(s.trim()); });
+            val = ansList[pos];
+            if (kolonner[ci]) kolonner[ci].tolerance = parseFloat(gm[3]);
+            break;
           }
         }
         row.push(val);
@@ -3770,6 +3773,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     var kolonner = (existing && existing.kolonner) || [{label:'x', type:'given', key:'x'}, {label:'h(x)', type:'input', key:'h', tolerance:0.05}];
     var raekker = (existing && existing.raekker) || [['','']];
     otColCount = kolonner.length; otRowCount = raekker.length;
+    var kolonnerWithIds = kolonner.map(function(k, ci){ return { label: k.label, colId: 'ot-col-' + ci }; });
     return '<div class="form-box"><h3>' + NIVEAU_META[n].label + ' — Tabel-udfyldning</h3>' +
       '<div class="field"><label>Titel</label><input id="of-titel" value="' + (existing ? Scaffold.escAttr(existing.titel) : '') + '"></div>' +
       '<div class="field"><label>Instruktion</label><textarea id="of-instr">' + (existing ? h(existing.instruktion || '') : '') + '</textarea></div>' +
@@ -3778,44 +3782,83 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
       '<label>Kolonner</label><div id="ot-cols">' + kolonner.map(function(k,i){ return tabelColRow(i, k); }).join('') + '</div>' +
       '<button type="button" class="btn-sm" style="margin:6px 0" onclick="ScaffoldUI.addTabelCol()">+ Kolonne</button>' +
       '<label style="margin-top:10px;display:block">Rækker (udfyld alle celler — "Givet"-kolonner vises til eleven, "Udfyldes"-kolonner er facit for de tomme felter)</label>' +
-      '<div id="ot-rows">' + raekker.map(function(row,i){ return tabelRowRow(i, row, kolonner); }).join('') + '</div>' +
+      '<div id="ot-rows">' + raekker.map(function(row,i){ return tabelRowRow(i, row, kolonnerWithIds); }).join('') + '</div>' +
       '<button type="button" class="btn-sm" style="margin:6px 0" onclick="ScaffoldUI.addTabelRow()">+ Række</button>' +
       '<div class="form-actions"><button class="btn-primary" onclick="ScaffoldUI.submitTabel(' + attrArg(n) + (idx !== undefined ? ',' + idx : '') + ')">' + (existing ? 'Gem' : 'Tilføj') + '</button>' +
       '<button class="btn-cancel" onclick="ScaffoldUI.renderOpgaverTab()">Annullér</button></div></div>';
   }
   function tabelColRow(i, k){
     return '<div class="row" id="ot-col-' + i + '" style="margin-bottom:6px;align-items:center">' +
-      '<div class="field"><input id="ot-clabel-' + i + '" placeholder="Kolonnenavn (fx h(x))" value="' + Scaffold.escAttr(k.label || '') + '"></div>' +
+      '<div class="field"><input id="ot-clabel-' + i + '" placeholder="Kolonnenavn (fx h(x))" value="' + Scaffold.escAttr(k.label || '') + '" oninput="ScaffoldUI.reflowTabelRows()"></div>' +
       '<div class="field" style="flex:0 0 110px"><select id="ot-ctype-' + i + '"><option value="given"' + (k.type==='given'?' selected':'') + '>Givet</option><option value="input"' + (k.type==='input'?' selected':'') + '>Udfyldes</option></select></div>' +
       '<div class="field" style="flex:0 0 60px"><input id="ot-ckey-' + i + '" placeholder="nøgle" value="' + Scaffold.escAttr(k.key || '') + '" maxlength="3"></div>' +
-      '<button type="button" class="btn-sm danger" onclick="document.getElementById(\'ot-col-' + i + '\').remove()">✕</button></div>';
+      '<button type="button" class="btn-sm danger" onclick="document.getElementById(\'ot-col-' + i + '\').remove(); ScaffoldUI.reflowTabelRows();">✕</button></div>';
   }
   ScaffoldUI.addTabelCol = function(){
     otColCount++;
     var letters = 'xyzabcdefgh';
     document.getElementById('ot-cols').insertAdjacentHTML('beforeend', tabelColRow('n' + otColCount, { key: letters[otColCount % letters.length] }));
+    reflowTabelRows();
   };
-  function tabelRowRow(i, row, kolonner){
-    return '<div class="opt-row" id="ot-row-' + i + '">' +
-      kolonner.map(function(k, ci){ return '<input id="ot-cell-' + i + '-' + ci + '" style="width:64px" placeholder="' + Scaffold.escAttr(k.label||'') + '" value="' + Scaffold.escAttr(row[ci] !== undefined ? String(row[ci]) : '') + '">'; }).join('') +
-      '<button type="button" class="btn-sm danger" onclick="document.getElementById(\'ot-row-' + i + '\').remove()">✕</button></div>';
-  }
-  ScaffoldUI.addTabelRow = function(){
-    otRowCount++;
-    var kolonner = collectTabelCols();
-    document.getElementById('ot-rows').insertAdjacentHTML('beforeend', tabelRowRow('n' + otRowCount, [], kolonner));
-  };
-  function collectTabelCols(){
+  // Every column row's own DOM id (e.g. ot-col-0, ot-col-n3) is a stable
+  // identity that never changes for as long as that column exists — unlike
+  // its label/type/key, which the admin can freely edit. Row cells carry a
+  // matching data-colid, so reflow always finds the right value regardless
+  // of what's been renamed, added, removed, or reordered since.
+  // Used for display/reflow — includes EVERY column row, even ones the
+  // admin hasn't named yet, so a freshly-added column's cell shows up in
+  // every row right away instead of silently waiting for a label first.
+  function collectTabelColsWithIds(){
     var cols = [];
     Array.prototype.forEach.call(document.querySelectorAll('#ot-cols .row'), function(row){
       var idx = row.id.replace('ot-col-', '');
       var label = document.getElementById('ot-clabel-' + idx).value.trim();
       var type = document.getElementById('ot-ctype-' + idx).value;
       var key = document.getElementById('ot-ckey-' + idx).value.trim() || ('c' + idx);
-      if (label) cols.push({ label: label, type: type, key: key, tolerance: 0.05 });
+      cols.push({ label: label, type: type, key: key, tolerance: 0.05, colId: row.id });
     });
     return cols;
   }
+  // Used at save time — only columns the admin has actually named.
+  function collectTabelCols(){
+    return collectTabelColsWithIds().filter(function(c){ return c.label; })
+      .map(function(c){ return { label: c.label, type: c.type, key: c.key, tolerance: c.tolerance }; });
+  }
+  // Re-renders every existing data row against the CURRENT column list, by
+  // matching each cell to its column's stable colId — so adding, removing,
+  // renaming, or reordering columns after rows already have data never
+  // misaligns or silently drops what was already typed in.
+  function reflowTabelRows(){
+    var kolonner = collectTabelColsWithIds();
+    Array.prototype.forEach.call(document.querySelectorAll('#ot-rows .opt-row'), function(rowEl){
+      var idx = rowEl.id.replace('ot-row-', '');
+      var valuesByColId = {};
+      Array.prototype.forEach.call(rowEl.querySelectorAll('input[data-colid]'), function(inp){
+        valuesByColId[inp.getAttribute('data-colid')] = inp.value;
+      });
+      var wrapper = document.createElement('div');
+      wrapper.innerHTML = tabelRowRow(idx, valuesByColId, kolonner);
+      rowEl.replaceWith(wrapper.firstElementChild);
+    });
+  }
+  ScaffoldUI.reflowTabelRows = reflowTabelRows;
+  // `rowData` is either a plain array of raw values by position (only used
+  // for the very first render of a saved/existing item) or an object keyed
+  // by colId (used for every reflow afterwards). `kolonner` entries need a
+  // `colId` either way.
+  function tabelRowRow(i, rowData, kolonner){
+    return '<div class="opt-row" id="ot-row-' + i + '">' +
+      kolonner.map(function(k, ci){
+        var val = Array.isArray(rowData) ? rowData[ci] : (rowData ? rowData[k.colId] : undefined);
+        return '<input id="ot-cell-' + i + '-' + ci + '" data-colid="' + Scaffold.escAttr(k.colId) + '" style="width:64px" placeholder="' + Scaffold.escAttr(k.label||'') + '" value="' + Scaffold.escAttr(val !== undefined ? String(val) : '') + '">';
+      }).join('') +
+      '<button type="button" class="btn-sm danger" onclick="document.getElementById(\'ot-row-' + i + '\').remove()">✕</button></div>';
+  }
+  ScaffoldUI.addTabelRow = function(){
+    otRowCount++;
+    var kolonner = collectTabelColsWithIds();
+    document.getElementById('ot-rows').insertAdjacentHTML('beforeend', tabelRowRow('n' + otRowCount, {}, kolonner));
+  };
   ScaffoldUI.submitTabel = function(n, idx){
     var titel = document.getElementById('of-titel').value.trim();
     var instr = document.getElementById('of-instr').value.trim();
@@ -3832,14 +3875,24 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
       var ok = true;
       kolonner.forEach(function(k, ci){
         var cell = document.getElementById('ot-cell-' + ridx + '-' + ci);
-        var raw = cell ? cell.value.trim().replace(',', '.') : '';
-        var num = parseFloat(raw);
-        if (raw === '' || isNaN(num)) ok = false;
-        vals.push(num);
+        var raw = cell ? cell.value.trim() : '';
+        if (raw === ''){ ok = false; vals.push(''); return; }
+        if (k.type === 'input'){
+          // Input cells hold the numeric facit the student's answer is
+          // checked against, so these must be real numbers.
+          var num = parseFloat(raw.replace(',', '.'));
+          if (isNaN(num)) ok = false;
+          vals.push(num);
+        } else {
+          // Given cells are shown to the student as-is — free text (e.g.
+          // interval notation like "]0;1]") is completely valid here, not
+          // just plain numbers.
+          vals.push(raw);
+        }
       });
       if (ok) raekker.push(vals);
     });
-    if (!raekker.length){ alert('Udfyld mindst én række med numeriske værdier i alle celler.'); return; }
+    if (!raekker.length){ alert('Udfyld mindst én række helt ud — "Udfyldes"-celler skal være tal, "Givet"-celler kan være hvad som helst (fx et interval).'); return; }
     saveOpgaveItem(n, idx, { type: 'tabel', titel: titel, instruktion: instr, billede: billede, hint: hint, kolonner: kolonner, raekker: raekker });
     applyOpgaveSlots();
     log(existingLogVerb(idx), NIVEAU_META[n].label + '-opgave (tabel) på ' + opgState.nr + ': "' + titel + '"');
