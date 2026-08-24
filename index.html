@@ -1183,9 +1183,28 @@ h(x) &amp; 3 &amp; 12 &amp; 6 &amp; 3 &amp; 1 \\
   <div class="emne-header">
     <span class="tag">2.2.1</span>
     <h1>Hyppigheder og frekvenser</h1>
-    <p>Indhold tilføjes snart.</p>
+    
   </div>
-</div>
+<div class="tabs"><button class="tab-btn active" data-tab="t221-mat">Materiale</button><button class="tab-btn" data-tab="t221-quiz">Tjekspørgsmål</button><button class="tab-btn" data-tab="t221-opg">Opgaver</button></div><div id="t221-mat" class="tab-panel active"><div class="simple-resource-list"><div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=273','_blank')"><input type="checkbox" class="card-check" id="chk-221-lrebog" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">2.2.1</div></div><canvas class="sparkle-canvas"></canvas></div><div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=rF3KNjJdm3E','_blank')"><input type="checkbox" class="card-check" id="chk-221-youtub" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Grupperede data - hyppighed og frekvens</div></div><canvas class="sparkle-canvas"></canvas></div></div></div><div id="t221-quiz" class="tab-panel"><div class="quiz-question" id="qq221-1"><div class="quiz-q-text">1. Hvilke typer af data er oplagt at gruppere?</div><div class="quiz-q-note">Vælg alle rigtige svar</div><div class="quiz-options">
+        <button class="quiz-option" type="button" data-letter="A" onclick="quizMulti221(1,'A',this)"><span class="mbox"></span> A) Højde på en gruppe mennesker.</button>
+        <button class="quiz-option" type="button" data-letter="B" onclick="quizMulti221(1,'B',this)"><span class="mbox"></span> B) Karakterer i en klasse.</button>
+        <button class="quiz-option" type="button" data-letter="C" onclick="quizMulti221(1,'C',this)"><span class="mbox"></span> C) Antal dage hver elev i en klasse dyrker motion om ugen.</button>
+        <button class="quiz-option" type="button" data-letter="D" onclick="quizMulti221(1,'D',this)"><span class="mbox"></span> D) Antal minutter hver elev i en klasse dyrker motion om ugen.</button>
+      </div><button class="quiz-check-btn" type="button" style="margin-top:10px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;font-weight:600;cursor:pointer;font-family:inherit" onclick="checkMulti221(1,['A','D'])">Tjek svar</button><div class="quiz-feedback" id="qf221-1"></div></div><div class="quiz-question" id="qq221-2"><div class="quiz-q-text">2. Hvad grupperer man ofte data i?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer221(2,'wrong',event)">A) Hele værdier:  1, 2, 3, 4</button>
+        <button class="quiz-option" onclick="quizAnswer221(2,'wrong',event)">B) Decimaltal: 1,23, 2,543, 4,321312</button>
+        <button class="quiz-option" onclick="quizAnswer221(2,'correct',event)">C) Intervaller: [0;1[, [1;2{</button>
+        <button class="quiz-option" onclick="quizAnswer221(2,'wrong',event)">D) Egenskaber: Rød m&amp;m's, blå m&amp;m's, grøn m&amp;m's</button>
+      </div><div class="quiz-feedback" id="qf221-2"></div></div><div class="quiz-question" id="qq221-3"><div class="quiz-q-text">3. For ugrupperet/diskret data anvendes x for at angive en observation. Hvilket symbol anvender vi grupperet data?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer221(3,'wrong',event)">A) Vi anvender x, men vi ved at der er tale om intervaller.</button>
+        <button class="quiz-option" onclick="quizAnswer221(3,'wrong',event)">B) Vi anvender x, da der ikke er en forskel.</button>
+        <button class="quiz-option" onclick="quizAnswer221(3,'wrong',event)">C) Vi anvender I, men det betyder det samme som under diskret data.</button>
+        <button class="quiz-option" onclick="quizAnswer221(3,'correct',event)">D) Vi anvender I for h og f, for at indikerer at der er tale om et interval, frem for én værdi.</button>
+      </div><div class="quiz-feedback" id="qf221-3"></div></div><div class="quiz-question" id="qq221-4"><div class="quiz-q-text">4. Hvilken notation er korrekt under grupperet data?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer221(4,'wrong',event)">A) x, h(x), f(x), H(x), F(x)</button>
+        <button class="quiz-option" onclick="quizAnswer221(4,'wrong',event)">B) I, h(I), f(I), H(I), F(I)</button>
+        <button class="quiz-option" onclick="quizAnswer221(4,'correct',event)">C) I, h(I), f(I), H(x), F(x)</button>
+      </div><div class="quiz-feedback" id="qf221-4"></div></div><div class="quiz-score" id="quiz-score-221" style="display:none"><h3 id="quiz-score-221-title"></h3><p id="quiz-score-221-text"></p><button class="quiz-retry" onclick="quizRetry221()">Prøv igen</button></div></div><div id="t221-opg" class="tab-panel"><div class="energy-wrap" data-scaffold-opgaver="1"><div class="energy-header"><span class="energy-question">Hvor meget energi har du i dag?</span><span class="energy-state" id="energy-state-221" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span></div><div class="energy-slider-track"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span><input type="range" class="energy-slider" id="energy-slider-221" min="0" max="100" value="1" oninput="updateEnergy221(this.value)"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span></div></div><div class="ready-btn-wrap" id="ready-btn-wrap-221" style="display:block"><button class="ready-btn" onclick="startOpgaver221()"><div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div><span class="ready-btn-cta">Ja, klar!</span></button></div><button class="restart-btn" id="restart-btn-221" onclick="restartOpgaver221()" style="display:none">↩ Vælg nyt niveau</button><div class="opgave-widget opgave-hidden" id="opg221-low"></div><div class="opgave-widget opgave-hidden" id="opg221-mid"></div><div class="opgave-widget opgave-hidden" id="opg221-high"></div></div></div>
 <div id="page-2-2-2" class="page-hidden">
   <a class="back-link" onclick="showPage('f2')">← F2 Deskriptiv statistik</a>
   <div class="emne-header">
@@ -9846,6 +9865,7 @@ var emneData = {
   '2.1.2': { navn: 'Grafiske repræsentationer', opgaver: [], materiale: ['chk-212-bog','chk-212-yt'] },
   '2.1.3': { navn: 'Positionsmål', opgaver: [], materiale: ['chk-213-lrebog','chk-213-youtub','chk-213-youtub2'] },
   '2.1.4': { navn: 'Spredningsmål', opgaver: [], materiale: ['chk-214-lrebog','chk-214-youtub'] },
+  '2.2.1': { navn: 'Hyppigheder og frekvenser', opgaver: [], materiale: ['chk-221-lrebog','chk-221-youtub'] },
   '2.2.3': { navn: 'Positionsmål', opgaver: [], materiale: [] },
   '2.2.4': { navn: 'Spredningsmål', opgaver: [], materiale: [] },
 };
@@ -9853,8 +9873,8 @@ var emneData = {
 // ── FREMGANG SIDE ─────────────────────────────────────────────────────────
 // Emner med et Bevis-afsnit der kan optjene et hjerte på F1-oversigten. Kun disse emner kan nogensinde vise et hjerte.
 var emnerMedBevis = ['3.2.2'];
-var emneRaekkefoelge = ['1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7','3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening','2.1.1','2.1.2','2.1.3','2.1.4','2.2.3','2.2.4'];
-var emneNavneAlle = {'1.3.1':'Simple ligninger','3.1.1':'Lodret-kriteriet og definition','3.1.2':'Funktion givet ved graf','3.1.3':'Regneforskrift og graf','3.1.4':'Grafiske løsninger','3.1.5':'Monotoniforhold','3.1.6':'Egenskaber ved grafer','3.1.7':'Omvendt funktion','3.2.1':'Grundbegreber','3.2.2':'Forskrift ud fra to punkter','3.2.3':'Vækstegenskaber','3.2.4':'Stykkevis lineære funktioner','3.2.5':'Skæring mellem lineære grafer','3.5.1':'Mindste kvadraters metode','3.5.2':'Korrelationskoefficienten','screening':'Matematikscreening 2025','2.1.1':'Hyppigheder og frekvenser','2.1.2':'Grafiske repræsentationer','2.1.3':'Positionsmål','2.1.4':'Spredningsmål','2.2.3':'Positionsmål','2.2.4':'Spredningsmål'};
+var emneRaekkefoelge = ['1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7','3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening','2.1.1','2.1.2','2.1.3','2.1.4','2.2.1','2.2.3','2.2.4'];
+var emneNavneAlle = {'1.3.1':'Simple ligninger','3.1.1':'Lodret-kriteriet og definition','3.1.2':'Funktion givet ved graf','3.1.3':'Regneforskrift og graf','3.1.4':'Grafiske løsninger','3.1.5':'Monotoniforhold','3.1.6':'Egenskaber ved grafer','3.1.7':'Omvendt funktion','3.2.1':'Grundbegreber','3.2.2':'Forskrift ud fra to punkter','3.2.3':'Vækstegenskaber','3.2.4':'Stykkevis lineære funktioner','3.2.5':'Skæring mellem lineære grafer','3.5.1':'Mindste kvadraters metode','3.5.2':'Korrelationskoefficienten','screening':'Matematikscreening 2025','2.1.1':'Hyppigheder og frekvenser','2.1.2':'Grafiske repræsentationer','2.1.3':'Positionsmål','2.1.4':'Spredningsmål','2.2.1':'Hyppigheder og frekvenser','2.2.3':'Positionsmål','2.2.4':'Spredningsmål'};
 
 function updateFremgang() {
   var data = loadAllProgress();
@@ -10146,6 +10166,77 @@ function owCheck(id, answer) {
 }
 
 // ===== SCAFFOLD: nye emner tilføjet via scaffolding-værktøjet =====
+var quiz221Answered = {}, quiz221Correct = 0, quiz221Total = 4, quiz221MultiSel = {};
+
+function quizAnswer221(qnum, result, evt) {
+  if (quiz221Answered[qnum]) return;
+  quiz221Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq221-' + qnum);
+  var fb = document.getElementById('qf221-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz221Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  quiz221CheckDone();
+}
+
+function quiz221CheckDone() {
+  if (Object.keys(quiz221Answered).length < quiz221Total) return;
+  var box=document.getElementById('quiz-score-221'); if(!box)return; box.style.display='block';
+  document.getElementById('quiz-score-221-title').textContent = quiz221Correct===quiz221Total ? 'Perfekt – '+quiz221Correct+'/'+quiz221Total+'!' : quiz221Correct+'/'+quiz221Total+' rigtige';
+  document.getElementById('quiz-score-221-text').textContent = quiz221Correct===quiz221Total ? 'Flot – du har styr på emnet!' : 'Se de markerede svar og prøv igen.';
+}
+
+function quizMulti221(qnum, letter, btn) {
+  if (quiz221Answered[qnum]) return;
+  var key = qnum + '_' + letter;
+  var box = btn.querySelector('.mbox');
+  if (quiz221MultiSel[key]) {
+    delete quiz221MultiSel[key];
+    btn.style.background = ''; btn.style.borderColor = '';
+    if (box) { box.style.background=''; box.style.borderColor=''; box.style.color=''; box.textContent=''; }
+  } else {
+    quiz221MultiSel[key] = true;
+    btn.style.background = '#eff6ff'; btn.style.borderColor = '#2563eb';
+    if (box) { box.style.background='#2563eb'; box.style.borderColor='#2563eb'; box.style.color='white'; box.textContent='\u2713'; }
+  }
+}
+
+function checkMulti221(qnum, correctLetters) {
+  if (quiz221Answered[qnum]) return;
+  quiz221Answered[qnum] = true;
+  var qq = document.getElementById('qq221-' + qnum);
+  var fb = document.getElementById('qf221-' + qnum);
+  var allOk = true;
+  qq.querySelectorAll('.quiz-option').forEach(function(b){
+    b.style.pointerEvents = 'none';
+    var letter = b.getAttribute('data-letter');
+    var key = qnum + '_' + letter;
+    var wasSel = !!quiz221MultiSel[key];
+    var isCorrect = correctLetters.indexOf(letter) !== -1;
+    if (wasSel && isCorrect) b.classList.add('correct');
+    else if (wasSel && !isCorrect) { b.classList.add('wrong'); allOk = false; }
+    else if (!wasSel && isCorrect) allOk = false;
+  });
+  if (allOk) { fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!'; quiz221Correct++; runQuizSparkle(qq); }
+  else { fb.className='quiz-feedback show err'; fb.textContent='Ikke helt — se de markerede svar.'; }
+  quiz221CheckDone();
+}
+
+function quizRetry221() {
+  quiz221Answered={}; quiz221Correct=0; quiz221MultiSel={};
+  [1,2,3,4].forEach(function(n){
+    var qq=document.getElementById('qq221-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.style.pointerEvents='';b.style.background='';b.style.borderColor='';b.classList.remove('correct','wrong');var box=b.querySelector('.mbox');if(box){box.style.background='';box.style.borderColor='';box.style.color='';box.textContent='';}});
+    var fb=document.getElementById('qf221-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-221').style.display='none';
+}
+
 function checkGold214() {
   var i0ok0 = checkSingleNumericField('214g0-a0', 3, 0.05);
   var i0ok1 = checkSingleNumericField('214g0-a1', 3, 0.05);
