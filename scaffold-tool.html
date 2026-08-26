@@ -1254,7 +1254,7 @@ function renderCatalogItemBodyHtml(nr, niveau, item, itemIdx){
   var idBase = slug + letter + itemIdx;
   var head = '<div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px">' + widgetIconHtml() +
     '<span style="font-size:0.95rem;font-weight:700">' + escHtml(item.titel || '') + '</span></div>' +
-    (item.billede ? '<img src="' + escAttr(item.billede) + '" style="max-width:100%;border:1px solid var(--border);border-radius:8px;margin:6px 0 10px;display:block">' : '') +
+    (item.billede && item.type !== 'tegn' ? '<img src="' + escAttr(item.billede) + '" style="max-width:100%;border:1px solid var(--border);border-radius:8px;margin:6px 0 10px;display:block">' : '') +
     (item.instruktion ? '<div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">' + escHtml(item.instruktion) + '</div>' : '');
   var body = '';
 
@@ -1285,30 +1285,39 @@ function renderCatalogItemBodyHtml(nr, niveau, item, itemIdx){
   } else if (item.type === 'tegn'){
     var tcanvasId = 'canvas-' + idBase;
     var btnStyle = 'padding:6px 12px;border:1.5px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-family:inherit;font-size:0.8rem';
-    var layerBar = '';
+    var toolIcon = { kurve: '\u3030 ', punkt: '\u2715 ', kasse: '\u25ab ' };
+    var toolLabel = { kurve: 'Kurve', punkt: 'Punkt', kasse: 'Kasse' };
+    // A tool bar (not a pre-numbered layer list) — students pick a TYPE of
+    // shape to draw, never see how many separate targets exist per type or
+    // which colour maps to which one. Only shown when there's more than one
+    // type to choose between.
+    var toolBar = '';
     if (item.layers.length > 1){
-      layerBar = '<div id="' + tcanvasId + '-layerbar" style="display:flex;gap:12px;margin-bottom:8px;flex-wrap:wrap">' +
+      toolBar = '<div id="' + tcanvasId + '-toolbar" style="display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap">' +
         item.layers.map(function(layer, li){
-          var color = ['#2563eb','#7c3aed','#059669','#db2777'][li % 4];
-          return '<button type="button" data-tegn-layer-btn="' + tcanvasId + '" data-idx="' + li + '" style="' + btnStyle + ';border-color:' + color + ';color:' + color + (li===0 ? ';font-weight:700;text-decoration:underline' : '') + '" onclick="tegnSetActiveLayer(\'' + tcanvasId + '\',' + li + ')">' + escHtml(layer.label) + '</button>';
+          var color = TEGN_COLOR_BY_TYPE[layer.type] || '#2563eb';
+          return '<button type="button" data-tegn-tool-btn="' + tcanvasId + '" data-type="' + layer.type + '" style="' + btnStyle + ';border-color:' + color + ';color:' + color + (li===0 ? ';font-weight:700;text-decoration:underline' : '') + '" onclick="tegnSetActiveTool(\'' + tcanvasId + '\',\'' + layer.type + '\')">' + toolIcon[layer.type] + toolLabel[layer.type] + '</button>';
         }).join('') + '</div>';
     }
     var modeBarDisplay = item.layers[0].type === 'kurve' ? 'flex' : 'none';
-    body = layerBar +
+    body = toolBar +
       '<div id="' + tcanvasId + '-modebar" style="display:' + modeBarDisplay + ';gap:8px;margin-bottom:8px;flex-wrap:wrap">' +
       '<button type="button" id="' + tcanvasId + '-btn-polygon" style="' + btnStyle + ';background:#1e3a5f;color:#fff" onclick="tegnSetMode(\'' + tcanvasId + '\',\'polygon\')">\ud83d\udccd Punkter</button>' +
       '<button type="button" id="' + tcanvasId + '-btn-freehand" style="' + btnStyle + '" onclick="tegnSetMode(\'' + tcanvasId + '\',\'freehand\')">\u270f\ufe0f Frih\u00e5nd</button>' +
       '</div>' +
-      '<div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">' +
+      '<div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;align-items:center">' +
+      '<button type="button" id="' + tcanvasId + '-btn-finish" style="' + btnStyle + ';background:#1e3a5f;color:#fff;display:none" onclick="tegnFinishCurve(\'' + tcanvasId + '\')">\u2713 Denne kurve er f\u00e6rdig</button>' +
       '<button type="button" style="' + btnStyle + '" onclick="tegnUndo(\'' + tcanvasId + '\')">\u21a9 Fortryd</button>' +
       '<button type="button" style="' + btnStyle + '" onclick="clearTegnCanvas(\'' + tcanvasId + '\')">Ryd</button>' +
+      '<span id="' + tcanvasId + '-count" style="font-size:0.78rem;color:var(--muted)"></span>' +
       '</div>' +
-      '<div style="font-size:0.75rem;color:#9ca3af;margin-bottom:6px">Hold Shift nede og rul for at zoome' + (item.layers.length > 1 ? ' \u2014 v\u00e6lg lag ovenfor f\u00f8r du tegner' : '') + '</div>' +
-      '<div style="overflow-x:auto;margin-bottom:10px"><canvas id="' + tcanvasId + '" width="360" height="260" style="border:1.5px solid var(--border);border-radius:8px;cursor:crosshair;background:#f8f8f8;display:block;touch-action:none"></canvas></div>';
+      '<div style="font-size:0.75rem;color:#9ca3af;margin-bottom:6px">Hold Shift nede og rul for at zoome</div>' +
+      '<div style="overflow-x:auto;margin-bottom:10px"><canvas id="' + tcanvasId + '" width="560" height="420" style="border:1.5px solid var(--border);border-radius:8px;cursor:crosshair;background:#f8f8f8;display:block;touch-action:none;max-width:100%;height:auto"></canvas></div>';
   }
 
   return { head: head, body: body };
 }
+var TEGN_COLOR_BY_TYPE = { kurve: '#2563eb', punkt: '#7c3aed', kasse: '#059669' };
 
 // Renders ALL opgaver assigned to one niveau (bronze/sølv/guld), stacked in
 // order, sharing a single "Tjek svar" button + result message.
@@ -1596,14 +1605,25 @@ function parseTegnItem(canvasId, titel, instruktion, startBody){
   if (!m) return null;
   var billede = m[1].replace(/\\'/g, "'");
   var layersLit = m[2];
-  var layers;
+  var rawLayers;
   try {
     // The literal is plain JS object/array syntax (built by this same
     // engine), not JSON — evaluate it in a sandboxed function scope.
-    layers = Function('"use strict"; return (' + layersLit + ');')();
+    rawLayers = Function('"use strict"; return (' + layersLit + ');')();
   } catch (e) {
     return null;
   }
+  // The runtime literal stores kurve targets as raw [x,y,hx,hy] tuples
+  // (what the bezier math needs); convert back to {x,y,hx,hy} objects for
+  // the admin/saved-data representation, matching what the admin form uses.
+  var layers = rawLayers.map(function(layer){
+    if (layer.type === 'kurve'){
+      return { type: layer.type, tolerance: layer.tolerance, targets: layer.targets.map(function(curve){
+        return curve.map(function(p){ return { x: p[0], y: p[1], hx: p[2]||0, hy: p[3]||0 }; });
+      }) };
+    }
+    return layer;
+  });
   return { type: 'tegn', titel: titel, instruktion: instruktion, billede: billede, layers: layers };
 }
 
@@ -1652,13 +1672,22 @@ function buildOpgaveShellJS(nr, slotAssignment){
       } else if (item.type === 'tegn'){
         var tcanvasId = 'canvas-' + idBase;
         var layerDefsLit = '[' + item.layers.map(function(layer){
-          var ptsLit;
-          if (layer.type === 'punkt'){
-            ptsLit = '[' + layer.targetPoints.map(function(p){ return '{x:' + p.x + ',y:' + p.y + '}'; }).join(',') + ']';
+          var targetsLit;
+          if (layer.type === 'kurve'){
+            // Each target is itself a curve — an array of [x,y,hx,hy]
+            // points, matching what the runtime module's bezier math
+            // expects (positional tuples, not named properties).
+            targetsLit = '[' + layer.targets.map(function(curve){
+              return '[' + curve.map(function(p){ return '[' + p.x + ',' + p.y + ',' + (p.hx||0) + ',' + (p.hy||0) + ']'; }).join(',') + ']';
+            }).join(',') + ']';
+          } else if (layer.type === 'kasse'){
+            targetsLit = '[' + layer.targets.map(function(box){
+              return '[{x:' + box[0].x + ',y:' + box[0].y + '},{x:' + box[1].x + ',y:' + box[1].y + '}]';
+            }).join(',') + ']';
           } else {
-            ptsLit = '[' + layer.targetPoints.map(function(p){ return '[' + p.x + ',' + p.y + ',' + (p.hx||0) + ',' + (p.hy||0) + ']'; }).join(',') + ']';
+            targetsLit = '[' + layer.targets.map(function(p){ return '{x:' + p.x + ',y:' + p.y + '}'; }).join(',') + ']';
           }
-          return '{type:\'' + layer.type + '\',label:' + JSON.stringify(layer.label) + ',targetPoints:' + ptsLit + ',tolerance:' + layer.tolerance + '}';
+          return '{type:\'' + layer.type + '\',tolerance:' + layer.tolerance + ',targets:' + targetsLit + '}';
         }).join(',') + ']';
         startLines.push('    initTegnCanvas(\'' + tcanvasId + '\', \'' + item.billede.replace(/'/g, "\\'") + '\', ' + layerDefsLit + ', \'ow-r-' + slug + '-' + info.slot + '\');');
       }
@@ -1692,7 +1721,10 @@ function buildOpgaveShellJS(nr, slotAssignment){
         restartLines.push('  if (pindeStates[\'' + canvasId + '\']) { pindeStates[\'' + canvasId + '\'].heights = pindeStates[\'' + canvasId + '\'].xValues.map(function(){return null;}); drawPindeCanvas(\'' + canvasId + '\'); }');
       } else if (item.type === 'tegn'){
         var tcanvasId = 'canvas-' + idBase;
-        restartLines.push('  if (tegnStates[\'' + tcanvasId + '\']) { tegnStates[\'' + tcanvasId + '\'].polygonPoints=[]; tegnStates[\'' + tcanvasId + '\'].freehandPath=[]; tegnStates[\'' + tcanvasId + '\'].done=false; drawTegnCanvas(\'' + tcanvasId + '\'); }');
+        // Each of these lives per-LAYER (st.layers[i].drawn etc), not on the
+        // state object itself — resetting properties there directly is a
+        // no-op that never actually clears a student's drawing.
+        restartLines.push('  if (tegnStates[\'' + tcanvasId + '\']) { tegnStates[\'' + tcanvasId + '\'].layers.forEach(function(ly){ ly.drawn=[]; ly.curPoints=[]; ly.pendingPoint=null; ly.boxPending=null; ly.boxStart=null; ly.done=false; }); if(tegnStates[\'' + tcanvasId + '\'].layers.length) tegnStates[\'' + tcanvasId + '\'].activeType=tegnStates[\'' + tcanvasId + '\'].layers[0].type; drawTegnCanvas(\'' + tcanvasId + '\'); }');
       }
     });
   });
@@ -1798,9 +1830,15 @@ function syncOpgaveShellForNr(jsText, nr, slotAssignment){
 
 var TEGN_PALETTE = ['#2563eb', '#7c3aed', '#059669', '#db2777'];
 var TEGN_MODULE_TEXT =
-'// ── GENERISK "TEGN" MODUL (baggrundsbillede + flerlags kurve/punkt-tegning + zoom) ──\n' +
+'// ── GENERISK "TEGN" MODUL (baggrundsbillede + værktøjsbaseret kurve/punkt/kasse-tegning + zoom) ──\n' +
+'// Elever vælger et VÆRKTØJ (kurve/punkt/kasse) og tegner frit — der er ingen\n' +
+'// prædefinerede, nummererede "lag" der afslører hvor mange figurer eller\n' +
+'// hvilken farve der hører til hvad. Tjek sker ved bedste-match: enhver\n' +
+'// tegnet figur af en given type matches mod den nærmeste ubrugte facit-\n' +
+'// figur af samme type, uanset rækkefølge.\n' +
 'var tegnStates = {}, tegnHandlers = {};\n' +
 'var TEGN_PALETTE = [\'#2563eb\', \'#7c3aed\', \'#059669\', \'#db2777\'];\n' +
+'var TEGN_SMOOTHNESS = 0.5;\n' +
 '\n' +
 'function tegnEffScale(st){ return st.baseScale * st.zoom; }\n' +
 'function tegnImgToCanvas(st, ix, iy){\n' +
@@ -1841,6 +1879,21 @@ var TEGN_MODULE_TEXT =
 '  out.push([last[0], last[1]]);\n' +
 '  return out;\n' +
 '}\n' +
+'function tegnSmoothPath(points, amount){\n' +
+'  if (!points || points.length < 3 || !amount || amount <= 0) return points;\n' +
+'  var w = Math.max(1, Math.round(amount * 6));\n' +
+'  var out = [];\n' +
+'  for (var i = 0; i < points.length; i++){\n' +
+'    var sx = 0, sy = 0, n = 0;\n' +
+'    for (var k = -w; k <= w; k++){\n' +
+'      var idx = i + k;\n' +
+'      if (idx < 0 || idx >= points.length) continue;\n' +
+'      sx += points[idx][0]; sy += points[idx][1]; n++;\n' +
+'    }\n' +
+'    out.push([sx/n, sy/n]);\n' +
+'  }\n' +
+'  return out;\n' +
+'}\n' +
 'function tegnDrawBezierPath(ctx, st, points){\n' +
 '  if (points.length < 2) return;\n' +
 '  var segs = tegnBezierSegments(points);\n' +
@@ -1855,6 +1908,49 @@ var TEGN_MODULE_TEXT =
 '  ctx.beginPath(); ctx.moveTo(cx-size, cy-size); ctx.lineTo(cx+size, cy+size);\n' +
 '  ctx.moveTo(cx+size, cy-size); ctx.lineTo(cx-size, cy+size); ctx.stroke();\n' +
 '}\n' +
+'function tegnNormBox(p0, p1){\n' +
+'  return {\n' +
+'    x1: Math.min(p0[0], p1[0]), x2: Math.max(p0[0], p1[0]),\n' +
+'    y1: Math.min(p0[1], p1[1]), y2: Math.max(p0[1], p1[1])\n' +
+'  };\n' +
+'}\n' +
+'function tegnDrawBox(ctx, st, p0, p1){\n' +
+'  var a = tegnImgToCanvas(st, p0[0], p0[1]), b = tegnImgToCanvas(st, p1[0], p1[1]);\n' +
+'  var x = Math.min(a[0], b[0]), y = Math.min(a[1], b[1]);\n' +
+'  var w = Math.abs(b[0]-a[0]), h = Math.abs(b[1]-a[1]);\n' +
+'  ctx.strokeRect(x, y, w, h);\n' +
+'}\n' +
+'function tegnPt(p){ return p.x !== undefined ? [p.x, p.y] : [p[0], p[1]]; }\n' +
+'function tegnResample(points, xs){\n' +
+'  var pts = points.slice().sort(function(a,b){return a[0]-b[0];});\n' +
+'  return xs.map(function(x){\n' +
+'    if (pts.length < 2 || x < pts[0][0] || x > pts[pts.length-1][0]) return null;\n' +
+'    for (var i=0;i<pts.length-1;i++){\n' +
+'      if (x >= pts[i][0] && x <= pts[i+1][0]){\n' +
+'        var dx = pts[i+1][0]-pts[i][0];\n' +
+'        var t = dx === 0 ? 0 : (x-pts[i][0])/dx;\n' +
+'        return pts[i][1] + t*(pts[i+1][1]-pts[i][1]);\n' +
+'      }\n' +
+'    }\n' +
+'    return null;\n' +
+'  });\n' +
+'}\n' +
+'function tegnCurveMatchScore(drawnDense, targetRaw, tolerance){\n' +
+'  var target = tegnSampleBezier(targetRaw, 12);\n' +
+'  var sortedT = target.slice().sort(function(a,b){return a[0]-b[0];});\n' +
+'  if (!sortedT.length) return null;\n' +
+'  var N = 24, xMinT = sortedT[0][0], xMaxT = sortedT[sortedT.length-1][0];\n' +
+'  var xs = []; for (var i=0;i<N;i++){ xs.push(xMinT + (xMaxT-xMinT)*i/(N-1)); }\n' +
+'  var targetYs = tegnResample(target, xs), drawnYs = tegnResample(drawnDense, xs);\n' +
+'  var sumSq = 0, count = 0;\n' +
+'  for (var j=0;j<N;j++){\n' +
+'    if (drawnYs[j] === null || targetYs[j] === null) continue;\n' +
+'    var d2 = drawnYs[j]-targetYs[j]; sumSq += d2*d2; count++;\n' +
+'  }\n' +
+'  var coverage = count/N, rms = count>0 ? Math.sqrt(sumSq/count) : Infinity;\n' +
+'  if (coverage < 0.7 || rms > tolerance) return null;\n' +
+'  return rms;\n' +
+'}\n' +
 'function drawTegnCanvas(canvasId){\n' +
 '  var st = tegnStates[canvasId]; var canvas = document.getElementById(canvasId); if(!canvas||!st) return;\n' +
 '  var ctx = canvas.getContext(\'2d\'); if(!ctx) return;\n' +
@@ -1865,40 +1961,44 @@ var TEGN_MODULE_TEXT =
 '    var dx = st.canvasW/2 - dw/2, dy = st.canvasH/2 - dh/2;\n' +
 '    ctx.drawImage(st.img, dx, dy, dw, dh);\n' +
 '  }\n' +
-'  st.layers.forEach(function(layer, li){\n' +
-'    var color = TEGN_PALETTE[li % TEGN_PALETTE.length];\n' +
-'    if (layer.done && layer.targetPoints && layer.targetPoints.length){\n' +
+'  st.layers.forEach(function(layer){\n' +
+'    var color = TEGN_PALETTE[{kurve:0,punkt:1,kasse:2}[layer.type] || 0];\n' +
+'    var isActive = layer.type === st.activeType;\n' +
+'    if (layer.done){\n' +
 '      ctx.strokeStyle = \'#9ca3af\'; ctx.fillStyle = \'#9ca3af\'; ctx.lineWidth = 3; ctx.lineJoin=\'round\'; ctx.lineCap=\'round\';\n' +
-'      if (layer.type === \'kurve\' && layer.targetPoints.length > 1){\n' +
-'        ctx.beginPath(); tegnDrawBezierPath(ctx, st, layer.targetPoints); ctx.stroke();\n' +
+'      if (layer.type === \'kurve\'){\n' +
+'        layer.targets.forEach(function(t){ if (t.length>1){ ctx.beginPath(); tegnDrawBezierPath(ctx, st, t); ctx.stroke(); } });\n' +
 '      } else if (layer.type === \'punkt\'){\n' +
-'        layer.targetPoints.forEach(function(p){ var c = tegnImgToCanvas(st, p.x!==undefined?p.x:p[0], p.y!==undefined?p.y:p[1]); tegnDrawXMarker(ctx, c[0], c[1], 6); });\n' +
+'        layer.targets.forEach(function(p){ var c = tegnImgToCanvas(st, tegnPt(p)[0], tegnPt(p)[1]); tegnDrawXMarker(ctx, c[0], c[1], 6); });\n' +
+'      } else if (layer.type === \'kasse\'){\n' +
+'        layer.targets.forEach(function(t){ tegnDrawBox(ctx, st, tegnPt(t[0]), tegnPt(t[1])); });\n' +
 '      }\n' +
 '    }\n' +
+'    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2.5; ctx.lineJoin=\'round\'; ctx.lineCap=\'round\';\n' +
 '    if (layer.type === \'kurve\'){\n' +
-'      var pts = layer.mode === \'freehand\' ? layer.freehandPath : layer.polygonPoints;\n' +
-'      var live = pts.slice();\n' +
-'      if (li === st.activeLayer && layer.pendingPoint) live.push(layer.pendingPoint);\n' +
+'      layer.drawn.forEach(function(c){ if (c.length>1){ ctx.beginPath(); tegnDrawBezierPath(ctx, st, c); ctx.stroke(); } });\n' +
+'    } else if (layer.type === \'punkt\'){\n' +
+'      layer.drawn.forEach(function(p){ var c = tegnImgToCanvas(st, p[0], p[1]); tegnDrawXMarker(ctx, c[0], c[1], 6); });\n' +
+'    } else if (layer.type === \'kasse\'){\n' +
+'      layer.drawn.forEach(function(b){ tegnDrawBox(ctx, st, b[0], b[1]); });\n' +
+'    }\n' +
+'    if (!isActive) return;\n' +
+'    if (layer.type === \'kurve\'){\n' +
+'      var live = layer.curPoints.slice();\n' +
+'      if (layer.pendingPoint) live.push(layer.pendingPoint);\n' +
 '      if (live.length > 1){\n' +
-'        ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.lineJoin=\'round\'; ctx.lineCap=\'round\';\n' +
 '        ctx.beginPath();\n' +
-'        if (layer.mode === \'freehand\'){\n' +
-'          live.forEach(function(p,i){ var c = tegnImgToCanvas(st, p[0], p[1]); if(i===0) ctx.moveTo(c[0],c[1]); else ctx.lineTo(c[0],c[1]); });\n' +
-'        } else {\n' +
-'          tegnDrawBezierPath(ctx, st, live);\n' +
-'        }\n' +
+'        if (layer.mode === \'freehand\') live.forEach(function(p,i){ var c = tegnImgToCanvas(st, p[0], p[1]); if(i===0) ctx.moveTo(c[0],c[1]); else ctx.lineTo(c[0],c[1]); });\n' +
+'        else tegnDrawBezierPath(ctx, st, live);\n' +
 '        ctx.stroke();\n' +
 '      }\n' +
 '      if (layer.mode === \'polygon\'){\n' +
-'        ctx.fillStyle = color;\n' +
-'        pts.forEach(function(p){ var c = tegnImgToCanvas(st, p[0], p[1]); ctx.beginPath(); ctx.arc(c[0],c[1],3.5,0,Math.PI*2); ctx.fill(); });\n' +
-'        if (li === st.activeLayer && layer.pendingPoint){\n' +
-'          var pp = layer.pendingPoint;\n' +
-'          var pc = tegnImgToCanvas(st, pp[0], pp[1]);\n' +
+'        layer.curPoints.forEach(function(p){ var c = tegnImgToCanvas(st, p[0], p[1]); ctx.beginPath(); ctx.arc(c[0],c[1],3.5,0,Math.PI*2); ctx.fill(); });\n' +
+'        if (layer.pendingPoint){\n' +
+'          var pp = layer.pendingPoint, pc = tegnImgToCanvas(st, pp[0], pp[1]);\n' +
 '          ctx.fillStyle = \'#f59e0b\'; ctx.beginPath(); ctx.arc(pc[0],pc[1],4.5,0,Math.PI*2); ctx.fill();\n' +
 '          if (pp[2] || pp[3]){\n' +
-'            var hOut = tegnImgToCanvas(st, pp[0]+pp[2], pp[1]+pp[3]);\n' +
-'            var hIn = tegnImgToCanvas(st, pp[0]-pp[2], pp[1]-pp[3]);\n' +
+'            var hOut = tegnImgToCanvas(st, pp[0]+pp[2], pp[1]+pp[3]), hIn = tegnImgToCanvas(st, pp[0]-pp[2], pp[1]-pp[3]);\n' +
 '            ctx.strokeStyle = \'#f59e0b\'; ctx.lineWidth = 1.5;\n' +
 '            ctx.beginPath(); ctx.moveTo(hIn[0],hIn[1]); ctx.lineTo(hOut[0],hOut[1]); ctx.stroke();\n' +
 '            ctx.fillStyle = \'#f59e0b\';\n' +
@@ -1906,24 +2006,29 @@ var TEGN_MODULE_TEXT =
 '          }\n' +
 '        }\n' +
 '      }\n' +
-'    } else { // punkt layer\n' +
-'      ctx.strokeStyle = color; ctx.lineWidth = 3;\n' +
-'      layer.markerPoints.forEach(function(p){ var c = tegnImgToCanvas(st, p[0], p[1]); tegnDrawXMarker(ctx, c[0], c[1], 6); });\n' +
+'    } else if (layer.type === \'kasse\' && layer.boxPending){\n' +
+'      ctx.setLineDash([5,4]); tegnDrawBox(ctx, st, layer.boxPending[0], layer.boxPending[1]); ctx.setLineDash([]);\n' +
 '    }\n' +
 '  });\n' +
 '}\n' +
-'function tegnActiveLayer(st){ return st.layers[st.activeLayer]; }\n' +
+'function tegnLayerOf(st, type){\n' +
+'  for (var i=0;i<st.layers.length;i++){ if (st.layers[i].type===type) return st.layers[i]; }\n' +
+'  return null;\n' +
+'}\n' +
+'function tegnActiveLayer(st){ return tegnLayerOf(st, st.activeType); }\n' +
 'function tegnHandleDown(canvasId, e){\n' +
 '  var st = tegnStates[canvasId]; if(!st) return;\n' +
 '  var layer = tegnActiveLayer(st); if(!layer || layer.done) return;\n' +
 '  var canvas = document.getElementById(canvasId);\n' +
 '  var p = tegnPointFromEvent(canvasId, canvas, e);\n' +
 '  if (layer.type === \'punkt\'){\n' +
-'    if (layer.markerPoints.length < layer.targetPoints.length) layer.markerPoints.push(p);\n' +
+'    if (layer.drawn.length < layer.targets.length) layer.drawn.push(p);\n' +
+'  } else if (layer.type === \'kasse\'){\n' +
+'    if (layer.drawn.length < layer.targets.length){ layer.boxStart = p; layer.boxPending = [p, p]; layer.drawing = true; }\n' +
 '  } else if (layer.mode === \'freehand\'){\n' +
-'    layer.drawing = true; layer.freehandPath = [p];\n' +
+'    if (layer.drawn.length < layer.targets.length){ layer.drawing = true; layer.curPoints = [p]; }\n' +
 '  } else {\n' +
-'    layer.pendingPoint = [p[0], p[1], 0, 0]; layer.pendingStart = p; layer.drawing = true;\n' +
+'    if (layer.drawn.length < layer.targets.length){ layer.pendingPoint = [p[0], p[1], 0, 0]; layer.pendingStart = p; layer.drawing = true; }\n' +
 '  }\n' +
 '  drawTegnCanvas(canvasId);\n' +
 '}\n' +
@@ -1932,9 +2037,11 @@ var TEGN_MODULE_TEXT =
 '  var layer = tegnActiveLayer(st); if(!layer || !layer.drawing) return;\n' +
 '  var canvas = document.getElementById(canvasId);\n' +
 '  var p = tegnPointFromEvent(canvasId, canvas, e);\n' +
-'  if (layer.type === \'kurve\' && layer.mode === \'freehand\'){\n' +
-'    var last = layer.freehandPath[layer.freehandPath.length-1];\n' +
-'    if (!last || Math.hypot(p[0]-last[0], p[1]-last[1]) > 2) layer.freehandPath.push(p);\n' +
+'  if (layer.type === \'kasse\' && layer.boxStart){\n' +
+'    layer.boxPending = [layer.boxStart, p];\n' +
+'  } else if (layer.type === \'kurve\' && layer.mode === \'freehand\'){\n' +
+'    var last = layer.curPoints[layer.curPoints.length-1];\n' +
+'    if (!last || Math.hypot(p[0]-last[0], p[1]-last[1]) > 2) layer.curPoints.push(p);\n' +
 '  } else if (layer.type === \'kurve\' && layer.pendingPoint){\n' +
 '    layer.pendingPoint[2] = p[0] - layer.pendingStart[0];\n' +
 '    layer.pendingPoint[3] = p[1] - layer.pendingStart[1];\n' +
@@ -1945,10 +2052,17 @@ var TEGN_MODULE_TEXT =
 '  var st = tegnStates[canvasId]; if(!st) return;\n' +
 '  var layer = tegnActiveLayer(st); if(!layer) return;\n' +
 '  if (layer.type === \'kurve\' && layer.mode === \'polygon\' && layer.pendingPoint){\n' +
-'    layer.polygonPoints.push(layer.pendingPoint); layer.pendingPoint = null;\n' +
+'    layer.curPoints.push(layer.pendingPoint); layer.pendingPoint = null;\n' +
+'  }\n' +
+'  if (layer.type === \'kurve\' && layer.mode === \'freehand\' && layer.drawing){\n' +
+'    layer.curPoints = tegnSmoothPath(layer.curPoints, TEGN_SMOOTHNESS);\n' +
+'  }\n' +
+'  if (layer.type === \'kasse\' && layer.boxPending){\n' +
+'    layer.drawn.push(layer.boxPending); layer.boxPending = null; layer.boxStart = null;\n' +
 '  }\n' +
 '  layer.drawing = false;\n' +
 '  drawTegnCanvas(canvasId);\n' +
+'  tegnUpdateToolbar(canvasId);\n' +
 '}\n' +
 'function tegnHandleWheel(canvasId, e){\n' +
 '  var st = tegnStates[canvasId]; if(!st || !e.shiftKey) return;\n' +
@@ -1956,17 +2070,27 @@ var TEGN_MODULE_TEXT =
 '  st.zoom = Math.min(4, Math.max(1, st.zoom * (e.deltaY < 0 ? 1.15 : 0.87)));\n' +
 '  drawTegnCanvas(canvasId);\n' +
 '}\n' +
+'function tegnFinishCurve(canvasId){\n' +
+'  var st = tegnStates[canvasId]; if(!st) return;\n' +
+'  var layer = tegnActiveLayer(st); if(!layer || layer.type!==\'kurve\') return;\n' +
+'  if (layer.curPoints.length < 2 || layer.drawn.length >= layer.targets.length) return;\n' +
+'  layer.drawn.push(layer.curPoints);\n' +
+'  layer.curPoints = []; layer.pendingPoint = null; layer.drawing = false;\n' +
+'  drawTegnCanvas(canvasId);\n' +
+'  tegnUpdateToolbar(canvasId);\n' +
+'}\n' +
 'function initTegnCanvas(canvasId, imageUrl, layerDefs, resultId){\n' +
 '  var canvas = document.getElementById(canvasId); if(!canvas) return;\n' +
 '  var st = tegnStates[canvasId] = {\n' +
 '    imageUrl: imageUrl, img: null, imgLoaded: false, imgW: 1, imgH: 1, baseScale: 1,\n' +
 '    canvasW: canvas.width, canvasH: canvas.height, resultId: resultId,\n' +
-'    zoom: 1, activeLayer: 0,\n' +
+'    zoom: 1, activeType: layerDefs.length ? layerDefs[0].type : \'kurve\',\n' +
 '    layers: layerDefs.map(function(d){\n' +
 '      return {\n' +
-'        type: d.type, label: d.label, targetPoints: d.targetPoints, tolerance: d.tolerance,\n' +
-'        mode: \'polygon\', polygonPoints: [], freehandPath: [], markerPoints: [],\n' +
-'        pendingPoint: null, pendingStart: null, drawing: false, done: false\n' +
+'        type: d.type, tolerance: d.tolerance, targets: d.targets,\n' +
+'        drawn: [], mode: \'polygon\', curPoints: [],\n' +
+'        pendingPoint: null, pendingStart: null, boxPending: null, boxStart: null,\n' +
+'        drawing: false, done: false\n' +
 '      };\n' +
 '    })\n' +
 '  };\n' +
@@ -2003,30 +2127,31 @@ var TEGN_MODULE_TEXT =
 '  canvas.addEventListener(\'touchmove\', hd.tmove, {passive:false});\n' +
 '  canvas.addEventListener(\'touchend\', hd.tup);\n' +
 '  canvas.addEventListener(\'wheel\', hd.wheel, {passive:false});\n' +
+'  tegnUpdateToolbar(canvasId);\n' +
 '}\n' +
-'function tegnSetActiveLayer(canvasId, idx){\n' +
+'function tegnSetActiveTool(canvasId, type){\n' +
 '  var st = tegnStates[canvasId]; if(!st) return;\n' +
-'  st.activeLayer = idx;\n' +
+'  st.activeType = type;\n' +
 '  drawTegnCanvas(canvasId);\n' +
 '  var bar = document.getElementById(canvasId+\'-modebar\');\n' +
-'  if (bar) bar.style.display = st.layers[idx].type === \'kurve\' ? \'flex\' : \'none\';\n' +
-'  document.querySelectorAll(\'[data-tegn-layer-btn="\'+canvasId+\'"]\').forEach(function(b){\n' +
-'    var i = parseInt(b.getAttribute(\'data-idx\'),10);\n' +
-'    b.style.fontWeight = i===idx ? \'700\' : \'500\';\n' +
-'    b.style.textDecoration = i===idx ? \'underline\' : \'none\';\n' +
+'  var layer = tegnLayerOf(st, type);\n' +
+'  if (bar) bar.style.display = (type === \'kurve\') ? \'flex\' : \'none\';\n' +
+'  document.querySelectorAll(\'[data-tegn-tool-btn="\'+canvasId+\'"]\').forEach(function(b){\n' +
+'    var t = b.getAttribute(\'data-type\');\n' +
+'    b.style.fontWeight = t===type ? \'700\' : \'500\';\n' +
+'    b.style.textDecoration = t===type ? \'underline\' : \'none\';\n' +
 '  });\n' +
-'  if (st.layers[idx].type === \'kurve\'){\n' +
+'  if (layer && layer.type === \'kurve\'){\n' +
 '    var btnF = document.getElementById(canvasId+\'-btn-freehand\'), btnP = document.getElementById(canvasId+\'-btn-polygon\');\n' +
-'    var mode = st.layers[idx].mode;\n' +
-'    if (btnF){ btnF.style.background = mode===\'freehand\' ? \'#1e3a5f\' : \'\'; btnF.style.color = mode===\'freehand\' ? \'#fff\' : \'\'; }\n' +
-'    if (btnP){ btnP.style.background = mode===\'polygon\' ? \'#1e3a5f\' : \'\'; btnP.style.color = mode===\'polygon\' ? \'#fff\' : \'\'; }\n' +
+'    if (btnF){ btnF.style.background = layer.mode===\'freehand\' ? \'#1e3a5f\' : \'\'; btnF.style.color = layer.mode===\'freehand\' ? \'#fff\' : \'\'; }\n' +
+'    if (btnP){ btnP.style.background = layer.mode===\'polygon\' ? \'#1e3a5f\' : \'\'; btnP.style.color = layer.mode===\'polygon\' ? \'#fff\' : \'\'; }\n' +
 '  }\n' +
+'  tegnUpdateToolbar(canvasId);\n' +
 '}\n' +
 'function tegnSetMode(canvasId, mode){\n' +
 '  var st = tegnStates[canvasId]; if(!st) return;\n' +
 '  var layer = tegnActiveLayer(st); if(!layer || layer.type!==\'kurve\' || layer.mode===mode) return;\n' +
-'  layer.mode = mode; layer.freehandPath = []; layer.polygonPoints = []; layer.pendingPoint = null; layer.done = false;\n' +
-'  var r = document.getElementById(st.resultId); if(r){r.className=\'ow-result\';r.textContent=\'\';}\n' +
+'  layer.mode = mode; layer.curPoints = []; layer.pendingPoint = null;\n' +
 '  drawTegnCanvas(canvasId);\n' +
 '  var btnF = document.getElementById(canvasId+\'-btn-freehand\'), btnP = document.getElementById(canvasId+\'-btn-polygon\');\n' +
 '  if (btnF){ btnF.style.background = mode===\'freehand\' ? \'#1e3a5f\' : \'\'; btnF.style.color = mode===\'freehand\' ? \'#fff\' : \'\'; }\n' +
@@ -2035,37 +2160,39 @@ var TEGN_MODULE_TEXT =
 'function tegnUndo(canvasId){\n' +
 '  var st = tegnStates[canvasId]; if(!st) return;\n' +
 '  var layer = tegnActiveLayer(st); if(!layer) return;\n' +
-'  if (layer.type === \'punkt\' && layer.markerPoints.length) layer.markerPoints.pop();\n' +
-'  else if (layer.type === \'kurve\' && layer.mode === \'polygon\' && layer.polygonPoints.length) layer.polygonPoints.pop();\n' +
+'  if (layer.type === \'kurve\'){\n' +
+'    if (layer.curPoints.length) layer.curPoints.pop();\n' +
+'    else if (layer.drawn.length) layer.drawn.pop();\n' +
+'  } else if (layer.drawn.length) layer.drawn.pop();\n' +
 '  drawTegnCanvas(canvasId);\n' +
+'  tegnUpdateToolbar(canvasId);\n' +
 '}\n' +
 'function clearTegnCanvas(canvasId){\n' +
 '  var st = tegnStates[canvasId]; if(!st) return;\n' +
 '  var layer = tegnActiveLayer(st); if(!layer) return;\n' +
-'  layer.freehandPath = []; layer.polygonPoints = []; layer.markerPoints = []; layer.pendingPoint = null; layer.done = false;\n' +
+'  layer.drawn = []; layer.curPoints = []; layer.pendingPoint = null;\n' +
+'  layer.boxPending = null; layer.boxStart = null; layer.done = false;\n' +
 '  var r = document.getElementById(st.resultId); if(r){r.className=\'ow-result\';r.textContent=\'\';}\n' +
 '  drawTegnCanvas(canvasId);\n' +
+'  tegnUpdateToolbar(canvasId);\n' +
 '}\n' +
-'function tegnResample(points, xs){\n' +
-'  var pts = points.slice().sort(function(a,b){return a[0]-b[0];});\n' +
-'  return xs.map(function(x){\n' +
-'    if (pts.length < 2 || x < pts[0][0] || x > pts[pts.length-1][0]) return null;\n' +
-'    for (var i=0;i<pts.length-1;i++){\n' +
-'      if (x >= pts[i][0] && x <= pts[i+1][0]){\n' +
-'        var dx = pts[i+1][0]-pts[i][0];\n' +
-'        var t = dx === 0 ? 0 : (x-pts[i][0])/dx;\n' +
-'        return pts[i][1] + t*(pts[i+1][1]-pts[i][1]);\n' +
-'      }\n' +
-'    }\n' +
-'    return null;\n' +
-'  });\n' +
+'function tegnUpdateToolbar(canvasId){\n' +
+'  var st = tegnStates[canvasId]; if(!st) return;\n' +
+'  var layer = tegnActiveLayer(st); if(!layer) return;\n' +
+'  var countEl = document.getElementById(canvasId+\'-count\');\n' +
+'  if (countEl) countEl.textContent = layer.drawn.length + \'/\' + layer.targets.length + \' tegnet\';\n' +
+'  var finishBtn = document.getElementById(canvasId+\'-btn-finish\');\n' +
+'  if (finishBtn){\n' +
+'    finishBtn.style.display = layer.type === \'kurve\' ? \'inline-block\' : \'none\';\n' +
+'    finishBtn.disabled = !(layer.type===\'kurve\' && layer.curPoints.length >= 2 && layer.drawn.length < layer.targets.length);\n' +
+'  }\n' +
 '}\n' +
 'function tegnCheckLayer(layer){\n' +
+'  if (layer.drawn.length < layer.targets.length) return false;\n' +
 '  if (layer.type === \'punkt\'){\n' +
-'    if (layer.markerPoints.length < layer.targetPoints.length) return false;\n' +
-'    var targets = layer.targetPoints.map(function(t){ return [t.x!==undefined?t.x:t[0], t.y!==undefined?t.y:t[1]]; });\n' +
+'    var targets = layer.targets.map(tegnPt);\n' +
 '    var used = targets.map(function(){ return false; });\n' +
-'    var ok = layer.markerPoints.every(function(mp){\n' +
+'    return layer.drawn.every(function(mp){\n' +
 '      var bestI = -1, bestD = Infinity;\n' +
 '      targets.forEach(function(tp, ti){\n' +
 '        if (used[ti]) return;\n' +
@@ -2075,38 +2202,53 @@ var TEGN_MODULE_TEXT =
 '      if (bestI === -1 || bestD > layer.tolerance) return false;\n' +
 '      used[bestI] = true; return true;\n' +
 '    });\n' +
-'    return ok;\n' +
 '  }\n' +
-'  var drawnRaw = layer.mode === \'freehand\' ? layer.freehandPath : layer.polygonPoints;\n' +
-'  if (drawnRaw.length < 2) return false;\n' +
-'  var drawn = layer.mode === \'polygon\' ? tegnSampleBezier(drawnRaw, 12) : drawnRaw;\n' +
-'  var target = tegnSampleBezier(layer.targetPoints, 12);\n' +
-'  var sortedT = target.slice().sort(function(a,b){return a[0]-b[0];});\n' +
-'  var N = 24, xMinT = sortedT[0][0], xMaxT = sortedT[sortedT.length-1][0];\n' +
-'  var xs = []; for (var i=0;i<N;i++){ xs.push(xMinT + (xMaxT-xMinT)*i/(N-1)); }\n' +
-'  var targetYs = tegnResample(target, xs), drawnYs = tegnResample(drawn, xs);\n' +
-'  var sumSq = 0, count = 0;\n' +
-'  for (var j=0;j<N;j++){\n' +
-'    if (drawnYs[j] === null || targetYs[j] === null) continue;\n' +
-'    var d2 = drawnYs[j]-targetYs[j]; sumSq += d2*d2; count++;\n' +
+'  if (layer.type === \'kasse\'){\n' +
+'    var tboxes = layer.targets.map(function(t){ return tegnNormBox(tegnPt(t[0]), tegnPt(t[1])); });\n' +
+'    var usedB = tboxes.map(function(){ return false; });\n' +
+'    return layer.drawn.every(function(db){\n' +
+'      var d = tegnNormBox(db[0], db[1]);\n' +
+'      var bestI = -1, bestD = Infinity;\n' +
+'      tboxes.forEach(function(t, ti){\n' +
+'        if (usedB[ti]) return;\n' +
+'        var dist = Math.max(Math.abs(d.x1-t.x1), Math.abs(d.x2-t.x2), Math.abs(d.y1-t.y1), Math.abs(d.y2-t.y2));\n' +
+'        if (dist < bestD){ bestD = dist; bestI = ti; }\n' +
+'      });\n' +
+'      if (bestI === -1 || bestD > layer.tolerance) return false;\n' +
+'      usedB[bestI] = true; return true;\n' +
+'    });\n' +
 '  }\n' +
-'  var coverage = count/N, rms = count>0 ? Math.sqrt(sumSq/count) : Infinity;\n' +
-'  return coverage >= 0.7 && rms <= layer.tolerance;\n' +
+'  if (layer.type === \'kurve\'){\n' +
+'    var usedC = layer.targets.map(function(){ return false; });\n' +
+'    return layer.drawn.every(function(drawnRaw){\n' +
+'      var dense = layer.mode === \'polygon\' ? tegnSampleBezier(drawnRaw, 12) : drawnRaw;\n' +
+'      var bestI = -1, bestScore = Infinity;\n' +
+'      layer.targets.forEach(function(target, ti){\n' +
+'        if (usedC[ti]) return;\n' +
+'        var score = tegnCurveMatchScore(dense, target, layer.tolerance);\n' +
+'        if (score !== null && score < bestScore){ bestScore = score; bestI = ti; }\n' +
+'      });\n' +
+'      if (bestI === -1) return false;\n' +
+'      usedC[bestI] = true; return true;\n' +
+'    });\n' +
+'  }\n' +
+'  return false;\n' +
 '}\n' +
 'function checkTegn(canvasId){\n' +
 '  var st = tegnStates[canvasId]; var r = document.getElementById(st.resultId);\n' +
 '  var allOk = true, unfinished = [];\n' +
+'  var typeLabel = { kurve: \'kurve(r)\', punkt: \'punkt(er)\', kasse: \'kasse(r)\' };\n' +
 '  st.layers.forEach(function(layer){\n' +
 '    var ok = tegnCheckLayer(layer);\n' +
 '    layer.done = ok;\n' +
-'    if (!ok){ allOk = false; unfinished.push(layer.label || \'Lag\'); }\n' +
+'    if (!ok){ allOk = false; unfinished.push(typeLabel[layer.type] || layer.type); }\n' +
 '  });\n' +
 '  if (allOk){ if(r){ r.className=\'ow-result ok\'; r.textContent=\'Rigtigt!\'; } drawTegnCanvas(canvasId); }\n' +
 '  else if (r){\n' +
 '    r.className = \'ow-result err\';\n' +
 '    r.textContent = st.layers.length > 1\n' +
 '      ? (\'Mangler stadig: \' + unfinished.join(\', \') + \'.\')\n' +
-'      : \'Ikke helt rigtigt \\u2014 juster kurven og tjek igen.\';\n' +
+'      : \'Ikke helt rigtigt \\u2014 juster og tjek igen.\';\n' +
 '  }\n' +
 '  return allOk;\n' +
 '}';
@@ -3462,30 +3604,125 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
 
   // ---- Tegn (frihånd/polygon over baggrundsbillede) ----
   var TG_PALETTE = ['#2563eb', '#7c3aed', '#059669', '#db2777'];
+  var TEGN_COLOR_BY_TYPE = { kurve: '#2563eb', punkt: '#7c3aed', kasse: '#059669' };
   var tgPickerImg = null, tgPickerScale = 1, tgPickerOffX = 0, tgPickerOffY = 0;
-  var tgPending = null, tgPendingStart = null, tgDragging = false;
-  var tgLayers = [], tgActiveLayer = 0;
-
-  function newTgLayer(type, label){
-    return { type: type, label: label, points: [], tolerance: type === 'punkt' ? 15 : 20 };
+  var tgPending = null, tgPendingStart = null, tgDragging = false, tgBoxStart = null;
+  var tgLayers = [], tgActiveType = 'kurve';
+  var tgCurPoints = []; // in-progress target curve for the active type (kurve only)
+  // The TRUE background — coordinate grid / loaded image plus anything the
+  // admin has baked in as an "always visible" annotation — kept as its own
+  // offscreen canvas, completely separate from the live on-screen preview.
+  // Baking must only ever read from THIS, never from the visible canvas,
+  // which also has the (hidden-from-students) target shapes drawn on top —
+  // otherwise those targets get permanently burned into what students see.
+  var tgBgCanvas = null;
+  function tgSyncBgFromImage(img){
+    tgBgCanvas = document.createElement('canvas');
+    tgBgCanvas.width = document.getElementById('tg-canvas').width;
+    tgBgCanvas.height = document.getElementById('tg-canvas').height;
+    var bgCtx = tgBgCanvas.getContext('2d');
+    bgCtx.drawImage(img, tgPickerOffX, tgPickerOffY, img.naturalWidth * tgPickerScale, img.naturalHeight * tgPickerScale);
   }
 
+  // Every type-bucket (kurve/punkt/kasse) holds a LIST of target shapes —
+  // the admin can add as many as needed within one type, not a separate
+  // numbered layer per shape. Created lazily the first time a type is used.
+  function ensureTgLayer(type){
+    for (var i = 0; i < tgLayers.length; i++){ if (tgLayers[i].type === type) return tgLayers[i]; }
+    var layer = { type: type, tolerance: type === 'kurve' ? 20 : 15, targets: [] };
+    tgLayers.push(layer);
+    return layer;
+  }
+
+  // Renders a coordinate system (axes, grid, tick labels) onto an offscreen
+  // canvas and returns it as a data-URL — feeds straight into the SAME
+  // "billede" pipeline as any admin-supplied image URL, so none of the
+  // existing loading/rendering/checking code needs to know the difference.
+  function generateGridDataUrl(xMin, xMax, yMin, yMax, w, h){
+    var canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    tgDrawGrid(ctx, w, h, xMin, xMax, yMin, yMax);
+    return canvas.toDataURL('image/png');
+  }
+  function tgNiceStep(range){
+    var raw = range / 10;
+    var mag = Math.pow(10, Math.floor(Math.log10(raw || 1)));
+    var norm = raw / mag;
+    var step = norm < 1.5 ? 1 : norm < 3.5 ? 2 : norm < 7.5 ? 5 : 10;
+    return step * mag;
+  }
+  function tgNiceNum(v){ return Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : String(Math.round(v*100)/100); }
+  function tgDrawGrid(ctx, w, h, xMin, xMax, yMin, yMax){
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+    var sx = w / (xMax - xMin), sy = h / (yMax - yMin);
+    function toPx(x, y){ return [(x - xMin) * sx, h - (y - yMin) * sy]; }
+    var stepX = tgNiceStep(xMax - xMin), stepY = tgNiceStep(yMax - yMin);
+    ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+    for (var gx = Math.ceil(xMin / stepX) * stepX; gx <= xMax + 1e-9; gx += stepX){
+      var p = toPx(gx, 0); ctx.beginPath(); ctx.moveTo(p[0], 0); ctx.lineTo(p[0], h); ctx.stroke();
+    }
+    for (var gy = Math.ceil(yMin / stepY) * stepY; gy <= yMax + 1e-9; gy += stepY){
+      var p2 = toPx(0, gy); ctx.beginPath(); ctx.moveTo(0, p2[1]); ctx.lineTo(w, p2[1]); ctx.stroke();
+    }
+    var origin = toPx(0, 0);
+    ctx.strokeStyle = '#374151'; ctx.lineWidth = 2;
+    if (yMin <= 0 && yMax >= 0){ ctx.beginPath(); ctx.moveTo(0, origin[1]); ctx.lineTo(w, origin[1]); ctx.stroke(); }
+    if (xMin <= 0 && xMax >= 0){ ctx.beginPath(); ctx.moveTo(origin[0], 0); ctx.lineTo(origin[0], h); ctx.stroke(); }
+    ctx.fillStyle = '#374151'; ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (var gx2 = Math.ceil(xMin / stepX) * stepX; gx2 <= xMax + 1e-9; gx2 += stepX){
+      if (Math.abs(gx2) < 1e-9) continue;
+      var p3 = toPx(gx2, 0);
+      ctx.fillText(tgNiceNum(gx2), p3[0], Math.min(h - 14, Math.max(2, origin[1] + 4)));
+    }
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (var gy3 = Math.ceil(yMin / stepY) * stepY; gy3 <= yMax + 1e-9; gy3 += stepY){
+      if (Math.abs(gy3) < 1e-9) continue;
+      var p4 = toPx(0, gy3);
+      ctx.fillText(tgNiceNum(gy3), Math.max(14, Math.min(w - 2, origin[0] - 4)), p4[1]);
+    }
+  }
+  ScaffoldUI.tegnGenerateGrid = function(){
+    var xMin = parseFloat(document.getElementById('tg-xmin').value.replace(',','.'));
+    var xMax = parseFloat(document.getElementById('tg-xmax').value.replace(',','.'));
+    var yMin = parseFloat(document.getElementById('tg-ymin').value.replace(',','.'));
+    var yMax = parseFloat(document.getElementById('tg-ymax').value.replace(',','.'));
+    if ([xMin,xMax,yMin,yMax].some(isNaN) || xMax <= xMin || yMax <= yMin){
+      alert('Udfyld gyldige min/max-værdier (max skal være større end min).'); return;
+    }
+    var url = generateGridDataUrl(xMin, xMax, yMin, yMax, TG_CANVAS_W, TG_CANVAS_H);
+    document.getElementById('tg-url').value = url;
+    ScaffoldUI.tegnLoadImage();
+  };
+  var TG_CANVAS_W = 640, TG_CANVAS_H = 480;
+
   function tegnFormHtml(n, existing, idx){
-    return '<div class="form-box"><h3>' + NIVEAU_META[n].label + ' — Tegn en kurve</h3>' +
+    return '<div class="form-box"><h3>' + NIVEAU_META[n].label + ' — Tegn</h3>' +
       '<div class="field"><label>Titel</label><input id="of-titel" value="' + (existing ? Scaffold.escAttr(existing.titel) : '') + '"></div>' +
       '<div class="field"><label>Instruktion (vises til eleven)</label><textarea id="of-instr">' + (existing ? h(existing.instruktion || '') : '') + '</textarea></div>' +
-      '<div class="field"><label>Baggrundsbillede-URL (koordinatsystem, graf, e.l.)</label>' +
-        '<div class="row"><input id="tg-url" value="' + (existing ? Scaffold.escAttr(existing.billede) : '') + '" placeholder="https://..."><button type="button" class="btn-sm" style="flex:0 0 auto" onclick="ScaffoldUI.suggestBillede(\'tg-url\',' + attrArg(opgState.nr) + ')">🔗 Foreslå</button><button type="button" class="btn-sm" style="flex:0 0 auto" onclick="ScaffoldUI.tegnLoadImage()">Indlæs billede</button></div></div>' +
-      '<div class="field"><label>Lag (kurver og/eller punkter eleven skal ramme — hver tjekkes for sig)</label>' +
-        '<div id="tg-layerlist" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div>' +
-        '<button type="button" class="btn-sm" onclick="ScaffoldUI.tegnAddLayer(\'kurve\')">+ Ny kurve</button> ' +
-        '<button type="button" class="btn-sm" onclick="ScaffoldUI.tegnAddLayer(\'punkt\')">+ Nyt punkt-mål</button></div>' +
-      '<div id="tg-activelayer-controls"></div>' +
-      '<p><small><b>Kurve:</b> klik for skarpt hjørne, klik-og-træk for et kurve-håndtag (vinkel/styrke, som i Inkscape). <b>Punkt:</b> klik for at placere målpunktet. Kun det valgte lag (fremhævet ovenfor) redigeres ved klik på billedet.</small></p>' +
-      '<div style="border:1.5px solid var(--border);border-radius:8px;overflow:hidden;display:inline-block;background:#f3f2f0"><canvas id="tg-canvas" width="400" height="300" style="display:block;cursor:crosshair"></canvas></div>' +
-      '<div style="margin-top:8px"><button type="button" class="btn-sm" onclick="ScaffoldUI.tegnUndoPoint()">↩ Fortryd (i valgt lag)</button> ' +
-      '<button type="button" class="btn-sm" onclick="ScaffoldUI.tegnClearPoints()">Ryd (valgt lag)</button> ' +
-      '<span id="tg-pointcount" style="font-size:0.8rem;color:var(--muted);margin-left:8px"></span></div>' +
+      '<div class="field"><label>Baggrund</label>' +
+        '<div class="row" style="align-items:flex-end;flex-wrap:wrap">' +
+        '<div class="field" style="flex:0 0 90px"><label>x fra</label><input id="tg-xmin" value="-10"></div>' +
+        '<div class="field" style="flex:0 0 90px"><label>til</label><input id="tg-xmax" value="10"></div>' +
+        '<div class="field" style="flex:0 0 90px"><label>y fra</label><input id="tg-ymin" value="-10"></div>' +
+        '<div class="field" style="flex:0 0 90px"><label>til</label><input id="tg-ymax" value="10"></div>' +
+        '<button type="button" class="btn-sm" style="flex:0 0 auto" onclick="ScaffoldUI.tegnGenerateGrid()">📐 Koordinatsystem</button>' +
+        '</div>' +
+        '<div class="row" style="margin-top:6px"><input id="tg-url" value="' + (existing ? Scaffold.escAttr(existing.billede) : '') + '" placeholder="...eller indsæt din egen billede-URL"><button type="button" class="btn-sm" style="flex:0 0 auto" onclick="ScaffoldUI.suggestBillede(\'tg-url\',' + attrArg(opgState.nr) + ')">🔗 Foreslå</button><button type="button" class="btn-sm" style="flex:0 0 auto" onclick="ScaffoldUI.tegnLoadImage()">Indlæs billede</button></div></div>' +
+      '<div class="field"><label>Skriv/tegn noget der altid skal ses af eleven (fx en given graf, en label, en pil) — dette bages ind i baggrunden og er IKKE noget der tjekkes</label>' +
+        '<div class="row"><button type="button" class="btn-sm" onclick="ScaffoldUI.tegnAnnotateText()">Aa Tilføj tekst</button>' +
+        '<button type="button" class="btn-sm' + '" id="tg-annotate-btn" onclick="ScaffoldUI.tegnToggleAnnotateDraw()">✏️ Tegn på baggrund</button></div></div>' +
+      '<div class="field"><label>Værktøj — vælg hvilken type facit-figur du tegner nu (eleven vil selv vælge værktøj og tegne frit — der er ingen prænummererede felter, og det er ligegyldigt hvilken rækkefølge eleven tegner flere figurer i)</label>' +
+        '<div id="tg-toolbar" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px"></div></div>' +
+      '<div id="tg-typecontrols"></div>' +
+      '<p><small><b>Kurve:</b> klik for skarpt hjørne, klik-og-træk for et kurve-håndtag (vinkel/styrke, som i Inkscape) — klik "✓ Denne kurve er færdig" når den er klar. <b>Punkt:</b> hvert klik tilføjer ét målpunkt. <b>Kasse:</b> hvert klik-og-træk tilføjer ét facit-rektangel. Du kan tilføje flere mål af samme type — eleven skal blot ramme dem alle, i vilkårlig rækkefølge.</small></p>' +
+      '<div style="border:1.5px solid var(--border);border-radius:8px;overflow:hidden;display:inline-block;background:#f3f2f0"><canvas id="tg-canvas" width="' + TG_CANVAS_W + '" height="' + TG_CANVAS_H + '" style="display:block;cursor:crosshair;max-width:100%;height:auto"></canvas></div>' +
+      '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
+      '<button type="button" class="btn-sm" id="tg-btn-finish" style="display:none" onclick="ScaffoldUI.tegnFinishCurveAdmin()">✓ Denne kurve er færdig</button>' +
+      '<button type="button" class="btn-sm" onclick="ScaffoldUI.tegnUndoPoint()">↩ Fortryd</button>' +
+      '<button type="button" class="btn-sm" onclick="ScaffoldUI.tegnClearPoints()">Ryd (denne type)</button>' +
+      '<span id="tg-pointcount" style="font-size:0.8rem;color:var(--muted)"></span></div>' +
       '<div class="form-actions"><button class="btn-primary" onclick="ScaffoldUI.submitTegn(' + attrArg(n) + (idx !== undefined ? ',' + idx : '') + ')">' + (existing ? 'Gem' : 'Tilføj') + '</button>' +
       '<button class="btn-cancel" onclick="ScaffoldUI.renderOpgaverTab()">Annullér</button></div></div>';
   }
@@ -3497,51 +3734,64 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     return [(sx - tgPickerOffX) / tgPickerScale, (sy - tgPickerOffY) / tgPickerScale];
   }
 
+  var TG_TYPE_META = { kurve: { icon: '\u3030', label: 'Kurve' }, punkt: { icon: '\u2715', label: 'Punkt' }, kasse: { icon: '\u25ab', label: 'Kasse' } };
   function renderTgLayerList(){
-    var wrap = document.getElementById('tg-layerlist'); if (!wrap) return;
-    wrap.innerHTML = tgLayers.map(function(layer, i){
-      var color = TG_PALETTE[i % TG_PALETTE.length];
-      var active = i === tgActiveLayer;
-      return '<button type="button" style="padding:5px 10px;border:1.5px solid ' + color + ';border-radius:6px;background:' + (active ? color : '#fff') + ';color:' + (active ? '#fff' : color) + ';font-size:0.78rem;cursor:pointer;font-family:inherit" onclick="ScaffoldUI.tegnSelectLayer(' + i + ')">' +
-        (layer.type === 'kurve' ? '〜 ' : '✕ ') + h(layer.label) + '</button>';
+    var wrap = document.getElementById('tg-toolbar'); if (!wrap) return;
+    wrap.innerHTML = ['kurve','punkt','kasse'].map(function(type){
+      var color = TEGN_COLOR_BY_TYPE[type];
+      var active = type === tgActiveType;
+      var count = ensureTgLayer(type).targets.length;
+      return '<button type="button" style="padding:5px 10px;border:1.5px solid ' + color + ';border-radius:6px;background:' + (active ? color : '#fff') + ';color:' + (active ? '#fff' : color) + ';font-size:0.78rem;cursor:pointer;font-family:inherit" onclick="ScaffoldUI.tegnSelectType(' + attrArg(type) + ')">' +
+        TG_TYPE_META[type].icon + ' ' + TG_TYPE_META[type].label + (count ? ' (' + count + ')' : '') + '</button>';
     }).join('');
     renderTgActiveLayerControls();
   }
   function renderTgActiveLayerControls(){
-    var el = document.getElementById('tg-activelayer-controls'); if (!el) return;
-    var layer = tgLayers[tgActiveLayer];
-    if (!layer){ el.innerHTML = ''; return; }
+    var el = document.getElementById('tg-typecontrols'); if (!el) return;
+    var layer = ensureTgLayer(tgActiveType);
     el.innerHTML = '<div class="row" style="align-items:center;margin-bottom:8px">' +
-      '<div class="field"><label>Navn på valgt lag</label><input id="tg-layer-label" value="' + Scaffold.escAttr(layer.label) + '" onchange="ScaffoldUI.tegnRenameLayer(this.value)"></div>' +
-      '<div class="field" style="flex:0 0 160px"><label>Usikkerhed (px)</label><input id="tg-layer-tol" value="' + layer.tolerance + '" onchange="ScaffoldUI.tegnSetLayerTol(this.value)"></div>' +
-      (tgLayers.length > 1 ? '<button type="button" class="btn-sm danger" style="align-self:flex-end;margin-bottom:10px" onclick="ScaffoldUI.tegnDeleteLayer()">Slet lag</button>' : '') +
+      '<div class="field" style="flex:0 0 160px"><label>Usikkerhed (px) for ' + TG_TYPE_META[tgActiveType].label.toLowerCase() + '</label><input id="tg-layer-tol" value="' + layer.tolerance + '" onchange="ScaffoldUI.tegnSetLayerTol(this.value)"></div>' +
       '</div>';
   }
 
   function initTegnForm(n, existing, idx){
     document.getElementById('inlineForm').innerHTML = tegnFormHtml(n, existing, idx);
-    tgPickerImg = null; tgPending = null; tgDragging = false;
+    tgPickerImg = null; tgPending = null; tgDragging = false; tgCurPoints = [];
+    tgAnnotateDrawing = false; tgAnnotatePath = null;
     if (existing && existing.layers){
       tgLayers = existing.layers.map(function(layer){
         return {
-          type: layer.type, label: layer.label, tolerance: layer.tolerance,
-          points: layer.type === 'punkt'
-            ? layer.targetPoints.map(function(p){ return [p.x, p.y]; })
-            : layer.targetPoints.map(function(p){ return [p.x, p.y, p.hx||0, p.hy||0]; })
+          type: layer.type, tolerance: layer.tolerance,
+          targets: layer.type === 'kurve'
+            ? layer.targets.map(function(curve){ return curve.map(function(p){ return [p.x, p.y, p.hx||0, p.hy||0]; }); })
+            : layer.type === 'kasse'
+              ? layer.targets.map(function(box){ return [[box[0].x, box[0].y],[box[1].x, box[1].y]]; })
+              : layer.targets.map(function(p){ return [p.x, p.y]; })
         };
       });
+      tgActiveType = tgLayers.length ? tgLayers[0].type : 'kurve';
     } else {
-      tgLayers = [newTgLayer('kurve', 'Kurve 1')];
+      tgLayers = [];
+      tgActiveType = 'kurve';
+      ensureTgLayer('kurve');
     }
-    tgActiveLayer = 0;
     renderTgLayerList();
     var canvas = document.getElementById('tg-canvas');
     canvas.addEventListener('mousedown', function(e){
-      if (!tgPickerImg) return;
-      var layer = tgLayers[tgActiveLayer]; if (!layer) return;
+      if (tgAnnotateDrawing){
+        var pa = tgPointFromEvent(canvas, e);
+        tgAnnotatePath = [pa];
+        return;
+      }
+      var layer = ensureTgLayer(tgActiveType);
       var p = tgPointFromEvent(canvas, e);
       if (layer.type === 'punkt'){
-        layer.points = [p]; // a punkt-layer has exactly one target point in the picker
+        layer.targets.push(p);
+        renderTgLayerList(); tegnDrawPicker();
+        return;
+      }
+      if (layer.type === 'kasse'){
+        tgBoxStart = p; tgPending = [p, p]; tgDragging = true;
         tegnDrawPicker();
         return;
       }
@@ -3549,15 +3799,48 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
       tegnDrawPicker();
     });
     canvas.addEventListener('mousemove', function(e){
-      if (!tgDragging || !tgPending) return;
+      if (tgAnnotateDrawing && tgAnnotatePath){
+        var pm = tgPointFromEvent(canvas, e);
+        tgAnnotatePath.push(pm);
+        // Drawn straight onto the TRUE background canvas, not the visible
+        // preview — so it's already correctly separated from whatever
+        // target shapes happen to be showing on screen right now.
+        var bgCtx = tgBgCanvas.getContext('2d');
+        bgCtx.strokeStyle = '#111827'; bgCtx.lineWidth = 2.5; bgCtx.lineJoin = 'round'; bgCtx.lineCap = 'round';
+        bgCtx.beginPath();
+        var a = [tgPickerOffX + tgAnnotatePath[tgAnnotatePath.length-2][0]*tgPickerScale, tgPickerOffY + tgAnnotatePath[tgAnnotatePath.length-2][1]*tgPickerScale];
+        var b = [tgPickerOffX + pm[0]*tgPickerScale, tgPickerOffY + pm[1]*tgPickerScale];
+        bgCtx.moveTo(a[0], a[1]); bgCtx.lineTo(b[0], b[1]); bgCtx.stroke();
+        tegnDrawPicker();
+        return;
+      }
+      if (!tgDragging) return;
+      var layer = ensureTgLayer(tgActiveType);
       var p = tgPointFromEvent(canvas, e);
+      if (layer.type === 'kasse'){
+        tgPending = [tgBoxStart, p];
+        tegnDrawPicker();
+        return;
+      }
+      if (!tgPending) return;
       tgPending[2] = p[0] - tgPendingStart[0];
       tgPending[3] = p[1] - tgPendingStart[1];
       tegnDrawPicker();
     });
     function finishDrag(){
-      if (tgDragging && tgPending){ tgLayers[tgActiveLayer].points.push(tgPending); tgPending = null; }
+      if (tgAnnotateDrawing && tgAnnotatePath){
+        tgBakeAnnotationLine(tgAnnotatePath);
+        tgAnnotatePath = null;
+        return;
+      }
+      var layer = ensureTgLayer(tgActiveType);
+      if (tgDragging && tgPending){
+        if (layer.type === 'kasse'){ layer.targets.push(tgPending); }
+        else { tgCurPoints.push(tgPending); }
+        tgPending = null;
+      }
       tgDragging = false;
+      renderTgLayerList();
       tegnDrawPicker();
     }
     canvas.addEventListener('mouseup', finishDrag);
@@ -3565,6 +3848,11 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     if (existing && existing.billede){
       document.getElementById('tg-url').value = existing.billede;
       ScaffoldUI.tegnLoadImage();
+    } else {
+      // A default coordinate system loads immediately, so the canvas is
+      // always ready to draw on — no more needing to load a background
+      // first just to get clicks to register at all.
+      ScaffoldUI.tegnGenerateGrid();
     }
   }
 
@@ -3572,25 +3860,43 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     var canvas = document.getElementById('tg-canvas'); if (!canvas) return;
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (tgPickerImg) ctx.drawImage(tgPickerImg, tgPickerOffX, tgPickerOffY, tgPickerImg.naturalWidth * tgPickerScale, tgPickerImg.naturalHeight * tgPickerScale);
+    // Draw from the offscreen "true background" — target overlays below are
+    // only ever painted onto the VISIBLE canvas, never onto tgBgCanvas, so
+    // they can never accidentally end up baked in.
+    if (tgBgCanvas) ctx.drawImage(tgBgCanvas, 0, 0);
 
     function toScreen(ix, iy){ return [tgPickerOffX + ix * tgPickerScale, tgPickerOffY + iy * tgPickerScale]; }
 
-    tgLayers.forEach(function(layer, li){
-      var color = TG_PALETTE[li % TG_PALETTE.length];
+    tgLayers.forEach(function(layer){
+      var color = TEGN_COLOR_BY_TYPE[layer.type];
+      var isActive = layer.type === tgActiveType;
       if (layer.type === 'punkt'){
-        layer.points.forEach(function(p){
+        layer.targets.forEach(function(p){
           var s = toScreen(p[0], p[1]);
           ctx.strokeStyle = color; ctx.lineWidth = 3;
           ctx.beginPath(); ctx.moveTo(s[0]-6,s[1]-6); ctx.lineTo(s[0]+6,s[1]+6); ctx.moveTo(s[0]+6,s[1]-6); ctx.lineTo(s[0]-6,s[1]+6); ctx.stroke();
         });
         return;
       }
-      var livePoints = layer.points.slice();
-      if (li === tgActiveLayer && tgPending) livePoints.push(tgPending);
-      if (livePoints.length > 1){
-        var segs = Scaffold.tegnBezierSegments(livePoints);
-        ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      if (layer.type === 'kasse'){
+        layer.targets.forEach(function(box){
+          var a = toScreen(box[0][0], box[0][1]), b = toScreen(box[1][0], box[1][1]);
+          ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+          ctx.strokeRect(Math.min(a[0],b[0]), Math.min(a[1],b[1]), Math.abs(b[0]-a[0]), Math.abs(b[1]-a[1]));
+        });
+        if (isActive && tgPending){
+          var a2 = toScreen(tgPending[0][0], tgPending[0][1]), b2 = toScreen(tgPending[1][0], tgPending[1][1]);
+          ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.setLineDash([5,4]);
+          ctx.strokeRect(Math.min(a2[0],b2[0]), Math.min(a2[1],b2[1]), Math.abs(b2[0]-a2[0]), Math.abs(b2[1]-a2[1]));
+          ctx.setLineDash([]);
+        }
+        return;
+      }
+      // kurve: completed targets, always shown
+      ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      layer.targets.forEach(function(curve){
+        if (curve.length < 2) return;
+        var segs = Scaffold.tegnBezierSegments(curve);
         ctx.beginPath();
         segs.forEach(function(s, i){
           var p0 = toScreen(s[0], s[1]), c1 = toScreen(s[2], s[3]), c2 = toScreen(s[4], s[5]), p1 = toScreen(s[6], s[7]);
@@ -3598,13 +3904,27 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
           ctx.bezierCurveTo(c1[0], c1[1], c2[0], c2[1], p1[0], p1[1]);
         });
         ctx.stroke();
+      });
+      if (!isActive) return;
+      // in-progress current curve for the active type
+      var livePoints = tgCurPoints.slice();
+      if (tgPending) livePoints.push(tgPending);
+      if (livePoints.length > 1){
+        var segs2 = Scaffold.tegnBezierSegments(livePoints);
+        ctx.beginPath();
+        segs2.forEach(function(s, i){
+          var p0 = toScreen(s[0], s[1]), c1 = toScreen(s[2], s[3]), c2 = toScreen(s[4], s[5]), p1 = toScreen(s[6], s[7]);
+          if (i === 0) ctx.moveTo(p0[0], p0[1]);
+          ctx.bezierCurveTo(c1[0], c1[1], c2[0], c2[1], p1[0], p1[1]);
+        });
+        ctx.stroke();
       }
       ctx.fillStyle = color;
-      layer.points.forEach(function(p){
+      tgCurPoints.forEach(function(p){
         var s = toScreen(p[0], p[1]);
         ctx.beginPath(); ctx.arc(s[0], s[1], 4, 0, Math.PI * 2); ctx.fill();
       });
-      if (li === tgActiveLayer && tgPending){
+      if (tgPending){
         var pc = toScreen(tgPending[0], tgPending[1]);
         ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(pc[0], pc[1], 4.5, 0, Math.PI * 2); ctx.fill();
         if (tgPending[2] || tgPending[3]){
@@ -3617,10 +3937,58 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
         }
       }
     });
+    var finishBtn = document.getElementById('tg-btn-finish');
+    if (finishBtn) finishBtn.style.display = tgActiveType === 'kurve' ? 'inline-block' : 'none';
     var countEl = document.getElementById('tg-pointcount');
-    var active = tgLayers[tgActiveLayer];
-    if (countEl && active) countEl.textContent = (active.type === 'punkt' ? (active.points.length ? '1 punkt sat' : 'intet punkt sat endnu') : active.points.length + ' punkt(er)');
+    var active = ensureTgLayer(tgActiveType);
+    if (countEl){
+      countEl.textContent = active.type === 'kurve'
+        ? (active.targets.length + ' kurve(r) tildef\u00f8jet' + (tgCurPoints.length ? ' \u2014 ' + tgCurPoints.length + ' punkt(er) i gang' : ''))
+        : active.type === 'punkt' ? (active.targets.length + ' punkt(er) tilf\u00f8jet')
+        : (active.targets.length + ' kasse(r) tilf\u00f8jet');
+    }
   }
+
+  // ---- "vis altid for eleven" annotationer — bages direkte ind i baggrunden ----
+  var tgAnnotateDrawing = false, tgAnnotatePath = null;
+  ScaffoldUI.tegnToggleAnnotateDraw = function(){
+    tgAnnotateDrawing = !tgAnnotateDrawing;
+    var btn = document.getElementById('tg-annotate-btn');
+    if (btn){ btn.style.background = tgAnnotateDrawing ? '#1e3a5f' : ''; btn.style.color = tgAnnotateDrawing ? '#fff' : ''; }
+  };
+  // Bakes whatever's currently on the TRUE background canvas (never the
+  // visible preview, which may have target-layer overlays on top right
+  // now) into the saved billede — so a target shape can never accidentally
+  // end up burned into what students permanently see.
+  function tgBakeCanvasAsBackground(){
+    var url = tgBgCanvas.toDataURL('image/png');
+    document.getElementById('tg-url').value = url;
+    tgPickerImg = tgBgCanvas;
+    tgPickerScale = 1; tgPickerOffX = 0; tgPickerOffY = 0;
+    tegnDrawPicker();
+  }
+  function tgBakeAnnotationLine(path){
+    // The line is already drawn live onto tgBgCanvas during mousemove —
+    // just persist the current pixels as the saved background.
+    tgBakeCanvasAsBackground();
+  }
+  ScaffoldUI.tegnAnnotateText = function(){
+    var text = window.prompt('Tekst der altid skal ses (ikke noget eleven skal ramme):');
+    if (!text) return;
+    var canvas = document.getElementById('tg-canvas');
+    canvas.style.cursor = 'text';
+    var handler = function(e){
+      var p = tgPointFromEvent(canvas, e);
+      var s = [tgPickerOffX + p[0]*tgPickerScale, tgPickerOffY + p[1]*tgPickerScale];
+      var bgCtx = tgBgCanvas.getContext('2d');
+      bgCtx.fillStyle = '#111827'; bgCtx.font = 'bold 16px sans-serif'; bgCtx.textAlign = 'left'; bgCtx.textBaseline = 'middle';
+      bgCtx.fillText(text, s[0], s[1]);
+      tgBakeCanvasAsBackground();
+      canvas.removeEventListener('click', handler);
+      canvas.style.cursor = 'crosshair';
+    };
+    canvas.addEventListener('click', handler);
+  };
 
   ScaffoldUI.tegnLoadImage = function(){
     var url = document.getElementById('tg-url').value.trim();
@@ -3632,60 +4000,72 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
       tgPickerScale = Math.min(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
       tgPickerOffX = (canvas.width - img.naturalWidth * tgPickerScale) / 2;
       tgPickerOffY = (canvas.height - img.naturalHeight * tgPickerScale) / 2;
+      tgSyncBgFromImage(img);
       tegnDrawPicker();
     };
     img.onerror = function(){ alert('Kunne ikke indlæse billedet — tjek URL\'en (og at den tillader indlejring).'); };
     img.src = url;
   };
-  ScaffoldUI.tegnAddLayer = function(type){
-    var count = tgLayers.filter(function(l){ return l.type === type; }).length + 1;
-    tgLayers.push(newTgLayer(type, (type === 'kurve' ? 'Kurve ' : 'Punkt ') + count));
-    tgActiveLayer = tgLayers.length - 1;
+  ScaffoldUI.tegnSelectType = function(type){
+    tgActiveType = type;
+    tgCurPoints = []; tgPending = null; tgDragging = false;
+    ensureTgLayer(type);
     renderTgLayerList();
     tegnDrawPicker();
   };
-  ScaffoldUI.tegnSelectLayer = function(i){ tgActiveLayer = i; renderTgLayerList(); tegnDrawPicker(); };
-  ScaffoldUI.tegnRenameLayer = function(val){ tgLayers[tgActiveLayer].label = val.trim() || tgLayers[tgActiveLayer].label; renderTgLayerList(); };
-  ScaffoldUI.tegnSetLayerTol = function(val){ tgLayers[tgActiveLayer].tolerance = parseFloat(val.replace(',','.')) || tgLayers[tgActiveLayer].tolerance; };
-  ScaffoldUI.tegnDeleteLayer = function(){
-    if (tgLayers.length <= 1) return;
-    if (!confirmDanger('Slet laget "' + tgLayers[tgActiveLayer].label + '"?')) return;
-    tgLayers.splice(tgActiveLayer, 1);
-    tgActiveLayer = 0;
+  ScaffoldUI.tegnSetLayerTol = function(val){
+    var layer = ensureTgLayer(tgActiveType);
+    layer.tolerance = parseFloat(val.replace(',','.')) || layer.tolerance;
+  };
+  // Finalizes the currently in-progress target curve — the admin's
+  // equivalent of the student's "✓ Denne kurve er færdig" button.
+  ScaffoldUI.tegnFinishCurveAdmin = function(){
+    if (tgCurPoints.length < 2) return;
+    ensureTgLayer('kurve').targets.push(tgCurPoints);
+    tgCurPoints = [];
     renderTgLayerList();
     tegnDrawPicker();
   };
   ScaffoldUI.tegnUndoPoint = function(){
-    var layer = tgLayers[tgActiveLayer]; if (!layer) return;
-    layer.points.pop();
+    var layer = ensureTgLayer(tgActiveType);
+    if (layer.type === 'kurve'){
+      if (tgCurPoints.length) tgCurPoints.pop();
+      else if (layer.targets.length) layer.targets.pop();
+    } else if (layer.targets.length) layer.targets.pop();
+    renderTgLayerList();
     tegnDrawPicker();
   };
   ScaffoldUI.tegnClearPoints = function(){
-    var layer = tgLayers[tgActiveLayer]; if (!layer) return;
-    layer.points = [];
+    var layer = ensureTgLayer(tgActiveType);
+    layer.targets = []; tgCurPoints = []; tgPending = null;
+    renderTgLayerList();
     tegnDrawPicker();
   };
   ScaffoldUI.submitTegn = function(n, idx){
     var titel = document.getElementById('of-titel').value.trim();
     var instr = document.getElementById('of-instr').value.trim();
     var billede = document.getElementById('tg-url').value.trim();
-    if (!titel || !billede){ alert('Udfyld titel og billede-URL.'); return; }
-    for (var i = 0; i < tgLayers.length; i++){
-      var l = tgLayers[i];
-      if (l.type === 'kurve' && l.points.length < 2){ alert('Laget "' + l.label + '" mangler mindst 2 punkter.'); return; }
-      if (l.type === 'punkt' && l.points.length < 1){ alert('Laget "' + l.label + '" mangler et målpunkt.'); return; }
-    }
-    var layers = tgLayers.map(function(layer){
-      return {
-        type: layer.type, label: layer.label, tolerance: layer.tolerance,
-        targetPoints: layer.type === 'punkt'
-          ? layer.points.map(function(p){ return { x: Math.round(p[0]), y: Math.round(p[1]) }; })
-          : layer.points.map(function(p){ return { x: Math.round(p[0]), y: Math.round(p[1]), hx: Math.round(p[2]), hy: Math.round(p[3]) }; })
-      };
+    if (!titel || !billede){ alert('Udfyld titel og baggrund (koordinatsystem eller billede-URL).'); return; }
+    var usedLayers = tgLayers.filter(function(l){ return l.targets.length > 0; });
+    if (!usedLayers.length){ alert('Tilføj mindst ét facit-mål (kurve, punkt eller kasse).'); return; }
+    var layers = usedLayers.map(function(layer){
+      var targets;
+      if (layer.type === 'kurve'){
+        targets = layer.targets.map(function(curve){
+          return curve.map(function(p){ return { x: Math.round(p[0]), y: Math.round(p[1]), hx: Math.round(p[2]), hy: Math.round(p[3]) }; });
+        });
+      } else if (layer.type === 'kasse'){
+        targets = layer.targets.map(function(box){
+          return [{ x: Math.round(box[0][0]), y: Math.round(box[0][1]) }, { x: Math.round(box[1][0]), y: Math.round(box[1][1]) }];
+        });
+      } else {
+        targets = layer.targets.map(function(p){ return { x: Math.round(p[0]), y: Math.round(p[1]) }; });
+      }
+      return { type: layer.type, tolerance: layer.tolerance, targets: targets };
     });
     saveOpgaveItem(n, idx, { type: 'tegn', titel: titel, instruktion: instr, billede: billede, layers: layers });
     applyOpgaveSlots();
-    log(existingLogVerb(idx), NIVEAU_META[n].label + '-opgave (tegn, ' + layers.length + ' lag) på ' + opgState.nr + ': "' + titel + '"');
+    log(existingLogVerb(idx), NIVEAU_META[n].label + '-opgave (tegn, ' + layers.length + ' type(r)) på ' + opgState.nr + ': "' + titel + '"');
     renderOpgaverTab();
   };
 

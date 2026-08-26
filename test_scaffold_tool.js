@@ -385,10 +385,11 @@ async function runTegnTests(){
   D.getElementById('of-titel').value = 'Tegn kurven';
   D.getElementById('of-instr').value = 'Tegn';
   D.getElementById('tg-url').value = 'https://example.com/bg.png';
+  w.HTMLCanvasElement.prototype.toDataURL = w.HTMLCanvasElement.prototype.toDataURL || function(){ return 'data:image/png;base64,STUB'; };
   w.ScaffoldUI.tegnLoadImage();
   await new Promise(r => setTimeout(r, 30));
   const canvas = D.getElementById('tg-canvas');
-  canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: 400, height: 300 });
+  canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: 640, height: 480 });
   // point 1: plain click (no drag) — should become a sharp corner (hx=hy=0)
   canvas.dispatchEvent(new w.MouseEvent('mousedown', { clientX: 50, clientY: 250 }));
   canvas.dispatchEvent(new w.MouseEvent('mouseup', { clientX: 50, clientY: 250 }));
@@ -399,6 +400,7 @@ async function runTegnTests(){
   // point 3: plain click again
   canvas.dispatchEvent(new w.MouseEvent('mousedown', { clientX: 350, clientY: 50 }));
   canvas.dispatchEvent(new w.MouseEvent('mouseup', { clientX: 350, clientY: 50 }));
+  w.ScaffoldUI.tegnFinishCurveAdmin();
   D.getElementById('tg-layer-tol').value = '18';
   D.getElementById('tg-layer-tol').dispatchEvent(new w.Event('change'));
   w.ScaffoldUI.submitTegn('bronze');
@@ -406,8 +408,8 @@ async function runTegnTests(){
   test('Tegn-widget indsat med canvas + tilstandsknapper', !!doc.querySelector('#opg811-low canvas') && !!doc.getElementById('canvas-811b0-btn-freehand'));
 
   const savedItem = slotsForDebug(w, '8.1.1');
-  test('Punkt uden træk gemmes som skarpt hjørne (hx=hy=0)', savedItem && savedItem.bronze[0].layers[0].targetPoints[0].hx === 0 && savedItem.bronze[0].layers[0].targetPoints[0].hy === 0);
-  test('Punkt med træk gemmes med et håndtag (hx eller hy ≠ 0)', savedItem && (savedItem.bronze[0].layers[0].targetPoints[1].hx !== 0 || savedItem.bronze[0].layers[0].targetPoints[1].hy !== 0));
+  test('Punkt uden træk gemmes som skarpt hjørne (hx=hy=0)', savedItem && savedItem.bronze[0].layers[0].targets[0][0].hx === 0 && savedItem.bronze[0].layers[0].targets[0][0].hy === 0);
+  test('Punkt med træk gemmes med et håndtag (hx eller hy ≠ 0)', savedItem && (savedItem.bronze[0].layers[0].targets[0][1].hx !== 0 || savedItem.bronze[0].layers[0].targets[0][1].hy !== 0));
 
   const result = w.ScaffoldUI.__debugGenerate();
   test('Tegn-modulet injiceres kun ÉN gang i output', (result.html.match(/function initTegnCanvas/g) || []).length === 1);
@@ -417,7 +419,7 @@ async function runTegnTests(){
   // Runtime behaviour check on the generated output
   const dom2 = new JSDOM(result.html, { runScripts: 'dangerously', resources: 'usable', url: 'http://localhost/' });
   const w2 = dom2.window;
-  w2.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},bezierCurveTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',canvas:{width:280,height:280}});
+  w2.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},bezierCurveTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},strokeRect(){},setLineDash(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',canvas:{width:280,height:280}});
   w2.requestAnimationFrame = (cb) => setTimeout(cb, 0);
   w2.Image = class { set src(v){ setTimeout(() => { this.naturalWidth = 200; this.naturalHeight = 200; if (this.onload) this.onload(); }, 1); } };
   await new Promise(r => setTimeout(r, 30));
@@ -425,7 +427,7 @@ async function runTegnTests(){
   w2.startOpgaver811();
   await new Promise(r => setTimeout(r, 30));
   const st = w2.tegnStates['canvas-811b0'];
-  test('initTegnCanvas satte 1 lag korrekt op i runtime state', st && st.layers.length === 1 && st.layers[0].targetPoints.length === 3);
+  test('initTegnCanvas satte 1 lag korrekt op i runtime state', st && st.layers.length === 1 && st.layers[0].targets.length === 1 && st.layers[0].targets[0].length === 3);
 
   // Bézier math: pure corner points trace an exact straight line; a dragged
   // handle bulges the curve away from the straight path.
@@ -435,12 +437,12 @@ async function runTegnTests(){
   test('Et trukket håndtag bøjer kurven væk fra den lige linje', curved.some(p => Math.abs(p[1]) > 1));
 
   // wrong attempt should not reveal the correct curve
-  st.layers[0].polygonPoints = [[0,0,0,0],[10,10,0,0],[20,20,0,0]];
+  st.layers[0].drawn = [[[0,0,0,0],[10,10,0,0],[20,20,0,0]]];
   const wrongOk = w2.checkTegn('canvas-811b0');
   test('Forkert kurve giver false og afslører ikke facit', wrongOk === false && st.layers[0].done === false);
 
   // correct-ish attempt against the actual target points at high tolerance should pass
-  st.layers[0].polygonPoints = st.layers[0].targetPoints.map(p => [p[0], p[1], p[2], p[3]]);
+  st.layers[0].drawn = [ st.layers[0].targets[0].map(p => [p[0], p[1], p[2], p[3]]) ];
   const rightOk = w2.checkTegn('canvas-811b0');
   test('Nøjagtigt genskabt kurve giver true', rightOk === true && st.layers[0].done === true);
 
@@ -453,7 +455,7 @@ async function runTegnTests(){
 }
 
 async function runMultiLayerTests(){
-  section('Opgave-katalog: Tegn med FLERE lag (to kurver + et punkt-mål)');
+  section('Opgave-katalog: Tegn med FLERE mål (to kurver i samme kurve-værktøj + et punkt-mål)');
   const w = freshToolWindow();
   await new Promise(r => setTimeout(r, 60));
   w.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
@@ -464,9 +466,11 @@ async function runMultiLayerTests(){
   Scaffold.addEmne(doc, 'f2', 'Kapitel 2.1 – Diskrete observationssæt', '7.7.7', 'Multilagtest', '');
   const opgaveSlots = { bronze: [{ type: 'tegn', titel: 'To linjer', instruktion: '...', billede: 'https://example.com/x.png',
     layers: [
-      { type: 'kurve', label: 'Linje 1', targetPoints: [{x:10,y:190,hx:0,hy:0},{x:190,y:10,hx:0,hy:0}], tolerance: 12 },
-      { type: 'kurve', label: 'Linje 2', targetPoints: [{x:10,y:10,hx:0,hy:0},{x:190,y:190,hx:0,hy:0}], tolerance: 12 },
-      { type: 'punkt', label: 'Skæringspunkt', targetPoints: [{x:100,y:100}], tolerance: 15 }
+      { type: 'kurve', tolerance: 12, targets: [
+        [{x:10,y:190,hx:0,hy:0},{x:190,y:10,hx:0,hy:0}],
+        [{x:10,y:10,hx:0,hy:0},{x:190,y:190,hx:0,hy:0}]
+      ] },
+      { type: 'punkt', tolerance: 15, targets: [{x:100,y:100}] }
     ] }], solv: [], guld: [] };
   Scaffold.applyOpgaveSlotsToDom(doc, '7.7.7', opgaveSlots);
   const site = Scaffold.parseSite(doc);
@@ -475,8 +479,9 @@ async function runMultiLayerTests(){
   let jsText = scriptEl.textContent;
   jsText = Scaffold.regenerateDerivedJS(jsText, site, {}, [], ['7.7.7'], { '7.7.7': opgaveSlots });
 
-  test('3 lag-knapper indsat i widget', doc.querySelectorAll('#opg777-low [data-tegn-layer-btn]').length === 3);
-  test('initTegnCanvas-kaldet indeholder alle 3 lag-labels', /Linje 1/.test(jsText) && /Linje 2/.test(jsText) && /Skæringspunkt/.test(jsText));
+  test('2 værktøjs-knapper indsat i widget (kurve + punkt, ikke prænummererede lag)', doc.querySelectorAll('#opg777-low [data-tegn-tool-btn]').length === 2);
+  test('Ingen af værktøjs-knapperne afslører antal facit-figurer (fx "2 stk")', !/\d/.test(doc.getElementById('canvas-777b0-toolbar') ? doc.getElementById('canvas-777b0-toolbar').textContent : ''));
+  test('initTegnCanvas-kaldet indeholder begge kurve-mål og punkt-målet', /targets:\[\[\[10,190/.test(jsText) && /\{x:100,y:100\}/.test(jsText));
 
   scriptEl.textContent = jsText;
   const finalHtml = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
@@ -484,7 +489,7 @@ async function runMultiLayerTests(){
   const dom2 = new JSDOM(finalHtml, { runScripts: 'dangerously', resources: 'usable', url: 'http://localhost/' });
   const w2 = dom2.window;
   const D2 = w2.document;
-  w2.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},bezierCurveTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',canvas:{width:280,height:280}});
+  w2.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},bezierCurveTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},strokeRect(){},setLineDash(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',canvas:{width:280,height:280}});
   w2.requestAnimationFrame = (cb) => setTimeout(cb, 0);
   w2.Image = class { set src(v){ setTimeout(() => { this.naturalWidth = 200; this.naturalHeight = 200; if (this.onload) this.onload(); }, 1); } };
   await new Promise(r => setTimeout(r, 30));
@@ -492,34 +497,38 @@ async function runMultiLayerTests(){
   w2.startOpgaver777();
   await new Promise(r => setTimeout(r, 30));
   const st = w2.tegnStates['canvas-777b0'];
-  test('Runtime state har 3 lag (kurve, kurve, punkt)', st.layers.length === 3 && st.layers.map(l => l.type).join(',') === 'kurve,kurve,punkt');
+  test('Runtime state har 2 type-lag (kurve, punkt) og kurve-laget har 2 mål', st.layers.length === 2 && st.layers.map(l => l.type).join(',') === 'kurve,punkt' && st.layers[0].targets.length === 2);
+  test('Ingen figurer er tegnet fra start (intet prædefineret)', st.layers.every(l => l.drawn.length === 0));
 
   let ok = w2.checkTegn('canvas-777b0');
-  test('Tomt forsøg fejler og nævner alle 3 lag', ok === false && D2.getElementById('ow-r-777-low').textContent.includes('Linje 1') && D2.getElementById('ow-r-777-low').textContent.includes('Skæringspunkt'));
+  test('Tomt forsøg fejler', ok === false);
 
-  st.layers[0].polygonPoints = [[10,190,0,0],[190,10,0,0]];
+  // Draw only ONE of the two required curves — kurve type not yet satisfied.
+  st.layers[0].drawn = [[[10,190,0,0],[190,10,0,0]]];
   ok = w2.checkTegn('canvas-777b0');
-  test('Kun lag 1 korrekt: samlet fejler stadig, men lag 1 er markeret færdig', ok === false && st.layers[0].done === true);
+  test('Kun 1 af 2 kurver tegnet: samlet fejler stadig', ok === false && st.layers[0].done === false);
 
-  w2.tegnSetActiveLayer('canvas-777b0', 1);
-  test('Aktivt lag kan skiftes', st.activeLayer === 1);
-  st.layers[1].polygonPoints = [[10,10,0,0],[190,190,0,0]];
+  // Draw the second curve too, in whichever order — best-match, not slot-based.
+  st.layers[0].drawn.push([[10,10,0,0],[190,190,0,0]]);
+  ok = w2.checkTegn('canvas-777b0');
+  test('Begge kurver tegnet: kurve-typen er nu markeret færdig', st.layers[0].done === true);
 
-  w2.tegnSetActiveLayer('canvas-777b0', 2);
-  test('Mode-bar skjules for punkt-lag', D2.getElementById('canvas-777b0-modebar').style.display === 'none');
-  st.layers[2].markerPoints = [[100,100]];
+  w2.tegnSetActiveTool('canvas-777b0', 'punkt');
+  test('Aktivt værktøj kan skiftes', st.activeType === 'punkt');
+  test('Mode-bar skjules for punkt-værktøjet', D2.getElementById('canvas-777b0-modebar').style.display === 'none');
+  st.layers[1].drawn = [[100,100]];
 
   ok = w2.checkTegn('canvas-777b0');
-  test('Alle 3 lag korrekte giver samlet Rigtigt!', ok === true && D2.getElementById('ow-r-777-low').textContent === 'Rigtigt!');
+  test('Alle mål ramt giver samlet Rigtigt!', ok === true && D2.getElementById('ow-r-777-low').textContent === 'Rigtigt!');
 
-  // Fortryd only touches the active layer
+  // Fortryd only touches the currently active tool's shapes.
   w2.tegnUndo('canvas-777b0');
-  test('Fortryd rammer kun det aktive (punkt-)lag', st.layers[2].markerPoints.length === 0 && st.layers[0].polygonPoints.length === 2 && st.layers[1].polygonPoints.length === 2);
+  test('Fortryd rammer kun det aktive (punkt-)værktøj', st.layers[1].drawn.length === 0 && st.layers[0].drawn.length === 2);
 
-  // A wrong point placement fails only that layer, leaving the two correct curves marked done
-  st.layers[2].markerPoints = [[10,10]];
+  // A wrong point placement fails only that type, leaving the correct curves marked done.
+  st.layers[1].drawn = [[10,10]];
   ok = w2.checkTegn('canvas-777b0');
-  test('Forkert punkt fejler kun punkt-laget', ok === false && !st.layers[2].done && st.layers[0].done && st.layers[1].done);
+  test('Forkert punkt fejler kun punkt-typen', ok === false && !st.layers[1].done && st.layers[0].done);
 }
 
 async function runCloseMedalSelfHealTest(){
@@ -1353,6 +1362,263 @@ async function runTabelGivenTextAndMultiInputReopenTests(){
   test('Genåbnet tabel: intervaltekst i "Givet"-kolonnen overlevede uændret', reopenedFirstRow[0] === ']0;1]');
 }
 
+async function runTegnRebuildTests(){
+  section('Tegn: kernefejlen — kunne ikke tegne uden først at indlæse et billede — er rettet');
+  const w = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w.confirm = () => true;
+  w.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},bezierCurveTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},strokeRect(){},setLineDash(){},save(){},restore(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',textBaseline:'',canvas:{width:640,height:480}});
+  w.HTMLCanvasElement.prototype.toDataURL = function(){ return 'data:image/png;base64,FAKE' + Math.random(); };
+  w.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D = w.document;
+
+  w.ScaffoldUI.activateForloeb('F8', 'Tegntest');
+  D.getElementById('af-titel').value = 'Tegntest';
+  w.ScaffoldUI.submitActivateForloeb('F8');
+  w.ScaffoldUI.showNewKapitelForm('f8');
+  D.getElementById('nk-titel').value = 'K1';
+  w.ScaffoldUI.submitNewKapitel('f8');
+  w.ScaffoldUI.showNewEmneForm('f8', 'K1');
+  D.getElementById('ne-nr').value = '8.8.1'; D.getElementById('ne-navn').value = 'Test'; D.getElementById('ne-desc').value = '';
+  w.ScaffoldUI.submitNewEmne('f8', 'K1');
+  w.ScaffoldUI.renderOpgaverTab();
+  D.getElementById('opg-emne-select').value = '8.8.1'; chg(D.getElementById('opg-emne-select'));
+  w.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D.getElementById('ot-type').value = 'tegn';
+  w.ScaffoldUI.showOpgaveDetailForm('bronze', 'tegn');
+  await new Promise(r => setTimeout(r, 30));
+
+  test('Et koordinatsystem indlæses automatisk med det samme (ingen manuel handling krævet)',
+    D.getElementById('tg-url').value.startsWith('data:image'));
+
+  const canvas = D.getElementById('tg-canvas');
+  canvas.getBoundingClientRect = () => ({left:0, top:0, width:canvas.width, height:canvas.height});
+  canvas.dispatchEvent(Object.assign(new w.Event('mousedown'), {clientX:100, clientY:100}));
+  canvas.dispatchEvent(Object.assign(new w.Event('mouseup'), {clientX:100, clientY:100}));
+  canvas.dispatchEvent(Object.assign(new w.Event('mousedown'), {clientX:300, clientY:200}));
+  canvas.dispatchEvent(Object.assign(new w.Event('mouseup'), {clientX:300, clientY:200}));
+  test('Klik registreres og tegnes UDEN at have indlæst et billede manuelt først (selve hovedfejlen)',
+    D.getElementById('tg-pointcount').textContent.includes('2'));
+
+  test('Kanvassen er nu større ("stort koordinatsystem")', canvas.width === 640 && canvas.height === 480);
+  test('"Kasse"-værktøjsknap findes (som et VÆRKTØJ, ikke en "+ tilføj lag"-knap)', D.body.innerHTML.includes('Kasse'));
+  test('"📐 Koordinatsystem"-knap findes', D.body.innerHTML.includes('📐 Koordinatsystem'));
+  test('Annotations-knapper findes ("altid ses af eleven")',
+    D.body.innerHTML.includes('Tilføj tekst') && D.body.innerHTML.includes('Tegn på baggrund'));
+
+  section('Tegn: ny "kasse" (rektangel) opgavetype');
+  w.ScaffoldUI.tegnSelectType('kasse');
+
+  const toolBtns = Array.from(D.querySelectorAll('#tg-toolbar button'));
+  test('Værktøjslinjen viser Kurve/Punkt/Kasse som VÆRKTØJER, ikke en prænummereret liste',
+    toolBtns.length === 3 && toolBtns.some(b => b.textContent.includes('Kasse')));
+
+  canvas.dispatchEvent(Object.assign(new w.Event('mousedown'), {clientX:100, clientY:100}));
+  canvas.dispatchEvent(Object.assign(new w.Event('mousemove'), {clientX:250, clientY:200}));
+  canvas.dispatchEvent(Object.assign(new w.Event('mouseup'), {clientX:250, clientY:200}));
+  test('Kasse tegnet via klik-og-træk', D.getElementById('tg-pointcount').textContent.includes('1 kasse'));
+
+  // A second box within the SAME tool must also be possible.
+  canvas.dispatchEvent(Object.assign(new w.Event('mousedown'), {clientX:400, clientY:50}));
+  canvas.dispatchEvent(Object.assign(new w.Event('mousemove'), {clientX:500, clientY:150}));
+  canvas.dispatchEvent(Object.assign(new w.Event('mouseup'), {clientX:500, clientY:150}));
+  test('En ANDEN kasse kan tilføjes inden for samme værktøj (flere kasser er muligt)',
+    D.getElementById('tg-pointcount').textContent.includes('2 kasse'));
+
+  D.getElementById('of-titel').value = 'Tegn to kasser';
+  D.getElementById('of-instr').value = 'Tegn rektanglerne';
+  w.ScaffoldUI.submitTegn('bronze');
+  const result = w.ScaffoldUI.__debugGenerate();
+  test('Kasse-opgave gemmes uden valideringsproblemer', result.newProblems.length === 0, JSON.stringify(result.newProblems));
+
+  const callMatch = result.html.match(/initTegnCanvas\('canvas-881b0'.*?\);/s);
+  test('Kasse-lagets facit gemt som almindelige {x,y}-punkter (ikke fejlagtigt med kurve-håndtag)',
+    !!callMatch && /targets:\[\[\{x:\d+,y:\d+\},\{x:\d+,y:\d+\}\]/.test(callMatch[0]));
+
+  const dom2 = new JSDOM(result.html, { runScripts: 'dangerously', resources: 'usable', url: 'http://localhost/' });
+  const w2 = dom2.window, D2 = w2.document;
+  w2.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},bezierCurveTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},strokeRect(){},setLineDash(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',canvas:{width:280,height:280}});
+  w2.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+  w2.Image = class { set src(v){ setTimeout(() => { this.naturalWidth = 640; this.naturalHeight = 480; if (this.onload) this.onload(); }, 1); } };
+  await new Promise(r => setTimeout(r, 30));
+  w2.updateEnergy881(20);
+  w2.startOpgaver881();
+  await new Promise(r => setTimeout(r, 30));
+  const canvasId2 = D2.querySelector('#opg881-low canvas').id;
+  const st2 = w2.tegnStates[canvasId2];
+  const kasseLayer2 = st2.layers.find(l => l.type === 'kasse');
+  test('2 kasse-mål korrekt gemt i runtime state', kasseLayer2.targets.length === 2);
+  const targets2 = kasseLayer2.targets;
+  // Draw both boxes, in REVERSED order relative to how the admin defined them.
+  kasseLayer2.drawn = [
+    [[targets2[1][0].x+1, targets2[1][0].y+1], [targets2[1][1].x-1, targets2[1][1].y-1]],
+    [[targets2[0][0].x+1, targets2[0][0].y+1], [targets2[0][1].x-1, targets2[0][1].y-1]]
+  ];
+  w2.checkTegn(canvasId2);
+  test('Korrekt tegnede kasser (i omvendt rækkefølge ift. facit) giver Rigtigt! (bedste-match, ikke slot-baseret)',
+    D2.getElementById('ow-r-881-low').textContent === 'Rigtigt!');
+  kasseLayer2.drawn = [[[0,0],[5,5]], [[0,0],[5,5]]];
+  kasseLayer2.done = false;
+  w2.checkTegn(canvasId2);
+  test('Forkerte kasser fejler stadig korrekt', D2.getElementById('ow-r-881-low').textContent !== 'Rigtigt!');
+
+  section('Tegn: "Genstart" ryddede FØR ikke rent faktisk elevens tegning (rettet fejl på forkert objekt-property)');
+  kasseLayer2.drawn = [
+    [[targets2[0][0].x, targets2[0][0].y], [targets2[0][1].x, targets2[0][1].y]],
+    [[targets2[1][0].x, targets2[1][0].y], [targets2[1][1].x, targets2[1][1].y]]
+  ];
+  kasseLayer2.done = true;
+  w2.restartOpgaver881();
+  test('Restart rydder rent faktisk drawn (ikke bare en tom dummy-property på state-objektet)',
+    JSON.stringify(kasseLayer2.drawn) === '[]');
+  test('Restart rydder done-flaget for laget', kasseLayer2.done === false);
+  test('Restart nulstiller aktivt værktøj til det første i lag-listen', st2.activeType === st2.layers[0].type);
+
+  section('Tegn: frihånds-smoothness (matcher referencebilledets "Freehand > Smoothness")');
+  const jittery = [];
+  for (let i = 0; i < 30; i++) jittery.push([i, i * 0.5 + (i % 2 === 0 ? 3 : -3)]);
+  const smoothed = w2.tegnSmoothPath(jittery, w2.TEGN_SMOOTHNESS);
+  function jaggedness(pts){ let t2 = 0; for (let i = 1; i < pts.length - 1; i++){ t2 += Math.abs((pts[i+1][1]-pts[i][1]) - (pts[i][1]-pts[i-1][1])); } return t2; }
+  test('tegnSmoothPath reducerer en kunstigt jitret sti markant', jaggedness(smoothed) < jaggedness(jittery) * 0.5);
+  test('tegnSmoothPath med amount=0 rører intet', JSON.stringify(w2.tegnSmoothPath(jittery, 0)) === JSON.stringify(jittery));
+
+  // Confirm smoothing actually applies automatically at the end of a real freehand stroke.
+  const kurveResult = (() => {
+    const kw = freshToolWindow();
+    return kw;
+  })();
+  await new Promise(r => setTimeout(r, 60));
+  kurveResult.confirm = () => true;
+  kurveResult.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},bezierCurveTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},strokeRect(){},setLineDash(){},save(){},restore(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',textBaseline:'',canvas:{width:640,height:480}});
+  kurveResult.HTMLCanvasElement.prototype.toDataURL = function(){ return 'data:image/png;base64,FAKE' + Math.random(); };
+  kurveResult.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D3k = kurveResult.document;
+  kurveResult.ScaffoldUI.activateForloeb('F7', 'Test');
+  D3k.getElementById('af-titel').value = 'Test';
+  kurveResult.ScaffoldUI.submitActivateForloeb('F7');
+  kurveResult.ScaffoldUI.showNewKapitelForm('f7');
+  D3k.getElementById('nk-titel').value = 'K1';
+  kurveResult.ScaffoldUI.submitNewKapitel('f7');
+  kurveResult.ScaffoldUI.showNewEmneForm('f7', 'K1');
+  D3k.getElementById('ne-nr').value = '7.7.7'; D3k.getElementById('ne-navn').value = 'Test'; D3k.getElementById('ne-desc').value = '';
+  kurveResult.ScaffoldUI.submitNewEmne('f7', 'K1');
+  kurveResult.ScaffoldUI.renderOpgaverTab();
+  D3k.getElementById('opg-emne-select').value = '7.7.7'; chg(D3k.getElementById('opg-emne-select'));
+  kurveResult.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D3k.getElementById('ot-type').value = 'tegn';
+  kurveResult.ScaffoldUI.showOpgaveDetailForm('bronze', 'tegn');
+  await new Promise(r => setTimeout(r, 30));
+  D3k.getElementById('of-titel').value = 'Tegn kurven';
+  D3k.getElementById('of-instr').value = 'Test';
+  const c3k = D3k.getElementById('tg-canvas');
+  c3k.getBoundingClientRect = () => ({left:0, top:0, width:c3k.width, height:c3k.height});
+  c3k.dispatchEvent(Object.assign(new kurveResult.Event('mousedown'), {clientX:50, clientY:400}));
+  c3k.dispatchEvent(Object.assign(new kurveResult.Event('mouseup'), {clientX:50, clientY:400}));
+  c3k.dispatchEvent(Object.assign(new kurveResult.Event('mousedown'), {clientX:550, clientY:80}));
+  c3k.dispatchEvent(Object.assign(new kurveResult.Event('mouseup'), {clientX:550, clientY:80}));
+  kurveResult.ScaffoldUI.tegnFinishCurveAdmin();
+  kurveResult.ScaffoldUI.submitTegn('bronze');
+  const kurveGenResult = kurveResult.ScaffoldUI.__debugGenerate();
+  const dom3k = new JSDOM(kurveGenResult.html, { runScripts: 'dangerously', resources: 'usable', url: 'http://localhost/' });
+  const w3k = dom3k.window, D3kw = w3k.document;
+  w3k.HTMLCanvasElement.prototype.getContext = () => ({clearRect(){},beginPath(){},moveTo(){},lineTo(){},bezierCurveTo(){},fill(){},arc(){},fillText(){},fillRect(){},drawImage(){},stroke(){},strokeRect(){},setLineDash(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'',canvas:{width:280,height:280}});
+  w3k.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+  await new Promise(r => setTimeout(r, 30));
+  w3k.updateEnergy777(20);
+  w3k.startOpgaver777();
+  await new Promise(r => setTimeout(r, 30));
+  const canvasId3k = D3kw.querySelector('#opg777-low canvas').id;
+  w3k.tegnSetMode(canvasId3k, 'freehand');
+  const st3k = w3k.tegnStates[canvasId3k];
+  const layer3k = st3k.layers[0];
+  layer3k.drawing = true;
+  layer3k.curPoints = [[0,0],[1,5],[2,-5],[3,5],[4,-5],[5,5],[6,-5],[7,5]]; // deliberately jittery
+  w3k.tegnHandleUp(canvasId3k);
+  test('Frihånds-optegning bliver rent faktisk udglattet automatisk ved slag-afslutning (ikke kun en isoleret funktion)',
+    JSON.stringify(layer3k.curPoints) !== JSON.stringify([[0,0],[1,5],[2,-5],[3,5],[4,-5],[5,5],[6,-5],[7,5]]));
+}
+
+async function runTegnBgSeparationAndDuplicateImageTests(){
+  section('Tegn: annotationer må ALDRIG bage facit-formen ind i det eleven altid ser (kritisk fejl)');
+  const w = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w.confirm = () => true;
+  w.prompt = () => 'Hej';
+
+  var toDataURLCalls = [];
+  w.HTMLCanvasElement.prototype.getContext = function(){
+    return {
+      clearRect(){}, beginPath(){}, moveTo(){}, lineTo(){}, bezierCurveTo(){}, fill(){}, arc(){}, fillText(){}, fillRect(){}, drawImage(){},
+      stroke(){}, strokeRect(){}, setLineDash(){}, save(){}, restore(){},
+      globalAlpha:1, fillStyle:'', strokeStyle:'', lineWidth:1, font:'', textAlign:'', textBaseline:'', canvas:{width:640,height:480}
+    };
+  };
+  w.HTMLCanvasElement.prototype.toDataURL = function(){
+    toDataURLCalls.push(this.id || '(offscreen)');
+    return 'data:image/png;base64,FAKE' + Math.random();
+  };
+  const OrigImage = w.Image;
+  w.Image = function(){
+    const img = new OrigImage();
+    Object.defineProperty(img, 'naturalWidth', { value: 640, configurable: true });
+    Object.defineProperty(img, 'naturalHeight', { value: 480, configurable: true });
+    Object.defineProperty(img, 'src', {
+      set(v){ img._src = v; setTimeout(() => { if (img.onload) img.onload(); }, 0); },
+      get(){ return img._src; }
+    });
+    return img;
+  };
+
+  w.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D = w.document;
+  w.ScaffoldUI.activateForloeb('F9', 'Test');
+  D.getElementById('af-titel').value = 'Test';
+  w.ScaffoldUI.submitActivateForloeb('F9');
+  w.ScaffoldUI.showNewKapitelForm('f9');
+  D.getElementById('nk-titel').value = 'K1';
+  w.ScaffoldUI.submitNewKapitel('f9');
+  w.ScaffoldUI.showNewEmneForm('f9', 'K1');
+  D.getElementById('ne-nr').value = '9.9.9'; D.getElementById('ne-navn').value = 'Test'; D.getElementById('ne-desc').value = '';
+  w.ScaffoldUI.submitNewEmne('f9', 'K1');
+  w.ScaffoldUI.renderOpgaverTab();
+  D.getElementById('opg-emne-select').value = '9.9.9'; chg(D.getElementById('opg-emne-select'));
+  w.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D.getElementById('ot-type').value = 'tegn';
+  w.ScaffoldUI.showOpgaveDetailForm('bronze', 'tegn');
+  await new Promise(r => setTimeout(r, 30));
+  toDataURLCalls = [];
+
+  const canvas = D.getElementById('tg-canvas');
+  canvas.getBoundingClientRect = () => ({left:0, top:0, width:canvas.width, height:canvas.height});
+
+  // Draw a target kurve FIRST (this appears on the visible preview only).
+  canvas.dispatchEvent(Object.assign(new w.Event('mousedown'), {clientX:100, clientY:100}));
+  canvas.dispatchEvent(Object.assign(new w.Event('mouseup'), {clientX:100, clientY:100}));
+  canvas.dispatchEvent(Object.assign(new w.Event('mousedown'), {clientX:300, clientY:200}));
+  canvas.dispatchEvent(Object.assign(new w.Event('mouseup'), {clientX:300, clientY:200}));
+  test('Facit-kurve tegnet på forhåndsvisningen', D.getElementById('tg-pointcount').textContent.includes('2'));
+
+  // NOW add a visible annotation — exactly the reported bug scenario:
+  // annotating AFTER a target already exists must not bake the target in.
+  w.ScaffoldUI.tegnFinishCurveAdmin();
+  w.ScaffoldUI.tegnAnnotateText();
+  canvas.dispatchEvent(Object.assign(new w.Event('click'), {clientX:400, clientY:400}));
+
+  test('Baggrunden bages KUN fra den skjulte baggrunds-kanvas, aldrig fra den synlige forhåndsvisning (som har facit-laget ovenpå)',
+    toDataURLCalls.length > 0 && toDataURLCalls.every(id => id !== 'tg-canvas'));
+
+  D.getElementById('of-titel').value = 'Test';
+  D.getElementById('of-instr').value = 'Test';
+  w.ScaffoldUI.submitTegn('bronze');
+  const result = w.ScaffoldUI.__debugGenerate();
+  test('Ingen valideringsproblemer', result.newProblems.length === 0, JSON.stringify(result.newProblems));
+
+  section('Tegn: baggrundsbilledet må ikke vises to gange (ét som almindeligt <img>, ét som kanvas-baggrund)');
+  test('Widgeten viser IKKE et ekstra <img>-tag for tegn-typen (billedet bruges kun som kanvas-baggrund)',
+    !/opg999-low[\s\S]{0,2000}<img/.test(result.html));
+  test('Kanvas-elementet er der stadig', new RegExp('id="canvas-999b0"').test(result.html));
+}
+
 (async () => {
   const ctx = await run();
   await runGeneration(ctx);
@@ -1367,6 +1633,8 @@ async function runTabelGivenTextAndMultiInputReopenTests(){
   await runThemeTests();
   await runTabelColumnSyncTests();
   await runTabelGivenTextAndMultiInputReopenTests();
+  await runTegnRebuildTests();
+  await runTegnBgSeparationAndDuplicateImageTests();
 
   console.log('\n========================================');
   console.log('Resultat: ' + passed + '/' + (passed + failed) + ' tests bestået');
