@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import sys
 import re
 
-HTML_FILE = '/mnt/user-data/outputs/hhx-matematik-v4.html'
+HTML_FILE = '/home/claude/work/Index.html'
 
 passed = 0
 failed = 0
@@ -116,11 +116,11 @@ test("Øvelse 1316 titel findes",
      soup.find(string=lambda t: t and '1316' in t) is not None)
 
 expected_answers = {
-    '1a': (13,    '1312a: 3x-8=2x+5'),
-    '1b': (1,     '1312b: 3(2+x)=x+8'),
-    '1d': (0,     '1312d: -3(x+2)=x-3(x+2)'),
-    '2a': (-49,   '1316a: (x-5)/2-(2x-1)/3=6'),
-    '2b': (7/6,   '1316b: (4x+5)/6-(2x-1)/3=x'),
+    '1a': (8,     '1312a: 5x-9=3x+7'),
+    '1b': (3,     '1312b: 2(5+x)=x+13'),
+    '1d': (0,     '1312d: -5(x+4)=x-5(x+4)'),
+    '2a': (-43,   '1316a: (x-7)/2-(2x-4)/3=5'),
+    '2b': (13/6,  '1316b: (4x+9)/6-(2x-2)/3=x'),
 }
 found_keys = set()
 for btn in soup.find_all('button', class_='ow-btn'):
@@ -168,18 +168,18 @@ def js_check(user_input, answer):
         return False
 
 exact = {
-    '1a': 13,
-    '1b': 1,
+    '1a': 8,
+    '1b': 3,
     '1d': 0,
-    '2a': -49,
-    '2b': 7/6,
+    '2a': -43,
+    '2b': 13/6,
 }
 labels = {
-    '1a': '1312a (x=13)',
-    '1b': '1312b (x=1)',
+    '1a': '1312a (x=8)',
+    '1b': '1312b (x=3)',
     '1d': '1312d (x=0)',
-    '2a': '1316a (x=-49)',
-    '2b': '1316b (x=7/6)',
+    '2a': '1316a (x=-43)',
+    '2b': '1316b (x=13/6)',
 }
 
 # Heltal: eksakt svar skal virke
@@ -190,19 +190,19 @@ for key in ['1a', '1b', '1d', '2a']:
     test(f"{labels[key]}: forkert svar afvises",
          not js_check(ans + 1, ans))
 
-# 1316b = 7/6 — test mange afrundinger
-ans_76 = 7/6
-test("1316b: '1.17' accepteres (2 decimaler)",   js_check('1.17', ans_76))
-test("1316b: '1.2' accepteres (1 decimal)",      js_check('1.2',  ans_76))
-test("1316b: '1,17' accepteres (komma)",         js_check('1,17', ans_76))
-test("1316b: '1.1667' accepteres (4 decimaler)", js_check('1.1667', ans_76))
+# 1316b = 13/6 — test mange afrundinger
+ans_76 = 13/6
+test("1316b: '2.17' accepteres (2 decimaler)",   js_check('2.17', ans_76))
+test("1316b: '2.2' accepteres (1 decimal)",      js_check('2.2',  ans_76))
+test("1316b: '2,17' accepteres (komma)",         js_check('2,17', ans_76))
+test("1316b: '2.1667' accepteres (4 decimaler)", js_check('2.1667', ans_76))
+test("1316b: '3' afvises (for forkert)",         not js_check('3', ans_76))
 test("1316b: '2' afvises (for forkert)",         not js_check('2', ans_76))
-test("1316b: '1' afvises (for forkert)",         not js_check('1', ans_76))
-test("1316b: '1.3' afvises (lige over tolerance)",not js_check('1.3', ans_76))
+test("1316b: '2.3' afvises (lige over tolerance)",not js_check('2.3', ans_76))
 
 # Tekst uden tal afvises
 test("Ikke-tal 'abc' giver NaN (ikke accepteret)",
-     not js_check('abc', 13))
+     not js_check('abc', 8))
 
 # ── RATIONELLE TAL SOM INPUT ──────────────────────────────────────────────────
 section("Rationelle tal (brøkinput) i owCheck")
@@ -227,13 +227,13 @@ def js_check_frac(user_input, answer):
     import math
     return not math.isnan(val) and abs(val - answer) < 0.05
 
-ans_76 = 7/6
-test("1316b: '7/6' accepteres",        js_check_frac('7/6',   ans_76))
-test("1316b: '14/12' accepteres",      js_check_frac('14/12', ans_76))
-test("1316b: '7 / 6' accepteres",      js_check_frac('7 / 6', ans_76))
+ans_76 = 13/6
+test("1316b: '13/6' accepteres",       js_check_frac('13/6',  ans_76))
+test("1316b: '26/12' accepteres",      js_check_frac('26/12', ans_76))
+test("1316b: '13 / 6' accepteres",     js_check_frac('13 / 6', ans_76))
 test("1316b: '1/0' afvises (div 0)",   not js_check_frac('1/0', ans_76))
 test("1316b: 'a/b' afvises (NaN)",     not js_check_frac('a/b', ans_76))
-test("1316b: '8/6' accepteres (≈1.33)",not js_check_frac('8/6', ans_76))  # 1.333 > 1.167+0.05
+test("1316b: '14/6' accepteres (≈2.33)",not js_check_frac('14/6', ans_76))  # 2.333 > 2.167+0.05
 # ── ENERGINIVEAU STRUKTUR ─────────────────────────────────────────────────────
 section("Energiniveau – antal opgaver per boks")
 page_131 = soup.find('div', id='page-1-3-1')

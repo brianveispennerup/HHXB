@@ -1,6 +1,6 @@
 const { JSDOM } = require('/tmp/node_modules/jsdom');
 const fs = require('fs');
-const html = fs.readFileSync('/mnt/user-data/outputs/hhx-matematik-v4.html', 'utf8');
+const html = fs.readFileSync('/home/claude/work/Index.html', 'utf8');
 
 let passed = 0, failed = 0;
 function test(n,c,d){if(c){console.log('  PASS ',n);passed++;}else{console.log('  FAIL ',n,d?'— '+d:'');failed++;}}
@@ -152,10 +152,10 @@ setTimeout(() => {
   function reset(id){var i=d.getElementById('ow-'+id);if(i){i.value='';i.className='ow-input';}}
 
   w.showPage('1-3-1');
-  setVal('1a','13'); w.owCheck('1a',13); test('owCheck: 13 → correct', isCorrect('1a'));
+  setVal('1a','8'); w.owCheck('1a',8); test('owCheck: 8 → correct', isCorrect('1a'));
   reset('1d'); setVal('1d','5'); w.owCheck('1d',0); test('owCheck: 5 (forkert) → not correct', !isCorrect('1d'));
-  reset('1b'); setVal('1b','abc'); w.owCheck('1b',1); test('owCheck: abc → not correct', !isCorrect('1b'));
-  setVal('2b','7/6'); w.owCheck('2b',1.1667); test('owCheck: 7/6 (brøk) → correct', isCorrect('2b'));
+  reset('1b'); setVal('1b','abc'); w.owCheck('1b',3); test('owCheck: abc → not correct', !isCorrect('1b'));
+  setVal('2b','13/6'); w.owCheck('2b',2.1667); test('owCheck: 13/6 (brøk) → correct', isCorrect('2b'));
 
   console.log('\nInput validering 3.1.2');
   w.showPage('3-1-2'); w.startOpgaver312();
