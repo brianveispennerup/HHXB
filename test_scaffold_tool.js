@@ -1406,6 +1406,62 @@ async function runTegnRebuildTests(){
   test('Annotations-knapper findes ("altid ses af eleven")',
     D.body.innerHTML.includes('Tilføj tekst') && D.body.innerHTML.includes('Tegn på baggrund'));
 
+  section('Tegn: konfigurerbart x-/y-interval for koordinatsystemets gitterlinjer (regression — forsvandt i en tidligere leverance)');
+  test('"x-interval"-felt findes', !!D.getElementById('tg-xstep'));
+  test('"y-interval"-felt findes', !!D.getElementById('tg-ystep'));
+
+  // Spy on fillText (one call per drawn tick label) so we can tell whether a
+  // manually-specified step actually changed the number of gridlines, without
+  // needing real canvas pixel inspection.
+  var fillTextCount = 0;
+  w.HTMLCanvasElement.prototype.getContext = () => ({
+    clearRect(){}, beginPath(){}, moveTo(){}, lineTo(){}, bezierCurveTo(){}, fill(){}, arc(){},
+    fillText(){ fillTextCount++; }, fillRect(){}, drawImage(){}, stroke(){}, strokeRect(){}, setLineDash(){},
+    save(){}, restore(){}, globalAlpha:1, fillStyle:'', strokeStyle:'', lineWidth:1, font:'', textAlign:'', textBaseline:'',
+    canvas:{width:640,height:480}
+  });
+
+  D.getElementById('tg-xmin').value = '-10'; D.getElementById('tg-xmax').value = '10';
+  D.getElementById('tg-ymin').value = '-10'; D.getElementById('tg-ymax').value = '10';
+
+  D.getElementById('tg-xstep').value = ''; D.getElementById('tg-ystep').value = '';
+  fillTextCount = 0;
+  w.ScaffoldUI.tegnGenerateGrid();
+  await new Promise(r => setTimeout(r, 10));
+  const autoLabelCount = fillTextCount;
+  test('Uden angivet interval bruges stadig et auto-beregnet "pænt" step (uændret fallback)', autoLabelCount > 0);
+
+  D.getElementById('tg-xstep').value = '1'; D.getElementById('tg-ystep').value = '1';
+  fillTextCount = 0;
+  w.ScaffoldUI.tegnGenerateGrid();
+  await new Promise(r => setTimeout(r, 10));
+  const step1LabelCount = fillTextCount;
+  test('Angivet interval "1" giver flere gitterlinje-labels end auto-step (finere gitter respekteres)',
+    step1LabelCount > autoLabelCount, 'auto=' + autoLabelCount + ' step1=' + step1LabelCount);
+
+  D.getElementById('tg-xstep').value = '5'; D.getElementById('tg-ystep').value = '5';
+  fillTextCount = 0;
+  w.ScaffoldUI.tegnGenerateGrid();
+  await new Promise(r => setTimeout(r, 10));
+  const step5LabelCount = fillTextCount;
+  test('Angivet interval "5" giver færre gitterlinje-labels end interval "1" (grovere gitter respekteres)',
+    step5LabelCount < step1LabelCount, 'step5=' + step5LabelCount + ' step1=' + step1LabelCount);
+
+  D.getElementById('tg-xstep').value = '0,5'; D.getElementById('tg-ystep').value = '';
+  fillTextCount = 0;
+  w.ScaffoldUI.tegnGenerateGrid();
+  await new Promise(r => setTimeout(r, 10));
+  const commaStepLabelCount = fillTextCount;
+  test('Dansk komma-decimal ("0,5") accepteres som interval',
+    commaStepLabelCount > step1LabelCount, 'comma0.5=' + commaStepLabelCount + ' step1=' + step1LabelCount);
+
+  D.getElementById('tg-xstep').value = '0'; D.getElementById('tg-ystep').value = '';
+  w.__lastAlert = null;
+  w.ScaffoldUI.tegnGenerateGrid();
+  await new Promise(r => setTimeout(r, 10));
+  test('Interval 0 afvises med en advarsel (ikke en uendelig løkke)', !!w.__lastAlert);
+  D.getElementById('tg-xstep').value = '';
+
   section('Tegn: ny "kasse" (rektangel) opgavetype');
   w.ScaffoldUI.tegnSelectType('kasse');
 

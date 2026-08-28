@@ -3638,11 +3638,13 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
   // canvas and returns it as a data-URL — feeds straight into the SAME
   // "billede" pipeline as any admin-supplied image URL, so none of the
   // existing loading/rendering/checking code needs to know the difference.
-  function generateGridDataUrl(xMin, xMax, yMin, yMax, w, h){
+  // stepX/stepY are optional: pass a positive number to force that gridline
+  // spacing, or omit/leave falsy to fall back to an auto-computed "nice" step.
+  function generateGridDataUrl(xMin, xMax, yMin, yMax, w, h, stepX, stepY){
     var canvas = document.createElement('canvas');
     canvas.width = w; canvas.height = h;
     var ctx = canvas.getContext('2d');
-    tgDrawGrid(ctx, w, h, xMin, xMax, yMin, yMax);
+    tgDrawGrid(ctx, w, h, xMin, xMax, yMin, yMax, stepX, stepY);
     return canvas.toDataURL('image/png');
   }
   function tgNiceStep(range){
@@ -3653,11 +3655,12 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     return step * mag;
   }
   function tgNiceNum(v){ return Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : String(Math.round(v*100)/100); }
-  function tgDrawGrid(ctx, w, h, xMin, xMax, yMin, yMax){
+  function tgDrawGrid(ctx, w, h, xMin, xMax, yMin, yMax, stepXIn, stepYIn){
     ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
     var sx = w / (xMax - xMin), sy = h / (yMax - yMin);
     function toPx(x, y){ return [(x - xMin) * sx, h - (y - yMin) * sy]; }
-    var stepX = tgNiceStep(xMax - xMin), stepY = tgNiceStep(yMax - yMin);
+    var stepX = (typeof stepXIn === 'number' && stepXIn > 0) ? stepXIn : tgNiceStep(xMax - xMin);
+    var stepY = (typeof stepYIn === 'number' && stepYIn > 0) ? stepYIn : tgNiceStep(yMax - yMin);
     ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
     for (var gx = Math.ceil(xMin / stepX) * stepX; gx <= xMax + 1e-9; gx += stepX){
       var p = toPx(gx, 0); ctx.beginPath(); ctx.moveTo(p[0], 0); ctx.lineTo(p[0], h); ctx.stroke();
@@ -3691,7 +3694,12 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     if ([xMin,xMax,yMin,yMax].some(isNaN) || xMax <= xMin || yMax <= yMin){
       alert('Udfyld gyldige min/max-værdier (max skal være større end min).'); return;
     }
-    var url = generateGridDataUrl(xMin, xMax, yMin, yMax, TG_CANVAS_W, TG_CANVAS_H);
+    var xStepEl = document.getElementById('tg-xstep'), yStepEl = document.getElementById('tg-ystep');
+    var xStep = xStepEl ? parseFloat((xStepEl.value || '').replace(',','.')) : NaN;
+    var yStep = yStepEl ? parseFloat((yStepEl.value || '').replace(',','.')) : NaN;
+    if (!isNaN(xStep) && xStep <= 0){ alert('x-interval skal være større end 0.'); return; }
+    if (!isNaN(yStep) && yStep <= 0){ alert('y-interval skal være større end 0.'); return; }
+    var url = generateGridDataUrl(xMin, xMax, yMin, yMax, TG_CANVAS_W, TG_CANVAS_H, xStep, yStep);
     document.getElementById('tg-url').value = url;
     ScaffoldUI.tegnLoadImage();
   };
@@ -3707,6 +3715,8 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
         '<div class="field" style="flex:0 0 90px"><label>til</label><input id="tg-xmax" value="10"></div>' +
         '<div class="field" style="flex:0 0 90px"><label>y fra</label><input id="tg-ymin" value="-10"></div>' +
         '<div class="field" style="flex:0 0 90px"><label>til</label><input id="tg-ymax" value="10"></div>' +
+        '<div class="field" style="flex:0 0 90px"><label>x-interval</label><input id="tg-xstep" placeholder="auto"></div>' +
+        '<div class="field" style="flex:0 0 90px"><label>y-interval</label><input id="tg-ystep" placeholder="auto"></div>' +
         '<button type="button" class="btn-sm" style="flex:0 0 auto" onclick="ScaffoldUI.tegnGenerateGrid()">📐 Koordinatsystem</button>' +
         '</div>' +
         '<div class="row" style="margin-top:6px"><input id="tg-url" value="' + (existing ? Scaffold.escAttr(existing.billede) : '') + '" placeholder="...eller indsæt din egen billede-URL"><button type="button" class="btn-sm" style="flex:0 0 auto" onclick="ScaffoldUI.suggestBillede(\'tg-url\',' + attrArg(opgState.nr) + ')">🔗 Foreslå</button><button type="button" class="btn-sm" style="flex:0 0 auto" onclick="ScaffoldUI.tegnLoadImage()">Indlæs billede</button></div></div>' +
