@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HHXB Scaffolding-værktøj</title>
+<!-- SheetJS: used only by the "Excel-upload" opgavetype's admin cell-picker
+     (reading the facit .xlsx you upload while authoring). Everything else
+     in this tool works fully offline; this is the one feature that needs it.
+     `defer` is essential here, not optional — without it this blocking
+     external script would stall the HTML parser and delay the tool's own
+     inline scripts from running at all until it resolves. -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --border:#e0ddd8; --bg:#faf9f7; --text:#292524; --muted:#78716c;
@@ -1330,6 +1337,11 @@ function renderCatalogItemBodyHtml(nr, niveau, item, itemIdx){
       '</div>' +
       '<div style="font-size:0.75rem;color:#9ca3af;margin-bottom:6px">Hold Shift nede og rul for at zoome</div>' +
       '<div style="overflow-x:auto;margin-bottom:10px"><canvas id="' + tcanvasId + '" width="560" height="420" style="border:1.5px solid var(--border);border-radius:8px;cursor:crosshair;background:#f8f8f8;display:block;touch-action:none;max-width:100%;height:auto"></canvas></div>';
+  } else if (item.type === 'excel'){
+    body = (item.template ? '<div style="margin-bottom:10px"><a href="' + escAttr(item.template.dataUrl) + '" download="' + escAttr(item.template.filename) + '" class="ow-btn" style="display:inline-block;text-decoration:none;padding:8px 16px;font-size:0.85rem">\u2B07 Download skabelon (' + escHtml(item.template.filename) + ')</a></div>' : '') +
+      '<div style="margin-bottom:8px"><input type="file" accept=".xlsx,.xls" id="ow-' + idBase + '-file" onchange="excelFileSelected(\'' + esc1(idBase) + '\', \'' + esc1(item.fane) + '\', this)"></div>' +
+      '<div id="ow-' + idBase + '-status" style="font-size:0.8rem;color:#6b7280;margin-bottom:8px"></div>' +
+      '<div id="ow-' + idBase + '-grid" style="max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:10px"></div>';
   }
 
   return { head: head, body: body };
@@ -1400,6 +1412,10 @@ function buildItemFieldChecks(nr, niveau, item, itemIdx){
     var tv = 'i' + itemIdx + 'ok';
     lines.push('  var ' + tv + ' = checkTegn(\'' + tcanvasId + '\');');
     okVars.push(tv);
+  } else if (item.type === 'excel'){
+    var ev = 'i' + itemIdx + 'ok';
+    lines.push('  var ' + ev + ' = checkExcelItem(' + JSON.stringify(idBase) + ', ' + JSON.stringify(item.fane) + ', ' + item.tolerancePct + ', ' + JSON.stringify(item.cells) + ');');
+    okVars.push(ev);
   }
 
   return { lines: lines, okVars: okVars };
@@ -1495,6 +1511,7 @@ function parseOpgaveSlotsFromDom(doc, jsText, nr){
 
       var table = itemEl.querySelector('table');
       var canvasEl = itemEl.querySelector('canvas');
+      var fileEl = itemEl.querySelector('input[type="file"]');
       var item = null;
 
       if (table){
@@ -1507,6 +1524,8 @@ function parseOpgaveSlotsFromDom(doc, jsText, nr){
         } else {
           item = parsePindeItem(canvasId, titel, instruktion, startBody);
         }
+      } else if (fileEl){
+        item = parseExcelItem(itemEl, idBase, titel, instruktion, fnBody);
       } else if (itemEl.querySelector('.ow-input')){
         item = parseTalsvarItem(itemEl, idBase, titel, instruktion, billede, fnBody);
       }
@@ -1546,6 +1565,23 @@ function parseTalsvarItem(itemEl, idBase, titel, instruktion, billede, fnBody){
     felter.push(felt);
   });
   return { type: 'talsvar', titel: titel, instruktion: instruktion, billede: billede, felter: felter };
+}
+
+function parseExcelItem(itemEl, idBase, titel, instruktion, fnBody){
+  var re = new RegExp('checkExcelItem\\(\\s*"' + escRe(idBase) + '"\\s*,\\s*"((?:[^"\\\\]|\\\\.)*)"\\s*,\\s*([\\d.]+)\\s*,\\s*(\\[[^\\]]*\\])\\s*\\)');
+  var m = re.exec(fnBody);
+  var fane = '', tolerancePct = 2, cells = [];
+  if (m){
+    fane = JSON.parse('"' + m[1] + '"');
+    tolerancePct = parseFloat(m[2]);
+    try { cells = JSON.parse(m[3]); } catch (e) { cells = []; }
+  }
+  var template = null;
+  var templateLink = itemEl.querySelector('a[download]');
+  if (templateLink){
+    template = { filename: templateLink.getAttribute('download') || '', dataUrl: templateLink.getAttribute('href') || '' };
+  }
+  return { type: 'excel', titel: titel, instruktion: instruktion, billede: '', fane: fane, tolerancePct: tolerancePct, cells: cells, template: template };
 }
 
 function parseTabelItem(itemEl, table, idBase, titel, instruktion, billede, fnBody){
@@ -1799,6 +1835,9 @@ function syncOpgaveShellForNr(jsText, nr, slotAssignment){
   })){
     jsText = ensureAnswerTypeHelpers(jsText);
   }
+  if (present.some(function(n){ return slotAssignment[n].some(function(item){ return item.type === 'excel'; }); })){
+    jsText = ensureExcelModule(jsText);
+  }
 
   if (!present.length){
     // removeAllFunctionCopies/the var-regex loop are both safe no-ops when
@@ -1871,6 +1910,142 @@ function syncOpgaveShellForNr(jsText, nr, slotAssignment){
 // ============================================================
 
 var TEGN_PALETTE = ['#2563eb', '#7c3aed', '#059669', '#db2777'];
+var EXCEL_MODULE_TEXT =
+'// ===== Excel-upload opgavetype: read/check a student-uploaded .xlsx =====\n' +
+'window.__excelUploads = window.__excelUploads || {};\n' +
+'\n' +
+'function excelColLetter(c) {\n' +
+'  var s = \'\', n = c + 1;\n' +
+'  while (n > 0) {\n' +
+'    var m = (n - 1) % 26;\n' +
+'    s = String.fromCharCode(65 + m) + s;\n' +
+'    n = Math.floor((n - 1) / 26);\n' +
+'  }\n' +
+'  return s;\n' +
+'}\n' +
+'\n' +
+'function excelCellOk(actual, facit, tolPct) {\n' +
+'  if (typeof actual !== \'number\' || isNaN(actual)) return false;\n' +
+'  if (facit === 0) return actual === 0;\n' +
+'  var allowed = Math.abs(facit) * (tolPct / 100);\n' +
+'  return Math.abs(actual - facit) <= allowed;\n' +
+'}\n' +
+'\n' +
+'// Real-world exports (e.g. Statistikbanken) routinely mix text labels and\n' +
+'// numeric data in the very same block an admin selects as one rectangle —\n' +
+'// row headers, category names, even year headers can come through as text.\n' +
+'// A cell marked cell.t === \'text\' is compared as normalized text instead\n' +
+'// of run through the numeric/percentage path, so labels are graded on\n' +
+'// whether they match exactly (ignoring case and extra whitespace), never\n' +
+'// silently forced through a numeric comparison against 0.\n' +
+'function excelTextOk(actual, facit) {\n' +
+'  function excelNorm(s) { return String(s === null || s === undefined ? \'\' : s).trim().toLowerCase().replace(/\\s+/g, \' \'); }\n' +
+'  return excelNorm(actual) === excelNorm(facit);\n' +
+'}\n' +
+'\n' +
+'// Renders the full used range of the uploaded sheet as a scrollable,\n' +
+'// Excel-styled grid — sticky row numbers down the left, sticky column\n' +
+'// letters across the top — so the student can see their own uploaded data.\n' +
+'// `coloring`, when present, is a { "r,c": \'ok\'|\'bad\' } map applied on top;\n' +
+'// with no coloring the grid stays neutral (pre-check state).\n' +
+'function excelRenderGrid(idBase, matrix, coloring) {\n' +
+'  var el = document.getElementById(\'ow-\' + idBase + \'-grid\');\n' +
+'  if (!el) return;\n' +
+'  if (!matrix || !matrix.length) { el.innerHTML = \'\'; return; }\n' +
+'  var nCols = matrix.reduce(function (m, row) { return Math.max(m, row.length); }, 0);\n' +
+'  var html = \'<table style="border-collapse:collapse;font-family:monospace;font-size:0.8rem;width:100%">\';\n' +
+'  html += \'<thead><tr><td style="position:sticky;top:0;left:0;z-index:2;width:28px;background:var(--bg);border:1px solid var(--border)"></td>\';\n' +
+'  for (var c = 0; c < nCols; c++) {\n' +
+'    html += \'<td style="position:sticky;top:0;z-index:1;background:var(--bg);border:1px solid var(--border);text-align:center;color:#9ca3af;padding:4px">\' + excelColLetter(c) + \'</td>\';\n' +
+'  }\n' +
+'  html += \'</tr></thead><tbody>\';\n' +
+'  for (var r = 0; r < matrix.length; r++) {\n' +
+'    html += \'<tr><td style="position:sticky;left:0;background:var(--bg);border:1px solid var(--border);text-align:center;color:#9ca3af">\' + (r + 1) + \'</td>\';\n' +
+'    var row = matrix[r] || [];\n' +
+'    for (var c2 = 0; c2 < nCols; c2++) {\n' +
+'      var v = row[c2];\n' +
+'      var key = r + \',\' + c2;\n' +
+'      var state = coloring && coloring[key];\n' +
+'      var bg = state === \'ok\' ? \'background:#dcfce7;color:#15803d\' : state === \'bad\' ? \'background:#fee2e2;color:#b91c1c\' : \'\';\n' +
+'      html += \'<td style="border:1px solid var(--border);padding:4px 6px;\' + bg + \'">\' + (v === undefined || v === null ? \'\' : String(v)) + \'</td>\';\n' +
+'    }\n' +
+'    html += \'</tr>\';\n' +
+'  }\n' +
+'  html += \'</tbody></table>\';\n' +
+'  el.innerHTML = html;\n' +
+'}\n' +
+'\n' +
+'// Wired to the file input\'s onchange. Reads the file fully client-side —\n' +
+'// nothing ever leaves the browser. Looks for a sheet with the EXACT name\n' +
+'// the opgave requires; a mismatch (wrong tab name, or a file that doesn\'t\n' +
+'// parse as a spreadsheet at all) gets a clear, specific status message\n' +
+'// instead of silently failing or guessing at a different sheet.\n' +
+'function excelFileSelected(idBase, faneName, inputEl) {\n' +
+'  var status = document.getElementById(\'ow-\' + idBase + \'-status\');\n' +
+'  var file = inputEl.files && inputEl.files[0];\n' +
+'  if (!file) return;\n' +
+'  if (typeof XLSX === \'undefined\') {\n' +
+'    if (status) { status.textContent = \'Excel-biblioteket er ikke færdigindlæst endnu (kræver internetforbindelse) — vent et par sekunder og prøv igen.\'; status.style.color = \'#b91c1c\'; }\n' +
+'    return;\n' +
+'  }\n' +
+'  if (status) { status.textContent = \'Læser fil…\'; status.style.color = \'#6b7280\'; }\n' +
+'  var reader = new FileReader();\n' +
+'  reader.onload = function (e) {\n' +
+'    try {\n' +
+'      var data = new Uint8Array(e.target.result);\n' +
+'      var wb = XLSX.read(data, { type: \'array\' });\n' +
+'      if (wb.SheetNames.indexOf(faneName) === -1) {\n' +
+'        if (status) {\n' +
+'          status.textContent = \'Vi kunne ikke finde en fane, der hedder "\' + faneName + \'" i din fil. Fanenavne i filen: \' + wb.SheetNames.join(\', \') + \'.\';\n' +
+'          status.style.color = \'#b91c1c\';\n' +
+'        }\n' +
+'        delete window.__excelUploads[idBase];\n' +
+'        excelRenderGrid(idBase, null);\n' +
+'        return;\n' +
+'      }\n' +
+'      var sheet = wb.Sheets[faneName];\n' +
+'      var matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: \'\' });\n' +
+'      window.__excelUploads[idBase] = { matrix: matrix };\n' +
+'      excelRenderGrid(idBase, matrix);\n' +
+'      if (status) { status.textContent = \'Fil indlæst — \' + matrix.length + \' rækker fundet på fanen "\' + faneName + \'". Klar til at tjekke.\'; status.style.color = \'#15803d\'; }\n' +
+'    } catch (err) {\n' +
+'      if (status) { status.textContent = \'Filen kunne ikke læses som en Excel-fil. Prøv at gemme den igen som .xlsx og upload på ny.\'; status.style.color = \'#b91c1c\'; }\n' +
+'      delete window.__excelUploads[idBase];\n' +
+'      excelRenderGrid(idBase, null);\n' +
+'    }\n' +
+'  };\n' +
+'  reader.readAsArrayBuffer(file);\n' +
+'}\n' +
+'\n' +
+'// Called from the niveau\'s combined checkBronzeNr()/checkSilverNr()/\n' +
+'// checkGoldNr() function, exactly like checkSingleNumericField etc. — one\n' +
+'// call per excel item, returning true/false into that item\'s ok-expression.\n' +
+'function checkExcelItem(idBase, faneName, tolPct, cells) {\n' +
+'  var status = document.getElementById(\'ow-\' + idBase + \'-status\');\n' +
+'  var upload = window.__excelUploads[idBase];\n' +
+'  if (!upload) {\n' +
+'    if (status) { status.textContent = \'Upload venligst din Excel-fil, før du tjekker.\'; status.style.color = \'#b91c1c\'; }\n' +
+'    return false;\n' +
+'  }\n' +
+'  var coloring = {};\n' +
+'  var allOk = true;\n' +
+'  cells.forEach(function (cell) {\n' +
+'    var row = upload.matrix[cell.r] || [];\n' +
+'    var raw = row[cell.c];\n' +
+'    var ok;\n' +
+'    if (cell.t === \'text\') {\n' +
+'      ok = excelTextOk(raw, cell.v);\n' +
+'    } else {\n' +
+'      var actual = raw;\n' +
+'      if (typeof actual === \'string\') actual = parseFloat(actual.replace(\',\', \'.\'));\n' +
+'      ok = excelCellOk(actual, cell.v, tolPct);\n' +
+'    }\n' +
+'    if (!ok) allOk = false;\n' +
+'    coloring[cell.r + \',\' + cell.c] = ok ? \'ok\' : \'bad\';\n' +
+'  });\n' +
+'  excelRenderGrid(idBase, upload.matrix, coloring);\n' +
+'  return allOk;\n' +
+'}\n';
 var TEGN_MODULE_TEXT =
 '// ── GENERISK "TEGN" MODUL (baggrundsbillede + værktøjsbaseret kurve/punkt/kasse-tegning + zoom) ──\n' +
 '// Elever vælger et VÆRKTØJ (kurve/punkt/kasse) og tegner frit — der er ingen\n' +
@@ -2371,6 +2546,28 @@ function ensureTegnModule(jsText){
   return appendToScaffoldSection(jsText, TEGN_MODULE_TEXT + '\n');
 }
 
+function ensureExcelModule(jsText){
+  if (jsText.indexOf('function checkExcelItem') !== -1) return jsText;
+  return appendToScaffoldSection(jsText, EXCEL_MODULE_TEXT + '\n');
+}
+// Excel-parsing (SheetJS) is a real external dependency, unlike the other
+// opgave-type helpers which are pure hand-written JS — so it's loaded via
+// CDN <script> tag in the document <head>, exactly like KaTeX already is,
+// rather than embedded inline. Only added the first time an 'excel' item
+// is actually used anywhere on the site, and only once (checked by src).
+function ensureXlsxLib(doc){
+  var head = doc.head || doc.getElementsByTagName('head')[0];
+  if (!head) return;
+  var already = Array.prototype.some.call(head.querySelectorAll('script'), function(s){
+    return (s.getAttribute('src') || '').indexOf('/xlsx') !== -1;
+  });
+  if (already) return;
+  var s = doc.createElement('script');
+  s.setAttribute('defer', '');
+  s.setAttribute('src', 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+  head.appendChild(s);
+}
+
 // ---- Opgave id suggestion ----
 function suggestOpgaveId(nr, existingIdsSet){
   var slug = slugOf(nr);
@@ -2438,6 +2635,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
          hasOpgaveShell: hasOpgaveShell, opgaveShellIsToolManaged: opgaveShellIsToolManaged,
          ensureOpgaveShell: ensureOpgaveShell, applyOpgaveSlotsToDom: applyOpgaveSlotsToDom,
          syncOpgaveShellForNr: syncOpgaveShellForNr, renderNiveauBodyHtml: renderNiveauBodyHtml,
+         ensureExcelModule: ensureExcelModule, ensureXlsxLib: ensureXlsxLib,
          renderCatalogItemBodyHtml: renderCatalogItemBodyHtml,
          buildCatalogCheckFn: buildCatalogCheckFn, buildOpgaveShellJS: buildOpgaveShellJS, ensureTegnModule: ensureTegnModule,
          ensureAnswerTypeHelpers: ensureAnswerTypeHelpers, ensureCloseMedalFix: ensureCloseMedalFix,
@@ -3540,6 +3738,13 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     if (item.type === 'tabel') return 'Tabel: ' + item.kolonner.length + ' kolonner × ' + item.raekker.length + ' rækker';
     if (item.type === 'pinde') return 'Pindediagram (' + (item.mode === 'dots' ? 'punkter' : 'søjler') + '), ' + item.xValues.length + ' værdier';
     if (item.type === 'tegn') return 'Tegn kurve, ' + item.layers.length + ' lag (' + item.layers.map(function(l){return l.label;}).join(', ') + ')';
+    if (item.type === 'excel'){
+      var numCount = item.cells.filter(function(c){ return c.t !== 'text'; }).length;
+      var textCount = item.cells.length - numCount;
+      return 'Excel-upload: fane "' + item.fane + '", ' + item.cells.length + ' celle' + (item.cells.length === 1 ? '' : 'r') +
+        ' (' + numCount + ' tal ±' + item.tolerancePct + '%' + (textCount ? ', ' + textCount + ' tekst' : '') + ')' +
+        (item.template ? ', skabelon: ' + item.template.filename : '');
+    }
     return item.type;
   }
 
@@ -3696,6 +3901,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
         '<option value="tabel">Tabel-udfyldning — udfyld celler i en tabel</option>' +
         '<option value="pinde">Pindediagram — klik/træk søjler eller punkter</option>' +
         '<option value="tegn">Tegn en kurve — frihånd/polygon over et baggrundsbillede</option>' +
+        '<option value="excel">Excel-upload — eleven uploader et regneark, du tjekker celler</option>' +
       '</select></div>' +
       '<div class="form-actions"><button class="btn-primary" onclick="ScaffoldUI.showOpgaveDetailForm(' + attrArg(n) + ', document.getElementById(\'ot-type\').value)">Næste</button>' +
       '<button class="btn-cancel" onclick="ScaffoldUI.renderOpgaverTab()">Annullér</button></div></div>';
@@ -3712,6 +3918,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     else if (type === 'tabel') f.innerHTML = tabelFormHtml(n, existing, idx);
     else if (type === 'pinde') f.innerHTML = pindeFormHtml(n, existing, idx);
     else if (type === 'tegn') initTegnForm(n, existing, idx);
+    else if (type === 'excel') initExcelForm(n, existing, idx);
     if (f.scrollIntoView) f.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
   ScaffoldUI.editOpgaveSlot = function(n, idx){
@@ -4203,6 +4410,239 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     renderOpgaverTab();
   };
 
+  // ---- Excel-upload: admin uploads the CORRECT file, then marks which
+  // cells matter by clicking/dragging/Ctrl/Shift — exactly like selecting
+  // in a spreadsheet — instead of typing a facit grid by hand. ----
+  function excelColLetter(c){
+    var s = '', n = c + 1;
+    while (n > 0){ var m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); }
+    return s;
+  }
+  var excelWb = null, excelSheetName = '', excelMatrix = [], excelSelected = {}, excelAnchor = null, excelDragStart = null, excelDragging = false, excelHasNewUpload = false;
+  var excelTemplate = null, excelTemplateRemoved = false;
+  ScaffoldUI.excelRemoveTemplate = function(){
+    excelTemplate = null;
+    excelTemplateRemoved = true;
+    var statusEl = document.getElementById('of-excel-template-status');
+    if (statusEl) statusEl.textContent = 'Skabelon fjernes ved gem.';
+  };
+  // Statistikbanken exports routinely mix text labels (row headers, category
+  // names — even year headers like "2007" often come through as TEXT, not
+  // a number) with actual numeric data in the very same block an admin
+  // naturally wants to select as one rectangle. A cell is only treated as
+  // numeric if the ENTIRE trimmed value parses as a plain number — partial
+  // matches like "16-29 år" or "50 år og derover" stay text, so labels
+  // never silently get compared with percentage tolerance against 0.
+  function excelClassifyRaw(raw){
+    if (typeof raw === 'number') return { t: 'num', v: raw };
+    var s = String(raw === null || raw === undefined ? '' : raw).trim();
+    if (/^-?\d+([.,]\d+)?$/.test(s)) return { t: 'num', v: parseFloat(s.replace(',', '.')) };
+    return { t: 'text', v: s };
+  }
+
+  // Shown when editing an existing excel opgave and no new file has been
+  // uploaded yet THIS session — makes it unmistakably clear the saved
+  // facit is still intact (nothing to re-upload unless you want to change
+  // the selection), instead of the blank grid + empty file-picker looking
+  // like the data quietly vanished.
+  function excelExistingSummaryHtml(existing){
+    if (!existing || !existing.cells || !existing.cells.length) return '';
+    var numCount = existing.cells.filter(function(c){ return c.t !== 'text'; }).length;
+    var textCount = existing.cells.length - numCount;
+    var rows = existing.cells.slice().sort(function(a, b){ return a.r - b.r || a.c - b.c; });
+    var previewRows = rows.map(function(c){
+      return '<tr><td style="padding:3px 8px;border:1px solid var(--border);font-family:monospace;font-size:0.78rem">' + excelColLetter(c.c) + (c.r + 1) + '</td>' +
+        '<td style="padding:3px 8px;border:1px solid var(--border);font-size:0.78rem">' + h(String(c.v)) + '</td>' +
+        '<td style="padding:3px 8px;border:1px solid var(--border);font-size:0.78rem;color:var(--muted)">' + (c.t === 'text' ? 'tekst' : 'tal') + '</td></tr>';
+    }).join('');
+    return '<div id="of-excel-existing-summary" style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:10px 12px;margin-bottom:10px">' +
+      '<div style="font-weight:700;color:#15803d;margin-bottom:6px">\u2713 Facit er gemt fra tidligere \u2014 intet er v\u00e6k. Genupload kun filen, hvis du vil \u00e6ndre markeringen visuelt.</div>' +
+      '<div style="font-size:0.83rem;margin-bottom:8px">Fane: "' + h(existing.fane) + '" \u00b7 ' + existing.cells.length + ' celler (' + numCount + ' tal \u00b1' + existing.tolerancePct + '%' + (textCount ? ', ' + textCount + ' tekst' : '') + ')</div>' +
+      '<div style="max-height:160px;overflow:auto"><table style="border-collapse:collapse;width:100%">' +
+      '<tr><td style="padding:3px 8px;border:1px solid var(--border);font-weight:600;background:var(--bg);font-size:0.78rem">Celle</td>' +
+      '<td style="padding:3px 8px;border:1px solid var(--border);font-weight:600;background:var(--bg);font-size:0.78rem">Facit-v\u00e6rdi</td>' +
+      '<td style="padding:3px 8px;border:1px solid var(--border);font-weight:600;background:var(--bg);font-size:0.78rem">Type</td></tr>' +
+      previewRows + '</table></div></div>';
+  }
+  function excelFormHtml(n, existing, idx){
+    return '<div class="form-box"><h3>' + NIVEAU_META[n].label + ' — Excel-upload</h3>' +
+      '<div class="field"><label>Titel</label><input id="of-titel" value="' + (existing ? Scaffold.escAttr(existing.titel) : '') + '"></div>' +
+      '<div class="field"><label>Instruktion (vises til eleven)</label><textarea id="of-instr">' + (existing ? h(existing.instruktion || '') : '') + '</textarea></div>' +
+      '<div class="field"><label>Fejlmargin (% af facit-værdien — gælder hele opgaven)</label><input id="of-excel-tol" value="' + (existing ? existing.tolerancePct : 2) + '" style="width:100px"></div>' +
+      (existing ? excelExistingSummaryHtml(existing) : '') +
+      '<div class="field"><label>Upload facit-fil (.xlsx) — den korrekte, udfyldte fil' + (existing ? ' (kun nødvendigt hvis du vil ÆNDRE markeringen)' : '') + '</label>' +
+      '<input type="file" id="of-excel-file" accept=".xlsx,.xls"></div>' +
+      '<div class="field"><label>Skabelon til eleven (valgfri) — en fil de kan downloade som udgangspunkt. Rører IKKE ved tjekket; det er kun facit-filen ovenfor der bruges til det.</label>' +
+      '<input type="file" id="of-excel-template-file" accept=".xlsx,.xls"></div>' +
+      '<div id="of-excel-template-status" style="font-size:0.8rem;color:#6b7280;margin-bottom:8px">' +
+      (existing && existing.template ? 'Nuværende skabelon: ' + h(existing.template.filename) + ' <a href="#" onclick="ScaffoldUI.excelRemoveTemplate();return false" style="margin-left:8px">Fjern</a>' : '') +
+      '</div>' +
+      '<div id="of-excel-fanewrap" style="display:none">' +
+      '<div class="field"><label>Fane</label><select id="of-excel-fane" onchange="ScaffoldUI.excelSwitchFane(this.value)"></select></div>' +
+      '<p><small>Klik en celle for at markere den. Klik og træk for et område. Shift+klik udvider markeringen. Ctrl/Cmd+klik tilføjer eller fjerner enkelte celler.</small></p>' +
+      '<div id="of-excel-grid" style="max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:8px;user-select:none"></div>' +
+      '<p><small><span id="of-excel-count">0</span> celler markeret</small></p>' +
+      '</div>' +
+      '<div class="form-actions"><button class="btn-primary" onclick="ScaffoldUI.submitExcel(' + attrArg(n) + (idx !== undefined ? ',' + idx : '') + ')">' + (existing ? 'Gem' : 'Tilføj') + '</button>' +
+      '<button class="btn-cancel" onclick="ScaffoldUI.renderOpgaverTab()">Annullér</button></div></div>';
+  }
+
+  function initExcelForm(n, existing, idx){
+    document.getElementById('inlineForm').innerHTML = excelFormHtml(n, existing, idx);
+    excelWb = null; excelSheetName = ''; excelMatrix = []; excelAnchor = null; excelDragStart = null; excelDragging = false;
+    excelHasNewUpload = false;
+    excelSelected = {};
+    excelTemplate = (existing && existing.template) ? existing.template : null;
+    excelTemplateRemoved = false;
+    if (existing && existing.cells){
+      existing.cells.forEach(function(c){ excelSelected[c.r + ',' + c.c] = true; });
+    }
+    var templateInput = document.getElementById('of-excel-template-file');
+    templateInput.addEventListener('change', function(){
+      var file = templateInput.files && templateInput.files[0];
+      if (!file) return;
+      if (file.size > 3 * 1024 * 1024){
+        if (!confirm('Filen er ' + Math.round(file.size / 1024 / 1024 * 10) / 10 + ' MB. Den bliver indlejret direkte i Index.html, hvilket gør siden tilsvarende større. Fortsæt alligevel?')) return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(e){
+        excelTemplate = { filename: file.name, dataUrl: e.target.result };
+        excelTemplateRemoved = false;
+        var statusEl = document.getElementById('of-excel-template-status');
+        if (statusEl) statusEl.textContent = 'Ny skabelon valgt: ' + file.name;
+      };
+      reader.readAsDataURL(file);
+    });
+    var fileInput = document.getElementById('of-excel-file');
+    fileInput.addEventListener('change', function(){
+      var file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      if (typeof XLSX === 'undefined'){
+        alert('Excel-biblioteket er ikke færdigindlæst endnu (kræver internetforbindelse) — vent et par sekunder og prøv igen.');
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(e){
+        try {
+          excelWb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        } catch (err){
+          alert('Filen kunne ikke læses som en Excel-fil.');
+          return;
+        }
+        excelHasNewUpload = true;
+        var existingSummaryEl = document.getElementById('of-excel-existing-summary');
+        if (existingSummaryEl) existingSummaryEl.style.display = 'none';
+        excelSelected = {}; // a new upload starts a fresh selection — coordinates from the old file no longer necessarily mean anything in a different one
+        var faneSelect = document.getElementById('of-excel-fane');
+        faneSelect.innerHTML = excelWb.SheetNames.map(function(name){ return '<option value="' + Scaffold.escAttr(name) + '">' + h(name) + '</option>'; }).join('');
+        var startSheet = (existing && excelWb.SheetNames.indexOf(existing.fane) !== -1) ? existing.fane : excelWb.SheetNames[0];
+        faneSelect.value = startSheet;
+        document.getElementById('of-excel-fanewrap').style.display = 'block';
+        ScaffoldUI.excelSwitchFane(startSheet);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+    var gridEl = document.getElementById('of-excel-grid');
+    gridEl.addEventListener('mousedown', function(ev){
+      var td = ev.target.closest('td[data-r]');
+      if (!td) return;
+      ev.preventDefault();
+      var r = parseInt(td.getAttribute('data-r'), 10), c = parseInt(td.getAttribute('data-c'), 10);
+      if (ev.ctrlKey || ev.metaKey){
+        var key = r + ',' + c;
+        if (excelSelected[key]) delete excelSelected[key]; else excelSelected[key] = true;
+        excelAnchor = [r, c];
+      } else if (ev.shiftKey && excelAnchor){
+        excelRectSelect(excelAnchor, [r, c], true);
+      } else {
+        excelSelected = {}; excelSelected[r + ',' + c] = true;
+        excelAnchor = [r, c]; excelDragStart = [r, c]; excelDragging = true;
+      }
+      excelRenderAdminGrid();
+    });
+    gridEl.addEventListener('mouseover', function(ev){
+      if (!excelDragging) return;
+      var td = ev.target.closest('td[data-r]');
+      if (!td) return;
+      var r = parseInt(td.getAttribute('data-r'), 10), c = parseInt(td.getAttribute('data-c'), 10);
+      excelSelected = {};
+      excelRectSelect(excelDragStart, [r, c], true);
+      excelRenderAdminGrid();
+    });
+    document.addEventListener('mouseup', function(){ excelDragging = false; });
+  }
+  // Marks every cell in the rectangle spanned by a and b (inclusive) as
+  // selected — used for both the live drag-rectangle preview and Shift+click.
+  function excelRectSelect(a, b, union){
+    if (!union) excelSelected = {};
+    var r0 = Math.min(a[0], b[0]), r1 = Math.max(a[0], b[0]);
+    var c0 = Math.min(a[1], b[1]), c1 = Math.max(a[1], b[1]);
+    for (var r = r0; r <= r1; r++) for (var c = c0; c <= c1; c++) excelSelected[r + ',' + c] = true;
+  }
+  ScaffoldUI.excelSwitchFane = function(name){
+    excelSheetName = name;
+    var sheet = excelWb.Sheets[name];
+    excelMatrix = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
+    excelRenderAdminGrid();
+  };
+  function excelRenderAdminGrid(){
+    var el = document.getElementById('of-excel-grid');
+    if (!el) return;
+    if (!excelMatrix.length){ el.innerHTML = ''; return; }
+    var nCols = excelMatrix.reduce(function(m, row){ return Math.max(m, row.length); }, 0);
+    var html = '<table style="border-collapse:collapse;font-family:monospace;font-size:0.8rem;width:100%">';
+    html += '<thead><tr><td style="position:sticky;top:0;left:0;z-index:2;width:28px;background:var(--bg);border:1px solid var(--border)"></td>';
+    for (var c = 0; c < nCols; c++){
+      html += '<td style="position:sticky;top:0;z-index:1;background:var(--bg);border:1px solid var(--border);text-align:center;color:var(--muted);padding:4px">' + excelColLetter(c) + '</td>';
+    }
+    html += '</tr></thead><tbody>';
+    for (var r = 0; r < excelMatrix.length; r++){
+      html += '<tr><td style="position:sticky;left:0;background:var(--bg);border:1px solid var(--border);text-align:center;color:var(--muted)">' + (r + 1) + '</td>';
+      var row = excelMatrix[r] || [];
+      for (var c2 = 0; c2 < nCols; c2++){
+        var v = row[c2];
+        var sel = excelSelected[r + ',' + c2];
+        var bg = sel ? 'background:#bfdbfe' : '';
+        html += '<td data-r="' + r + '" data-c="' + c2 + '" style="border:1px solid var(--border);padding:4px 6px;cursor:cell;' + bg + '">' + (v === undefined || v === null ? '' : h(String(v))) + '</td>';
+      }
+      html += '</tr>';
+    }
+    html += '</tbody></table>';
+    el.innerHTML = html;
+    var count = Object.keys(excelSelected).length;
+    var countEl = document.getElementById('of-excel-count');
+    if (countEl) countEl.textContent = count;
+  }
+  ScaffoldUI.submitExcel = function(n, idx){
+    var titel = document.getElementById('of-titel').value.trim();
+    var instr = document.getElementById('of-instr').value.trim();
+    var tolerancePct = parseFloat(document.getElementById('of-excel-tol').value.replace(',', '.').replace('%', ''));
+    if (!titel){ alert('Angiv en titel.'); return; }
+    if (isNaN(tolerancePct) || tolerancePct < 0){ alert('Angiv en gyldig fejlmargin (%).'); return; }
+    var existing = (idx !== undefined) ? slotsFor(opgState.nr)[n][idx] : null;
+    var fane, cells;
+    if (excelHasNewUpload){
+      var selKeys = Object.keys(excelSelected);
+      if (!selKeys.length){ alert('Markér mindst én celle i det uploadede ark.'); return; }
+      fane = excelSheetName;
+      cells = selKeys.map(function(key){
+        var parts = key.split(','); var r = parseInt(parts[0], 10), c = parseInt(parts[1], 10);
+        var raw = (excelMatrix[r] || [])[c];
+        var cls = excelClassifyRaw(raw);
+        return cls.t === 'text' ? { r: r, c: c, v: cls.v, t: 'text' } : { r: r, c: c, v: cls.v };
+      });
+    } else if (existing){
+      fane = existing.fane; cells = existing.cells;
+    } else {
+      alert('Upload facit-filen og markér mindst én celle.'); return;
+    }
+    var template = excelTemplateRemoved ? null : (excelTemplate || (existing ? existing.template : null) || null);
+    saveOpgaveItem(n, idx, { type: 'excel', titel: titel, instruktion: instr, billede: '', fane: fane, tolerancePct: tolerancePct, cells: cells, template: template });
+    applyOpgaveSlots();
+    log(existingLogVerb(idx), NIVEAU_META[n].label + '-opgave (excel, fane "' + fane + '", ' + cells.length + ' celler' + (template ? ', med skabelon "' + template.filename + '"' : '') + ') på ' + opgState.nr + ': "' + titel + '"');
+    renderOpgaverTab();
+  };
+
   // ---- Talsvar ----
   var SVARTYPE_META = {
     tal: { label: 'Tal', placeholder: 'fx 4', tol: true },
@@ -4459,6 +4899,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     var dirtyQuizList = Object.keys(dirtyQuizNrs);
     var dirtyOpgaveList = Object.keys(dirtyOpgaveNrs);
     var newJs = Scaffold.regenerateDerivedJS(jsText, s, opgaverByNr, dirtyQuizList, dirtyOpgaveList, opgaveSlotsByNr);
+    if (newJs.indexOf('function checkExcelItem') !== -1) Scaffold.ensureXlsxLib(doc);
     scriptEl.textContent = newJs;
     var problems = Scaffold.validateDocument(doc, newJs);
     var newProblems = problems.filter(function(p){ return baselineProblems.indexOf(p) === -1; });

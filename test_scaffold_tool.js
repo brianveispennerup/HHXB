@@ -3,6 +3,10 @@
  *
  * Kør med: node test_scaffold_tool.js
  * Kræver: npm install jsdom  (samme som test_navigation.js allerede bruger)
+ * Valgfrit: npm install xlsx — kun brugt til at teste selve fil-upload/
+ * celle-markering-flowet for "Excel-upload"-opgavetypen (SheetJS parser en
+ * rigtig .xlsx-fil). Uden det springes DE tests automatisk over med en
+ * tydelig besked; resten af suiten kører upåvirket.
  *
  * Denne suite tester VÆRKTØJET selv (parsing, CRUD for forløb/kapitler/emner/
  * materiale/tjekspørgsmål/opgaver, katalog-generering for alle 4 opgavetyper,
@@ -31,6 +35,10 @@ const TEST_NAV_JS = path.join(__dirname, 'test_navigation.js');
 const TMP_OUT = path.join(__dirname, '_scaffold_test_output.html');
 
 let passed = 0, failed = 0;
+let XLSX_SOURCE = null;
+try { XLSX_SOURCE = fs.readFileSync(require.resolve('xlsx/dist/xlsx.full.min.js'), 'utf8'); }
+catch (e) { XLSX_SOURCE = null; }
+function injectXlsx(w){ if (XLSX_SOURCE) w.eval(XLSX_SOURCE); }
 function test(name, cond, detail){
   if (cond){ console.log('  PASS ', name); passed++; }
   else { console.log('  FAIL ', name, detail ? '— ' + detail : ''); failed++; }
@@ -1945,6 +1953,387 @@ async function runShellDesyncRegressionTest(){
     genTwice.newProblems.length === 0, JSON.stringify(genTwice.newProblems));
 }
 
+async function runExcelUploadTests(){
+  section('Ny opgavetype: "Excel-upload" — eleven uploader et regneark, admin markerer facit-celler visuelt');
+  test('"excel" findes som valgmulighed i type-vælgeren', /<option value="excel">/.test(fs.readFileSync(TOOL_PATH, 'utf8')));
+
+  if (!XLSX_SOURCE){
+    console.log('  (springer resten af Excel-upload-testsene over — "npm install xlsx" for fuld dækning)');
+    return;
+  }
+
+  // ---- Build two small in-memory .xlsx workbooks with the real xlsx
+  // library, so this test never depends on external fixture files. ----
+  const XLSXNode = require('xlsx');
+  function buildWb(sheetName, rows){
+    const wb = XLSXNode.utils.book_new();
+    const ws = XLSXNode.utils.aoa_to_sheet(rows);
+    XLSXNode.utils.book_append_sheet(wb, ws, sheetName);
+    return Buffer.from(XLSXNode.write(wb, { type: 'array', bookType: 'xlsx' }));
+  }
+  const facitRows = [['Kommune', 2019, 2020], ['Aarhus', 2145300, 2210750], ['København', 3890120, 3940000], ['Odense', 1205000, 1250400]];
+  const facitBuf = buildWb('Udtræk', facitRows);
+  const correctBuf = buildWb('Udtræk', [['Kommune', 2019, 2020], ['Aarhus', 2145300, 2210750], ['København', 3888000, 3940000], ['Odense', 1205000, 1250400]]); // within 2% tolerance
+  const wrongBuf = buildWb('Udtræk', [['Kommune', 2019, 2020], ['Aarhus', 2145300, 2210750], ['København', 3890120, 5000000], ['Odense', 1205000, 1250400]]); // one cell way off
+  const wrongSheetBuf = buildWb('Ark1', [['noget', 'andet']]);
+
+  function waitFor(cond, timeoutMs, label){
+    return new Promise((resolve, reject) => {
+      const start = Date.now();
+      (function poll(){
+        if (cond()) return resolve();
+        if (Date.now() - start > timeoutMs) return reject(new Error('timeout: ' + label));
+        setTimeout(poll, 20);
+      })();
+    });
+  }
+
+  section('Admin-side: upload facit-fil, markér celler med klik/træk/Shift/Ctrl');
+  const w = freshToolWindow();
+  injectXlsx(w);
+  await new Promise(r => setTimeout(r, 60));
+  w.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D = w.document;
+  await waitFor(() => typeof w.XLSX !== 'undefined', 3000, 'XLSX to be injected');
+
+  w.ScaffoldUI.activateForloeb('FX', 'Exceltest');
+  D.getElementById('af-titel').value = 'Exceltest';
+  w.ScaffoldUI.submitActivateForloeb('FX');
+  w.ScaffoldUI.showNewKapitelForm('fx');
+  D.getElementById('nk-titel').value = 'K1';
+  w.ScaffoldUI.submitNewKapitel('fx');
+  w.ScaffoldUI.showNewEmneForm('fx', 'K1');
+  D.getElementById('ne-nr').value = '8.8.1'; D.getElementById('ne-navn').value = 'Excel'; D.getElementById('ne-desc').value = '';
+  w.ScaffoldUI.submitNewEmne('fx', 'K1');
+  w.ScaffoldUI.renderOpgaverTab();
+  D.getElementById('opg-emne-select').value = '8.8.1';
+  D.getElementById('opg-emne-select').dispatchEvent(new w.Event('change'));
+
+  w.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D.getElementById('ot-type').value = 'excel';
+  w.ScaffoldUI.showOpgaveDetailForm('bronze', 'excel');
+  test('Excel-formularen viser titel/instruktion/tolerance/fil-felter',
+    !!D.getElementById('of-titel') && !!D.getElementById('of-instr') && !!D.getElementById('of-excel-tol') && !!D.getElementById('of-excel-file'));
+  D.getElementById('of-titel').value = 'Statistikbank-udtræk';
+  D.getElementById('of-instr').value = 'Upload dit udtræk';
+  D.getElementById('of-excel-tol').value = '2';
+
+  const facitFile = new w.File([facitBuf], 'facit.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const fileInput = D.getElementById('of-excel-file');
+  Object.defineProperty(fileInput, 'files', { value: [facitFile], configurable: true });
+  fileInput.dispatchEvent(new w.Event('change'));
+  await waitFor(() => D.getElementById('of-excel-fane').options.length > 0, 3000, 'fane select populated');
+  test('Fane-vælgeren finder det rigtige fanenavn ("Udtræk") fra den uploadede fil',
+    D.getElementById('of-excel-fane').value === 'Udtræk');
+  await waitFor(() => D.getElementById('of-excel-grid').querySelectorAll('td[data-r]').length > 0, 3000, 'grid rendered');
+  test('Facit-gitteret viser de rigtige værdier fra filen (ikke gættede/tomme)',
+    D.getElementById('of-excel-grid').textContent.indexOf('2145300') !== -1 && D.getElementById('of-excel-grid').textContent.indexOf('3890120') !== -1);
+
+  function cellAt(r, c){ return D.querySelector('#of-excel-grid td[data-r="' + r + '"][data-c="' + c + '"]'); }
+  cellAt(1, 1).dispatchEvent(new w.MouseEvent('mousedown', { bubbles: true }));
+  test('Almindeligt klik markerer præcis 1 celle', D.getElementById('of-excel-count').textContent === '1');
+  cellAt(3, 2).dispatchEvent(new w.MouseEvent('mousedown', { bubbles: true, shiftKey: true }));
+  test('Shift+klik udvider til et rektangel (2 kolonner × 3 rækker = 6 celler)', D.getElementById('of-excel-count').textContent === '6');
+  cellAt(0, 0).dispatchEvent(new w.MouseEvent('mousedown', { bubbles: true, ctrlKey: true }));
+  test('Ctrl+klik TILFØJER en enkelt celle uden at rydde resten (nu 7)', D.getElementById('of-excel-count').textContent === '7');
+  cellAt(0, 0).dispatchEvent(new w.MouseEvent('mousedown', { bubbles: true, ctrlKey: true }));
+  test('Ctrl+klik på en allerede-markeret celle FJERNER den igen (tilbage til 6)', D.getElementById('of-excel-count').textContent === '6');
+
+  w.ScaffoldUI.submitExcel('bronze');
+  const slots = w.ScaffoldUI.__debugOpgaveSlots('8.8.1');
+  test('Det gemte element har type "excel"', slots.bronze[0] && slots.bronze[0].type === 'excel');
+  test('Fane og tolerance gemt korrekt', slots.bronze[0].fane === 'Udtræk' && slots.bronze[0].tolerancePct === 2);
+  test('Alle 6 markerede cellers værdier blev læst automatisk fra filen (ingen manuel indtastning)',
+    slots.bronze[0].cells.length === 6 &&
+    slots.bronze[0].cells.some(c => c.v === 2145300) &&
+    slots.bronze[0].cells.some(c => c.v === 3940000));
+
+  const gen1 = w.ScaffoldUI.__debugGenerate();
+  test('Ingen nye valideringsproblemer efter oprettelse', gen1.newProblems.length === 0, JSON.stringify(gen1.newProblems));
+
+  section('Genereret HTML/JS: korrekt escaping (regression — JSON.stringify i et HTML-attribut korrumperede tidligere markup)');
+  test('Fil-inputtets onchange bruger enkelt-anførselstegn og er ikke korrumperet',
+    /onchange="excelFileSelected\('881b0', 'Udtræk', this\)"/.test(gen1.html));
+  test('Fil-inputtet har stadig sit korrekte id (beviser attributterne IKKE er sivet ud i hinanden)',
+    /<input type="file" accept="\.xlsx,\.xls" id="ow-881b0-file"/.test(gen1.html));
+  test('checkExcelItem-kaldet i den genererede tjek-funktion indeholder fane, tolerance og alle 6 celler',
+    /checkExcelItem\("881b0", "Udtræk", 2, \[\{[^\]]*\}\]\)/.test(gen1.html) && (gen1.html.match(/"r":\d+,"c":\d+,"v":\d+/g) || []).length === 6);
+  test('SheetJS indlæses med "defer" i <head> (ellers blokerer det resten af sitets scripts)',
+    /<script defer(=""|) src="https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/xlsx\/[^"]*"><\/script>/.test(gen1.html));
+  const xlsxScriptCount = (gen1.html.match(/libs\/xlsx\//g) || []).length;
+  test('SheetJS-scriptet indsættes kun ÉN gang', xlsxScriptCount === 1, 'fandt ' + xlsxScriptCount);
+
+  section('Genåbning: en tidligere gemt Excel-opgave skal kunne genindlæses og redigeres');
+  const w2 = freshToolWindow();
+  injectXlsx(w2);
+  await new Promise(r => setTimeout(r, 60));
+  w2.ScaffoldUI.__debugInit(gen1.html, 'Index.html');
+  const D2 = w2.document;
+  w2.ScaffoldUI.renderOpgaverTab();
+  D2.getElementById('opg-emne-select').value = '8.8.1';
+  D2.getElementById('opg-emne-select').dispatchEvent(new w2.Event('change'));
+  const reslots = w2.ScaffoldUI.__debugOpgaveSlots('8.8.1');
+  test('Genindlæst element har samme fane/tolerance/celler som før',
+    reslots.bronze[0] && reslots.bronze[0].fane === 'Udtræk' && reslots.bronze[0].tolerancePct === 2 && reslots.bronze[0].cells.length === 6);
+
+  w2.ScaffoldUI.editOpgaveSlot('bronze', 0);
+  D2.getElementById('of-titel').value = 'Statistikbank-udtræk (redigeret titel)';
+  w2.ScaffoldUI.submitExcel('bronze', 0);
+  const reslots2 = w2.ScaffoldUI.__debugOpgaveSlots('8.8.1');
+  test('Redigering UDEN at genoploade filen beholder de eksisterende celler uændret',
+    reslots2.bronze[0].titel === 'Statistikbank-udtræk (redigeret titel)' && reslots2.bronze[0].cells.length === 6);
+
+  section('Elev-siden: upload, tjek, forkert svar, forkert fanenavn, intet uploadet');
+  const w3 = new JSDOM(gen1.html, { runScripts: 'dangerously', resources: 'usable', url: 'http://localhost/' }).window;
+  injectXlsx(w3);
+  w3.HTMLCanvasElement.prototype.getContext = () => ({
+    clearRect(){}, beginPath(){}, moveTo(){}, lineTo(){}, bezierCurveTo(){}, fill(){}, arc(){}, fillText(){}, fillRect(){},
+    drawImage(){}, stroke(){}, globalAlpha:1, fillStyle:'', strokeStyle:'', lineWidth:1, font:'', textAlign:'', canvas:{width:280,height:280}
+  });
+  w3.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+  const D3 = w3.document;
+  async function upload(buf, name){
+    const f = new w3.File([buf], name);
+    const input = D3.getElementById('ow-881b0-file');
+    Object.defineProperty(input, 'files', { value: [f], configurable: true });
+    input.dispatchEvent(new w3.Event('change'));
+    await waitFor(() => D3.getElementById('ow-881b0-status').textContent !== 'Læser fil…', 3000, name + ' read to finish');
+  }
+
+  await upload(correctBuf, 'correct.xlsx');
+  w3.checkBronze881();
+  test('Korrekt (inden for tolerance) udtræk giver "Rigtigt!"', D3.getElementById('ow-r-881-low').textContent === 'Rigtigt!');
+
+  await upload(wrongBuf, 'wrong.xlsx');
+  w3.checkBronze881();
+  test('Forkert udtræk giver IKKE "Rigtigt!"', D3.getElementById('ow-r-881-low').textContent !== 'Rigtigt!');
+  const redCells = Array.from(D3.querySelectorAll('#ow-881b0-grid td')).filter(td => (td.getAttribute('style') || '').indexOf('#fee2e2') !== -1);
+  test('Præcis den ÉNE forkerte celle farves rød (ikke hele gitteret)', redCells.length === 1 && redCells[0].textContent === '5000000');
+
+  await upload(wrongSheetBuf, 'wrongsheet.xlsx');
+  test('Forkert fanenavn giver en tydelig, specifik fejlbesked (nævner det faktiske fanenavn i filen)',
+    D3.getElementById('ow-881b0-status').textContent.indexOf('Ark1') !== -1);
+
+  delete w3.__excelUploads['881b0'];
+  const noFileOk = w3.checkExcelItem('881b0', 'Udtræk', 2, [{ r: 1, c: 1, v: 1 }]);
+  test('Intet uploadet endnu: tjek afvises pænt (beder om upload, ikke en fejl/crash)',
+    noFileOk === false && D3.getElementById('ow-881b0-status').textContent.indexOf('Upload') !== -1);
+
+  section('Regression: Statistikbank-eksport blander tekst-labels og tal i samme markerede blok (rapporteret af bruger — al tekst blev fejlagtigt vist rød)');
+  // Mirrors the real shape that surfaced this bug: a text title row, a text
+  // unit-label row, YEAR HEADERS THAT ARE TEXT NOT NUMBERS (Statistikbanken
+  // quirk), text category/row labels, and actual numeric data — all inside
+  // ONE rectangle an admin naturally selects as a single block.
+  const mixedRows = [
+    ['Offentligt forsørgede efter familietype', '', '', ''],
+    ['Enhed: Antal', '', '', ''],
+    ['', '', '2007', '2008'],
+    ['I alt', 'Mænd', 32346, 110133],
+    ['', 'Kvinder', 52936, 158628]
+  ];
+  const mixedBuf = buildWb('LIGEIB6', mixedRows);
+  const w4 = freshToolWindow();
+  injectXlsx(w4);
+  await new Promise(r => setTimeout(r, 60));
+  w4.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D4 = w4.document;
+  await waitFor(() => typeof w4.XLSX !== 'undefined', 3000, 'xlsx load');
+  w4.ScaffoldUI.activateForloeb('FM', 'Blandettest');
+  D4.getElementById('af-titel').value = 'Blandettest';
+  w4.ScaffoldUI.submitActivateForloeb('FM');
+  w4.ScaffoldUI.showNewKapitelForm('fm');
+  D4.getElementById('nk-titel').value = 'K1';
+  w4.ScaffoldUI.submitNewKapitel('fm');
+  w4.ScaffoldUI.showNewEmneForm('fm', 'K1');
+  D4.getElementById('ne-nr').value = '7.7.1'; D4.getElementById('ne-navn').value = 'Blandet'; D4.getElementById('ne-desc').value = '';
+  w4.ScaffoldUI.submitNewEmne('fm', 'K1');
+  w4.ScaffoldUI.renderOpgaverTab();
+  D4.getElementById('opg-emne-select').value = '7.7.1';
+  D4.getElementById('opg-emne-select').dispatchEvent(new w4.Event('change'));
+  w4.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D4.getElementById('ot-type').value = 'excel';
+  w4.ScaffoldUI.showOpgaveDetailForm('bronze', 'excel');
+  D4.getElementById('of-titel').value = 'Blandet tabel';
+  D4.getElementById('of-instr').value = 'Upload';
+  D4.getElementById('of-excel-tol').value = '2';
+  const mixedFile = new w4.File([mixedBuf], 'mixed.xlsx');
+  const mixedInput = D4.getElementById('of-excel-file');
+  Object.defineProperty(mixedInput, 'files', { value: [mixedFile], configurable: true });
+  mixedInput.dispatchEvent(new w4.Event('change'));
+  await waitFor(() => D4.getElementById('of-excel-fane').options.length > 0, 3000, 'fane populated');
+
+  // Select the WHOLE block (rows 0-4, cols 0-3), exactly like a real admin would.
+  function cellAt4(r, c){ return D4.querySelector('#of-excel-grid td[data-r="' + r + '"][data-c="' + c + '"]'); }
+  cellAt4(0, 0).dispatchEvent(new w4.MouseEvent('mousedown', { bubbles: true }));
+  cellAt4(4, 3).dispatchEvent(new w4.MouseEvent('mousedown', { bubbles: true, shiftKey: true }));
+  w4.ScaffoldUI.submitExcel('bronze');
+  const mixedSlots = w4.ScaffoldUI.__debugOpgaveSlots('7.7.1');
+  const mixedCells = mixedSlots.bronze[0].cells;
+  test('Ren tekst-label ("Offentligt forsørgede...") gemmes som tekst-celle, ikke tvunget til tal',
+    mixedCells.some(c => c.t === 'text' && c.v === 'Offentligt forsørgede efter familietype'));
+  test('"2007"/"2008" (Statistikbankens tekst-årstal) genkendes alligevel som TAL (hele strengen er et rent tal)',
+    mixedCells.some(c => c.t !== 'text' && c.v === 2007) && mixedCells.some(c => c.t !== 'text' && c.v === 2008));
+  test('Rigtige tal (32346 osv.) gemmes stadig korrekt som numeriske celler',
+    mixedCells.some(c => c.t !== 'text' && c.v === 32346));
+
+  const mixedGen = w4.ScaffoldUI.__debugGenerate();
+  test('Ingen nye valideringsproblemer fra den blandede opgave', mixedGen.newProblems.length === 0, JSON.stringify(mixedGen.newProblems));
+
+  // Upload the EXACT same (correct) file as the student and confirm nothing
+  // is wrongly marked red just because it's text — this is the actual bug
+  // that was reported: every text cell used to fail unconditionally.
+  const w5 = new JSDOM(mixedGen.html, { runScripts: 'dangerously', resources: 'usable', url: 'http://localhost/' }).window;
+  injectXlsx(w5);
+  w5.HTMLCanvasElement.prototype.getContext = () => ({
+    clearRect(){}, beginPath(){}, moveTo(){}, lineTo(){}, bezierCurveTo(){}, fill(){}, arc(){}, fillText(){}, fillRect(){},
+    drawImage(){}, stroke(){}, globalAlpha:1, fillStyle:'', strokeStyle:'', lineWidth:1, font:'', textAlign:'', canvas:{width:280,height:280}
+  });
+  w5.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+  const D5 = w5.document;
+  const idBase5 = '771b0';
+  const correctFile5 = new w5.File([mixedBuf], 'mixed.xlsx');
+  const input5 = D5.getElementById('ow-' + idBase5 + '-file');
+  Object.defineProperty(input5, 'files', { value: [correctFile5], configurable: true });
+  input5.dispatchEvent(new w5.Event('change'));
+  await waitFor(() => D5.getElementById('ow-' + idBase5 + '-status').textContent !== 'Læser fil…', 3000, 'read');
+  w5['checkBronze771']();
+  test('En KORREKT blandet indsendelse (tekst + tal identisk med facit) giver "Rigtigt!" — dette VAR den rapporterede fejl',
+    D5.getElementById('ow-r-771-low').textContent === 'Rigtigt!');
+  const redCells5 = Array.from(D5.querySelectorAll('#ow-' + idBase5 + '-grid td')).filter(td => (td.getAttribute('style') || '').indexOf('#fee2e2') !== -1);
+  test('Ingen celler er markeret røde ved en fuldstændig korrekt indsendelse', redCells5.length === 0, JSON.stringify(redCells5.map(td=>td.textContent)));
+
+  // A genuinely wrong text label AND a genuinely wrong number must still
+  // both be caught — the fix must not make text cells un-checkable.
+  const wrongRows = mixedRows.map(r => r.slice());
+  wrongRows[3][1] = 'Kvinder'; // was 'Mænd'
+  wrongRows[3][2] = 99999;     // was 32346
+  const wrongMixedBuf = buildWb('LIGEIB6', wrongRows);
+  const wrongFile5 = new w5.File([wrongMixedBuf], 'wrong.xlsx');
+  Object.defineProperty(input5, 'files', { value: [wrongFile5], configurable: true });
+  input5.dispatchEvent(new w5.Event('change'));
+  await waitFor(() => D5.getElementById('ow-' + idBase5 + '-status').textContent !== 'Læser fil…', 3000, 'read2');
+  w5['checkBronze771']();
+  test('En forkert tekst-label OG et forkert tal opdages stadig korrekt (teksttjek er ikke blevet en no-op)',
+    D5.getElementById('ow-r-771-low').textContent !== 'Rigtigt!');
+  const redCells6 = Array.from(D5.querySelectorAll('#ow-' + idBase5 + '-grid td')).filter(td => (td.getAttribute('style') || '').indexOf('#fee2e2') !== -1);
+  test('Præcis de to bevidst ødelagte celler (tekst + tal) er røde, ikke flere',
+    redCells6.length === 2 && redCells6.some(td => td.textContent === 'Kvinder') && redCells6.some(td => td.textContent === '99999'));
+
+  section('Downloadbar skabelon: en separat fil eleven kan hente — rører ALDRIG ved tjekket');
+  const wt = freshToolWindow();
+  injectXlsx(wt);
+  await new Promise(r => setTimeout(r, 60));
+  wt.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const Dt = wt.document;
+  await waitFor(() => typeof wt.XLSX !== 'undefined', 3000, 'xlsx load');
+
+  wt.ScaffoldUI.activateForloeb('FT', 'Skabelontest');
+  Dt.getElementById('af-titel').value = 'Skabelontest';
+  wt.ScaffoldUI.submitActivateForloeb('FT');
+  wt.ScaffoldUI.showNewKapitelForm('ft');
+  Dt.getElementById('nk-titel').value = 'K1';
+  wt.ScaffoldUI.submitNewKapitel('ft');
+  wt.ScaffoldUI.showNewEmneForm('ft', 'K1');
+  Dt.getElementById('ne-nr').value = '5.5.5'; Dt.getElementById('ne-navn').value = 'X'; Dt.getElementById('ne-desc').value = '';
+  wt.ScaffoldUI.submitNewEmne('ft', 'K1');
+  wt.ScaffoldUI.renderOpgaverTab();
+  Dt.getElementById('opg-emne-select').value = '5.5.5';
+  Dt.getElementById('opg-emne-select').dispatchEvent(new wt.Event('change'));
+  wt.ScaffoldUI.showOpgaveTypeForm('bronze');
+  Dt.getElementById('ot-type').value = 'excel';
+  wt.ScaffoldUI.showOpgaveDetailForm('bronze', 'excel');
+  test('Excel-formularen har et separat skabelon-felt', !!Dt.getElementById('of-excel-template-file'));
+  Dt.getElementById('of-titel').value = 'Test'; Dt.getElementById('of-instr').value = 'Test'; Dt.getElementById('of-excel-tol').value = '2';
+
+  const tFacitBuf = buildWb('Udtræk', [['A', 1], ['B', 2]]);
+  const tTemplateBuf = buildWb('Udtræk', [['skriv her', ''], ['og her', '']]);
+  const facitFileT = new wt.File([tFacitBuf], 'facit.xlsx');
+  const facitInputT = Dt.getElementById('of-excel-file');
+  Object.defineProperty(facitInputT, 'files', { value: [facitFileT], configurable: true });
+  facitInputT.dispatchEvent(new wt.Event('change'));
+  await waitFor(() => Dt.getElementById('of-excel-fane').options.length > 0, 3000, 'fane populated');
+  function cellAtT(r, c){ return Dt.querySelector('#of-excel-grid td[data-r="' + r + '"][data-c="' + c + '"]'); }
+  cellAtT(0, 0).dispatchEvent(new wt.MouseEvent('mousedown', { bubbles: true }));
+  cellAtT(1, 1).dispatchEvent(new wt.MouseEvent('mousedown', { bubbles: true, shiftKey: true }));
+
+  const templateFileT = new wt.File([tTemplateBuf], 'min-skabelon.xlsx');
+  const templateInputT = Dt.getElementById('of-excel-template-file');
+  Object.defineProperty(templateInputT, 'files', { value: [templateFileT], configurable: true });
+  templateInputT.dispatchEvent(new wt.Event('change'));
+  await waitFor(() => Dt.getElementById('of-excel-template-status').textContent.length > 0, 3000, 'template read');
+
+  wt.ScaffoldUI.submitExcel('bronze');
+  const tSlots = wt.ScaffoldUI.__debugOpgaveSlots('5.5.5');
+  test('Skabelonen gemmes som et SEPARAT felt på opgaven, med filnavn og indhold',
+    !!tSlots.bronze[0].template && tSlots.bronze[0].template.filename === 'min-skabelon.xlsx' && /^data:/.test(tSlots.bronze[0].template.dataUrl));
+
+  const tGen = wt.ScaffoldUI.__debugGenerate();
+  test('Ingen nye valideringsproblemer med en skabelon tilknyttet', tGen.newProblems.length === 0, JSON.stringify(tGen.newProblems));
+  test('Download-linket til skabelonen findes i den genererede HTML, med korrekt filnavn',
+    /<a href="data:[^"]*" download="min-skabelon\.xlsx"/.test(tGen.html));
+  test('checkExcelItem-kaldet (selve tjekket) er UÆNDRET af at der nu er en skabelon — kun facit-filens celler indgår, ikke skabelon-data',
+    (tGen.html.match(/checkExcelItem\("555b0", "Udtræk", 2, \[\{[^\]]*\}\]\)/g) || []).length === 1 &&
+    !/checkExcelItem[^;]*skriv her/.test(tGen.html));
+
+  section('Genåbning og redigering af en opgave med skabelon');
+  const wt2 = freshToolWindow();
+  injectXlsx(wt2);
+  await new Promise(r => setTimeout(r, 60));
+  wt2.ScaffoldUI.__debugInit(tGen.html, 'Index.html');
+  const Dt2 = wt2.document;
+  wt2.ScaffoldUI.renderOpgaverTab();
+  Dt2.getElementById('opg-emne-select').value = '5.5.5';
+  Dt2.getElementById('opg-emne-select').dispatchEvent(new wt2.Event('change'));
+  const tReslots = wt2.ScaffoldUI.__debugOpgaveSlots('5.5.5');
+  test('Genåbning genfinder skabelonen (filnavn og indhold) fra DOM\'en',
+    tReslots.bronze[0].template && tReslots.bronze[0].template.filename === 'min-skabelon.xlsx');
+
+  wt2.ScaffoldUI.editOpgaveSlot('bronze', 0);
+  test('Redigeringsformularen viser det nuværende skabelon-filnavn og et "Fjern"-link',
+    Dt2.getElementById('of-excel-template-status').textContent.indexOf('min-skabelon.xlsx') !== -1);
+  Dt2.getElementById('of-titel').value = 'Test (redigeret)';
+  wt2.ScaffoldUI.submitExcel('bronze', 0);
+  const tReslots2 = wt2.ScaffoldUI.__debugOpgaveSlots('5.5.5');
+  test('Redigering UDEN at røre skabelon-feltet beholder skabelonen uændret',
+    tReslots2.bronze[0].template && tReslots2.bronze[0].template.filename === 'min-skabelon.xlsx');
+
+  section('Regression: "det er som om excelfilen forsvinder" ved redigering (rapporteret af bruger — data var faktisk aldrig væk, men gitteret så blankt ud)');
+  // The underlying facit was NEVER lost — this test locks in the actual
+  // user-facing fix: a clear, visible "your facit is still here" summary
+  // (with a readable preview table) instead of a blank grid + empty file
+  // picker that looked exactly like the data had vanished.
+  wt2.ScaffoldUI.editOpgaveSlot('bronze', 0);
+  const summaryEl = Dt2.getElementById('of-excel-existing-summary');
+  test('En tydelig "facit er gemt fra tidligere"-boks vises med det samme ved redigering (ikke kun en lille bemærkning der er let at overse)',
+    !!summaryEl && summaryEl.textContent.indexOf('Facit er gemt fra tidligere') !== -1);
+  test('Boksen viser fane og antal celler direkte', summaryEl.textContent.indexOf('Udtræk') !== -1 && summaryEl.textContent.indexOf('4 celler') !== -1);
+  test('Boksen viser en læsbar forhåndsvisning af selve de gemte facit-værdier, ikke kun et tal',
+    summaryEl.textContent.indexOf('A1') !== -1 && summaryEl.textContent.indexOf('B2') !== -1);
+
+  // Uploading a NEW facit file mid-edit should hide the now-stale summary —
+  // otherwise it would misleadingly claim the old selection is "still here"
+  // while a fresh one is being built.
+  const freshFacitBuf = buildWb('Udtræk', [['X', 9]]);
+  const freshFile = new wt2.File([freshFacitBuf], 'nyfacit.xlsx');
+  const freshInput = Dt2.getElementById('of-excel-file');
+  Object.defineProperty(freshInput, 'files', { value: [freshFile], configurable: true });
+  freshInput.dispatchEvent(new wt2.Event('change'));
+  await waitFor(() => Dt2.getElementById('of-excel-fane').options.length > 0, 3000, 'fresh fane populated');
+  test('Efter en NY facit-upload skjules den (nu forældede) "gemt fra tidligere"-boks',
+    Dt2.getElementById('of-excel-existing-summary').style.display === 'none');
+
+  wt2.ScaffoldUI.editOpgaveSlot('bronze', 0);
+  wt2.ScaffoldUI.excelRemoveTemplate();
+  wt2.ScaffoldUI.submitExcel('bronze', 0);
+  const tReslots3 = wt2.ScaffoldUI.__debugOpgaveSlots('5.5.5');
+  test('"Fjern"-linket rydder rent faktisk skabelonen ved gem', tReslots3.bronze[0].template === null || tReslots3.bronze[0].template === undefined);
+  const tGen3 = wt2.ScaffoldUI.__debugGenerate();
+  test('Efter fjernelse findes der intet download-link i den genererede HTML længere',
+    !/download="min-skabelon\.xlsx"/.test(tGen3.html));
+  test('Selve tjekket virker stadig upåvirket efter skabelonen er fjernet',
+    tGen3.newProblems.length === 0, JSON.stringify(tGen3.newProblems));
+}
+
 (async () => {
   const ctx = await run();
   await runGeneration(ctx);
@@ -1958,6 +2347,7 @@ async function runShellDesyncRegressionTest(){
   await runMoveEmneTests();
   await runMoveOpgaveTests();
   await runShellDesyncRegressionTest();
+  await runExcelUploadTests();
   await runThemeTests();
   await runTabelColumnSyncTests();
   await runTabelGivenTextAndMultiInputReopenTests();

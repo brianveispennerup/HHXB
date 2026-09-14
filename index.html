@@ -583,7 +583,7 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 </script>
-</head>
+<script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script></head>
 <body>
 <header class="site-header">
 <div class="header-inner">
@@ -1368,9 +1368,32 @@ Hint: Der kan være brug for at skitsere en sumkurve.</div><div style="margin-bo
   <div class="emne-header">
     <span class="tag">2.3</span>
     <h1>Udtræk fra databaser</h1>
-    <p>Indhold tilføjes snart.</p>
+    
   </div>
-</div>
+<div class="tabs"><button class="tab-btn active" data-tab="t23-mat">Materiale</button><button class="tab-btn" data-tab="t23-quiz">Tjekspørgsmål</button><button class="tab-btn" data-tab="t23-opg">Opgaver</button></div><div id="t23-mat" class="tab-panel active"><div class="simple-resource-list"><div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=278','_blank')"><input type="checkbox" class="card-check" id="chk-23-lrebog" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">2.3</div></div><canvas class="sparkle-canvas"></canvas></div><div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=dvbLrwD2SpA','_blank')"><input type="checkbox" class="card-check" id="chk-23-youtub" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Pivottabeller i Excel</div></div><canvas class="sparkle-canvas"></canvas></div></div></div><div id="t23-quiz" class="tab-panel"><div class="quiz-question" id="qq23-1"><div class="quiz-q-text">1. Hvad er en stikprøve?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer23(1,'wrong',event)">A) Hele den population, man ønsker at undersøge</button>
+        <button class="quiz-option" onclick="quizAnswer23(1,'wrong',event)">B) En grafisk fremstilling af data, fx et histogram</button>
+        <button class="quiz-option" onclick="quizAnswer23(1,'correct',event)">C) Et udsnit af observationer udvalgt fra en større population</button>
+        <button class="quiz-option" onclick="quizAnswer23(1,'wrong',event)">D) Et gennemsnit beregnet ud fra alle data i en population</button>
+      </div><div class="quiz-feedback" id="qf23-1"></div></div><div class="quiz-question" id="qq23-2"><div class="quiz-q-text">2. Hvad er hele populationen?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer23(2,'wrong',event)">A) En delmængde af data udvalgt til analyse</button>
+        <button class="quiz-option" onclick="quizAnswer23(2,'wrong',event)">B) Det mest hyppigt forekommende resultat i et datasæt</button>
+        <button class="quiz-option" onclick="quizAnswer23(2,'wrong',event)">C) Et mål for hvor spredte data er omkring gennemsnittet</button>
+        <button class="quiz-option" onclick="quizAnswer23(2,'correct',event)">D) Den fulde mængde af alle individer, objekter eller observationer, som en undersøgelse omhandler</button>
+      </div><div class="quiz-feedback" id="qf23-2"></div></div><div class="quiz-question" id="qq23-3"><div class="quiz-q-text">3. Hvad vil det sige at en stikprøve er repræsentativ?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer23(3,'wrong',event)">A) Stikprøven skal indeholde flest muligt observationer fra det største segment</button>
+        <button class="quiz-option" onclick="quizAnswer23(3,'wrong',event)">B) Stikprøven skal have samme antal observationer i alle segmenter, uanset deres størrelse</button>
+        <button class="quiz-option" onclick="quizAnswer23(3,'correct',event)">C) Stikprøven skal være udtaget i de rigtige forhold blandt forskellige segmenter, så de svarer til segmenternes størrelse og andel af hele populationen</button>
+        <button class="quiz-option" onclick="quizAnswer23(3,'wrong',event)">D) Stikprøven skal udtages tilfældigt uden hensyn til segmenternes størrelse</button>
+      </div><div class="quiz-feedback" id="qf23-3"></div></div><div class="quiz-question" id="qq23-4"><div class="quiz-q-text">4. På en æbleplantage vil man have noget data af æblernes vægt. Hvad skal man være opmærksom på?</div><div class="quiz-q-note">Vælg alle rigtige svar</div><div class="quiz-options">
+        <button class="quiz-option" type="button" data-letter="A" onclick="quizMulti23(4,'A',this)"><span class="mbox"></span> A) At man kun vælger de største æbler</button>
+        <button class="quiz-option" type="button" data-letter="B" onclick="quizMulti23(4,'B',this)"><span class="mbox"></span> B) At æblerne i stikprøven er udvalgt tilfældigt</button>
+        <button class="quiz-option" type="button" data-letter="C" onclick="quizMulti23(4,'C',this)"><span class="mbox"></span> C) At stikprøven er tilstrækkeligt stor</button>
+        <button class="quiz-option" type="button" data-letter="D" onclick="quizMulti23(4,'D',this)"><span class="mbox"></span> D) At man kun vejer æbler fra det træ, der står nærmest</button>
+        <button class="quiz-option" type="button" data-letter="E" onclick="quizMulti23(4,'E',this)"><span class="mbox"></span> E) At æblerne kommer fra forskellige dele af plantagen</button>
+      </div><button class="quiz-check-btn" type="button" style="margin-top:10px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;font-weight:600;cursor:pointer;font-family:inherit" onclick="checkMulti23(4,['B','C','E'])">Tjek svar</button><div class="quiz-feedback" id="qf23-4"></div></div><div class="quiz-score" id="quiz-score-23" style="display:none"><h3 id="quiz-score-23-title"></h3><p id="quiz-score-23-text"></p><button class="quiz-retry" onclick="quizRetry23()">Prøv igen</button></div></div><div id="t23-opg" class="tab-panel"><div class="energy-wrap" data-scaffold-opgaver="1"><div class="energy-header"><span class="energy-question">Hvor meget energi har du i dag?</span><span class="energy-state" id="energy-state-23" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span></div><div class="energy-slider-track"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span><input type="range" class="energy-slider" id="energy-slider-23" min="0" max="100" value="1" oninput="updateEnergy23(this.value)"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span></div></div><div class="ready-btn-wrap" id="ready-btn-wrap-23" style="display:block"><button class="ready-btn" onclick="startOpgaver23()"><div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div><span class="ready-btn-cta">Ja, klar!</span></button></div><button class="restart-btn" id="restart-btn-23" onclick="restartOpgaver23()" style="display:none">↩ Vælg nyt niveau</button><div class="opgave-widget opgave-hidden" id="opg23-low"><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Udtræk af data på "Offentligt forsørgede efter køn, alder, ydelsestype og familietype"</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Lav et udtræk fra følgende data https://www.statistikbanken.dk/LIGEIB6 på antallet af mænd på offentlig ydelser fordelt på årstal fra 2007 til 2025. 
+Udtrækket skal ikke sortere på familietype, ydelsestype samt alder.</div><div style="margin-bottom:8px"><input type="file" accept=".xlsx,.xls" id="ow-23b0-file" onchange="excelFileSelected('23b0', 'LIGEIB6', this)"></div><div id="ow-23b0-status" style="font-size:0.8rem;color:#6b7280;margin-bottom:8px"></div><div id="ow-23b0-grid" style="max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:10px"></div></div><button onclick="checkBronze23()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button><div class="ow-result" id="ow-r-23-low" style="margin-top:10px"></div></div><div class="opgave-widget opgave-hidden" id="opg23-mid"><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Udtræk af data på "Offentligt forsørgede efter køn, alder, ydelsestype og familietype"</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Lav et udtræk fra følgende data https://www.statistikbanken.dk/LIGEIB6 på antallet af mænd og kvinder på offentlig ydelser fordelt på årstal fra 2007 til 2025. 
+Udtrækket skal ikke sortere på familietype, ydelsestype samt alder, men den skal angive særskilt data for mænd og kvinder.</div><div style="margin-bottom:8px"><input type="file" accept=".xlsx,.xls" id="ow-23s0-file" onchange="excelFileSelected('23s0', 'LIGEIB6', this)"></div><div id="ow-23s0-status" style="font-size:0.8rem;color:#6b7280;margin-bottom:8px"></div><div id="ow-23s0-grid" style="max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:10px"></div></div><button onclick="checkSilver23()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button><div class="ow-result" id="ow-r-23-mid" style="margin-top:10px"></div></div><div class="opgave-widget opgave-hidden" id="opg23-high"></div></div></div>
 <div id="page-1-3-1" class="page-hidden">
   <a class="back-link" onclick="showPage('f1')">← F1 Lineære funktioner</a>
   <div class="emne-header">
@@ -3497,17 +3520,17 @@ Hint: Der kan være brug for at skitsere en sumkurve.</div><div style="margin-bo
           <div class="piecewise-row">
             <input class="ow-input" id="ow-324b-f1" type="text" placeholder="fx ax+b" style="width:130px">
             <span style="font-size:0.88rem;color:#111827;font-weight:600">når</span>
-            <input class="ow-input" id="ow-324b-u1" type="text" placeholder="fx 0<x<=1" oninput="ulighedReplace(this)" style="width:160px">
+            <input class="ow-input" id="ow-324b-u1" type="text" placeholder="fx 0&lt;x&lt;=1" oninput="ulighedReplace(this)" style="width:160px">
           </div>
           <div class="piecewise-row">
             <input class="ow-input" id="ow-324b-f2" type="text" placeholder="fx ax+b" style="width:130px">
             <span style="font-size:0.88rem;color:#111827;font-weight:600">når</span>
-            <input class="ow-input" id="ow-324b-u2" type="text" placeholder="fx 0<x<=1" oninput="ulighedReplace(this)" style="width:160px">
+            <input class="ow-input" id="ow-324b-u2" type="text" placeholder="fx 0&lt;x&lt;=1" oninput="ulighedReplace(this)" style="width:160px">
           </div>
           <div class="piecewise-row">
             <input class="ow-input" id="ow-324b-f3" type="text" placeholder="fx ax+b" style="width:130px">
             <span style="font-size:0.88rem;color:#111827;font-weight:600">når</span>
-            <input class="ow-input" id="ow-324b-u3" type="text" placeholder="fx 0<x<=1" oninput="ulighedReplace(this)" style="width:160px">
+            <input class="ow-input" id="ow-324b-u3" type="text" placeholder="fx 0&lt;x&lt;=1" oninput="ulighedReplace(this)" style="width:160px">
           </div>
         </div>
       </div>
@@ -3578,17 +3601,17 @@ Hint: Der kan være brug for at skitsere en sumkurve.</div><div style="margin-bo
           <div class="piecewise-row">
             <input class="ow-input" id="ow-324g-f1" type="text" placeholder="fx ax" style="width:130px">
             <span style="font-size:0.88rem;color:#111827;font-weight:600">når</span>
-            <input class="ow-input" id="ow-324g-u1" type="text" placeholder="fx 0<x<=1" oninput="ulighedReplace(this)" style="width:170px">
+            <input class="ow-input" id="ow-324g-u1" type="text" placeholder="fx 0&lt;x&lt;=1" oninput="ulighedReplace(this)" style="width:170px">
           </div>
           <div class="piecewise-row">
             <input class="ow-input" id="ow-324g-f2" type="text" placeholder="fx ax+b" style="width:130px">
             <span style="font-size:0.88rem;color:#111827;font-weight:600">når</span>
-            <input class="ow-input" id="ow-324g-u2" type="text" placeholder="fx 0<x<=1" oninput="ulighedReplace(this)" style="width:170px">
+            <input class="ow-input" id="ow-324g-u2" type="text" placeholder="fx 0&lt;x&lt;=1" oninput="ulighedReplace(this)" style="width:170px">
           </div>
           <div class="piecewise-row">
             <input class="ow-input" id="ow-324g-f3" type="text" placeholder="fx ax+b" style="width:130px">
             <span style="font-size:0.88rem;color:#111827;font-weight:600">når</span>
-            <input class="ow-input" id="ow-324g-u3" type="text" placeholder="fx 0<x<=1" oninput="ulighedReplace(this)" style="width:170px">
+            <input class="ow-input" id="ow-324g-u3" type="text" placeholder="fx 0&lt;x&lt;=1" oninput="ulighedReplace(this)" style="width:170px">
           </div>
         </div>
       </div>
@@ -9928,13 +9951,14 @@ var emneData = {
   '2.2.2': { navn: 'Grafiske repræsentationer', opgaver: [], materiale: ['chk-222-lrebog','chk-222-youtub'] },
   '2.2.3': { navn: 'Positionsmål', opgaver: [], materiale: ['chk-223-lrebog','chk-223-youtub'] },
   '2.2.4': { navn: 'Spredningsmål', opgaver: [], materiale: ['chk-224-lrebog'] },
+  '2.3': { navn: 'Udtræk fra databaser', opgaver: [], materiale: ['chk-23-lrebog','chk-23-youtub'] },
 };
 
 // ── FREMGANG SIDE ─────────────────────────────────────────────────────────
 // Emner med et Bevis-afsnit der kan optjene et hjerte på F1-oversigten. Kun disse emner kan nogensinde vise et hjerte.
 var emnerMedBevis = ['3.2.2'];
-var emneRaekkefoelge = ['1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7','3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening','2.1.1','2.1.2','2.1.3','2.1.4','2.2.1','2.2.2','2.2.3','2.2.4'];
-var emneNavneAlle = {'1.3.1':'Simple ligninger','3.1.1':'Lodret-kriteriet og definition','3.1.2':'Funktion givet ved graf','3.1.3':'Regneforskrift og graf','3.1.4':'Grafiske løsninger','3.1.5':'Monotoniforhold','3.1.6':'Egenskaber ved grafer','3.1.7':'Omvendt funktion','3.2.1':'Grundbegreber','3.2.2':'Forskrift ud fra to punkter','3.2.3':'Vækstegenskaber','3.2.4':'Stykkevis lineære funktioner','3.2.5':'Skæring mellem lineære grafer','3.5.1':'Mindste kvadraters metode','3.5.2':'Korrelationskoefficienten','screening':'Matematikscreening 2025','2.1.1':'Hyppigheder og frekvenser','2.1.2':'Grafiske repræsentationer','2.1.3':'Positionsmål','2.1.4':'Spredningsmål','2.2.1':'Hyppigheder og frekvenser','2.2.2':'Grafiske repræsentationer','2.2.3':'Positionsmål','2.2.4':'Spredningsmål'};
+var emneRaekkefoelge = ['1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7','3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening','2.1.1','2.1.2','2.1.3','2.1.4','2.2.1','2.2.2','2.2.3','2.2.4','2.3'];
+var emneNavneAlle = {'1.3.1':'Simple ligninger','3.1.1':'Lodret-kriteriet og definition','3.1.2':'Funktion givet ved graf','3.1.3':'Regneforskrift og graf','3.1.4':'Grafiske løsninger','3.1.5':'Monotoniforhold','3.1.6':'Egenskaber ved grafer','3.1.7':'Omvendt funktion','3.2.1':'Grundbegreber','3.2.2':'Forskrift ud fra to punkter','3.2.3':'Vækstegenskaber','3.2.4':'Stykkevis lineære funktioner','3.2.5':'Skæring mellem lineære grafer','3.5.1':'Mindste kvadraters metode','3.5.2':'Korrelationskoefficienten','screening':'Matematikscreening 2025','2.1.1':'Hyppigheder og frekvenser','2.1.2':'Grafiske repræsentationer','2.1.3':'Positionsmål','2.1.4':'Spredningsmål','2.2.1':'Hyppigheder og frekvenser','2.2.2':'Grafiske repræsentationer','2.2.3':'Positionsmål','2.2.4':'Spredningsmål','2.3':'Udtræk fra databaser'};
 
 function updateFremgang() {
   var data = loadAllProgress();
@@ -10226,6 +10250,304 @@ function owCheck(id, answer) {
 }
 
 // ===== SCAFFOLD: nye emner tilføjet via scaffolding-værktøjet =====
+function checkSilver23() {
+  var i0ok = checkExcelItem("23s0", "LIGEIB6", 2, [{"r":0,"c":0,"v":"Offentligt forsørgede efter familietype, ydelsestype, alder, køn og tid","t":"text"},{"r":0,"c":1,"v":"","t":"text"},{"r":0,"c":2,"v":"","t":"text"},{"r":0,"c":3,"v":"","t":"text"},{"r":0,"c":4,"v":"","t":"text"},{"r":0,"c":5,"v":"","t":"text"},{"r":0,"c":6,"v":"","t":"text"},{"r":0,"c":7,"v":"","t":"text"},{"r":0,"c":8,"v":"","t":"text"},{"r":0,"c":9,"v":"","t":"text"},{"r":0,"c":10,"v":"","t":"text"},{"r":0,"c":11,"v":"","t":"text"},{"r":0,"c":12,"v":"","t":"text"},{"r":0,"c":13,"v":"","t":"text"},{"r":0,"c":14,"v":"","t":"text"},{"r":0,"c":15,"v":"","t":"text"},{"r":0,"c":16,"v":"","t":"text"},{"r":0,"c":17,"v":"","t":"text"},{"r":0,"c":18,"v":"","t":"text"},{"r":0,"c":19,"v":"","t":"text"},{"r":0,"c":20,"v":"","t":"text"},{"r":0,"c":21,"v":"","t":"text"},{"r":0,"c":22,"v":"","t":"text"},{"r":1,"c":0,"v":"Enhed: Antal","t":"text"},{"r":1,"c":1,"v":"","t":"text"},{"r":1,"c":2,"v":"","t":"text"},{"r":1,"c":3,"v":"","t":"text"},{"r":1,"c":4,"v":"","t":"text"},{"r":1,"c":5,"v":"","t":"text"},{"r":1,"c":6,"v":"","t":"text"},{"r":1,"c":7,"v":"","t":"text"},{"r":1,"c":8,"v":"","t":"text"},{"r":1,"c":9,"v":"","t":"text"},{"r":1,"c":10,"v":"","t":"text"},{"r":1,"c":11,"v":"","t":"text"},{"r":1,"c":12,"v":"","t":"text"},{"r":1,"c":13,"v":"","t":"text"},{"r":1,"c":14,"v":"","t":"text"},{"r":1,"c":15,"v":"","t":"text"},{"r":1,"c":16,"v":"","t":"text"},{"r":1,"c":17,"v":"","t":"text"},{"r":1,"c":18,"v":"","t":"text"},{"r":1,"c":19,"v":"","t":"text"},{"r":1,"c":20,"v":"","t":"text"},{"r":1,"c":21,"v":"","t":"text"},{"r":1,"c":22,"v":"","t":"text"},{"r":2,"c":0,"v":"","t":"text"},{"r":2,"c":1,"v":"","t":"text"},{"r":2,"c":2,"v":"","t":"text"},{"r":2,"c":3,"v":"","t":"text"},{"r":2,"c":4,"v":2007},{"r":2,"c":5,"v":2008},{"r":2,"c":6,"v":2009},{"r":2,"c":7,"v":2010},{"r":2,"c":8,"v":2011},{"r":2,"c":9,"v":2012},{"r":2,"c":10,"v":2013},{"r":2,"c":11,"v":2014},{"r":2,"c":12,"v":2015},{"r":2,"c":13,"v":2016},{"r":2,"c":14,"v":2017},{"r":2,"c":15,"v":2018},{"r":2,"c":16,"v":2019},{"r":2,"c":17,"v":2020},{"r":2,"c":18,"v":2021},{"r":2,"c":19,"v":2022},{"r":2,"c":20,"v":2023},{"r":2,"c":21,"v":2024},{"r":2,"c":22,"v":2025},{"r":3,"c":0,"v":"I alt","t":"text"},{"r":3,"c":1,"v":"I alt","t":"text"},{"r":3,"c":2,"v":"Alder i alt","t":"text"},{"r":3,"c":3,"v":"Mænd","t":"text"},{"r":3,"c":4,"v":319195},{"r":3,"c":5,"v":396499},{"r":3,"c":6,"v":448880},{"r":3,"c":7,"v":483939},{"r":3,"c":8,"v":483539},{"r":3,"c":9,"v":487501},{"r":3,"c":10,"v":489027},{"r":3,"c":11,"v":484706},{"r":3,"c":12,"v":481277},{"r":3,"c":13,"v":469413},{"r":3,"c":14,"v":457052},{"r":3,"c":15,"v":442936},{"r":3,"c":16,"v":438979},{"r":3,"c":17,"v":462655},{"r":3,"c":18,"v":456429},{"r":3,"c":19,"v":439895},{"r":3,"c":20,"v":440437},{"r":3,"c":21,"v":442494},{"r":3,"c":22,"v":442030},{"r":4,"c":0,"v":"","t":"text"},{"r":4,"c":1,"v":"","t":"text"},{"r":4,"c":2,"v":"","t":"text"},{"r":4,"c":3,"v":"Kvinder","t":"text"},{"r":4,"c":4,"v":456424},{"r":4,"c":5,"v":558958},{"r":4,"c":6,"v":576828},{"r":4,"c":7,"v":598057},{"r":4,"c":8,"v":609185},{"r":4,"c":9,"v":616684},{"r":4,"c":10,"v":618842},{"r":4,"c":11,"v":617647},{"r":4,"c":12,"v":615714},{"r":4,"c":13,"v":609764},{"r":4,"c":14,"v":602071},{"r":4,"c":15,"v":591873},{"r":4,"c":16,"v":590712},{"r":4,"c":17,"v":615227},{"r":4,"c":18,"v":615127},{"r":4,"c":19,"v":606931},{"r":4,"c":20,"v":600034},{"r":4,"c":21,"v":597901},{"r":4,"c":22,"v":598743},{"r":5,"c":0,"v":"","t":"text"},{"r":5,"c":1,"v":"","t":"text"},{"r":5,"c":2,"v":"","t":"text"},{"r":5,"c":3,"v":"","t":"text"},{"r":5,"c":4,"v":"","t":"text"},{"r":5,"c":5,"v":"","t":"text"},{"r":5,"c":6,"v":"","t":"text"},{"r":5,"c":7,"v":"","t":"text"},{"r":5,"c":8,"v":"","t":"text"},{"r":5,"c":9,"v":"","t":"text"},{"r":5,"c":10,"v":"","t":"text"},{"r":5,"c":11,"v":"","t":"text"},{"r":5,"c":12,"v":"","t":"text"},{"r":5,"c":13,"v":"","t":"text"},{"r":5,"c":14,"v":"","t":"text"},{"r":5,"c":15,"v":"","t":"text"},{"r":5,"c":16,"v":"","t":"text"},{"r":5,"c":17,"v":"","t":"text"},{"r":5,"c":18,"v":"","t":"text"},{"r":5,"c":19,"v":"","t":"text"},{"r":5,"c":20,"v":"","t":"text"},{"r":5,"c":21,"v":"","t":"text"},{"r":5,"c":22,"v":"","t":"text"},{"r":6,"c":0,"v":"Ligestillingsindikatorer baseret på denne tabel kan hentes [LIGEII6](https://statistikbanken.dk/ligeii6)","t":"text"},{"r":6,"c":1,"v":"","t":"text"},{"r":6,"c":2,"v":"","t":"text"},{"r":6,"c":3,"v":"","t":"text"},{"r":6,"c":4,"v":"","t":"text"},{"r":6,"c":5,"v":"","t":"text"},{"r":6,"c":6,"v":"","t":"text"},{"r":6,"c":7,"v":"","t":"text"},{"r":6,"c":8,"v":"","t":"text"},{"r":6,"c":9,"v":"","t":"text"},{"r":6,"c":10,"v":"","t":"text"},{"r":6,"c":11,"v":"","t":"text"},{"r":6,"c":12,"v":"","t":"text"},{"r":6,"c":13,"v":"","t":"text"},{"r":6,"c":14,"v":"","t":"text"},{"r":6,"c":15,"v":"","t":"text"},{"r":6,"c":16,"v":"","t":"text"},{"r":6,"c":17,"v":"","t":"text"},{"r":6,"c":18,"v":"","t":"text"},{"r":6,"c":19,"v":"","t":"text"},{"r":6,"c":20,"v":"","t":"text"},{"r":6,"c":21,"v":"","t":"text"},{"r":6,"c":22,"v":"","t":"text"}]);
+  var itemOk0 = (i0ok);
+  var r = document.getElementById('ow-r-23-mid');
+  if (itemOk0) {
+    opg23SilverDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg23-mid'));
+    checkOpg23Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek de røde felter og prøv igen.';
+  }
+}
+
+function checkBronze23() {
+  var i0ok = checkExcelItem("23b0", "LIGEIB6", 2, [{"r":0,"c":0,"v":"Offentligt forsørgede efter familietype, ydelsestype, alder, køn og tid","t":"text"},{"r":0,"c":1,"v":"","t":"text"},{"r":0,"c":2,"v":"","t":"text"},{"r":0,"c":3,"v":"","t":"text"},{"r":0,"c":4,"v":"","t":"text"},{"r":0,"c":5,"v":"","t":"text"},{"r":0,"c":6,"v":"","t":"text"},{"r":0,"c":7,"v":"","t":"text"},{"r":0,"c":8,"v":"","t":"text"},{"r":0,"c":9,"v":"","t":"text"},{"r":0,"c":10,"v":"","t":"text"},{"r":0,"c":11,"v":"","t":"text"},{"r":0,"c":12,"v":"","t":"text"},{"r":0,"c":13,"v":"","t":"text"},{"r":0,"c":14,"v":"","t":"text"},{"r":0,"c":15,"v":"","t":"text"},{"r":0,"c":16,"v":"","t":"text"},{"r":0,"c":17,"v":"","t":"text"},{"r":0,"c":18,"v":"","t":"text"},{"r":0,"c":19,"v":"","t":"text"},{"r":0,"c":20,"v":"","t":"text"},{"r":0,"c":21,"v":"","t":"text"},{"r":0,"c":22,"v":"","t":"text"},{"r":1,"c":0,"v":"Enhed: Antal","t":"text"},{"r":1,"c":1,"v":"","t":"text"},{"r":1,"c":2,"v":"","t":"text"},{"r":1,"c":3,"v":"","t":"text"},{"r":1,"c":4,"v":"","t":"text"},{"r":1,"c":5,"v":"","t":"text"},{"r":1,"c":6,"v":"","t":"text"},{"r":1,"c":7,"v":"","t":"text"},{"r":1,"c":8,"v":"","t":"text"},{"r":1,"c":9,"v":"","t":"text"},{"r":1,"c":10,"v":"","t":"text"},{"r":1,"c":11,"v":"","t":"text"},{"r":1,"c":12,"v":"","t":"text"},{"r":1,"c":13,"v":"","t":"text"},{"r":1,"c":14,"v":"","t":"text"},{"r":1,"c":15,"v":"","t":"text"},{"r":1,"c":16,"v":"","t":"text"},{"r":1,"c":17,"v":"","t":"text"},{"r":1,"c":18,"v":"","t":"text"},{"r":1,"c":19,"v":"","t":"text"},{"r":1,"c":20,"v":"","t":"text"},{"r":1,"c":21,"v":"","t":"text"},{"r":1,"c":22,"v":"","t":"text"},{"r":2,"c":0,"v":"","t":"text"},{"r":2,"c":1,"v":"","t":"text"},{"r":2,"c":2,"v":"","t":"text"},{"r":2,"c":3,"v":"","t":"text"},{"r":2,"c":4,"v":2007},{"r":2,"c":5,"v":2008},{"r":2,"c":6,"v":2009},{"r":2,"c":7,"v":2010},{"r":2,"c":8,"v":2011},{"r":2,"c":9,"v":2012},{"r":2,"c":10,"v":2013},{"r":2,"c":11,"v":2014},{"r":2,"c":12,"v":2015},{"r":2,"c":13,"v":2016},{"r":2,"c":14,"v":2017},{"r":2,"c":15,"v":2018},{"r":2,"c":16,"v":2019},{"r":2,"c":17,"v":2020},{"r":2,"c":18,"v":2021},{"r":2,"c":19,"v":2022},{"r":2,"c":20,"v":2023},{"r":2,"c":21,"v":2024},{"r":2,"c":22,"v":2025},{"r":3,"c":0,"v":"I alt","t":"text"},{"r":3,"c":1,"v":"I alt","t":"text"},{"r":3,"c":2,"v":"Alder i alt","t":"text"},{"r":3,"c":3,"v":"Mænd","t":"text"},{"r":3,"c":4,"v":319195},{"r":3,"c":5,"v":396499},{"r":3,"c":6,"v":448880},{"r":3,"c":7,"v":483939},{"r":3,"c":8,"v":483539},{"r":3,"c":9,"v":487501},{"r":3,"c":10,"v":489027},{"r":3,"c":11,"v":484706},{"r":3,"c":12,"v":481277},{"r":3,"c":13,"v":469413},{"r":3,"c":14,"v":457052},{"r":3,"c":15,"v":442936},{"r":3,"c":16,"v":438979},{"r":3,"c":17,"v":462655},{"r":3,"c":18,"v":456429},{"r":3,"c":19,"v":439895},{"r":3,"c":20,"v":440437},{"r":3,"c":21,"v":442494},{"r":3,"c":22,"v":442030},{"r":4,"c":0,"v":"","t":"text"},{"r":4,"c":1,"v":"","t":"text"},{"r":4,"c":2,"v":"","t":"text"},{"r":4,"c":3,"v":"","t":"text"},{"r":4,"c":4,"v":"","t":"text"},{"r":4,"c":5,"v":"","t":"text"},{"r":4,"c":6,"v":"","t":"text"},{"r":4,"c":7,"v":"","t":"text"},{"r":4,"c":8,"v":"","t":"text"},{"r":4,"c":9,"v":"","t":"text"},{"r":4,"c":10,"v":"","t":"text"},{"r":4,"c":11,"v":"","t":"text"},{"r":4,"c":12,"v":"","t":"text"},{"r":4,"c":13,"v":"","t":"text"},{"r":4,"c":14,"v":"","t":"text"},{"r":4,"c":15,"v":"","t":"text"},{"r":4,"c":16,"v":"","t":"text"},{"r":4,"c":17,"v":"","t":"text"},{"r":4,"c":18,"v":"","t":"text"},{"r":4,"c":19,"v":"","t":"text"},{"r":4,"c":20,"v":"","t":"text"},{"r":4,"c":21,"v":"","t":"text"},{"r":4,"c":22,"v":"","t":"text"},{"r":5,"c":0,"v":"Ligestillingsindikatorer baseret på denne tabel kan hentes [LIGEII6](https://statistikbanken.dk/ligeii6)","t":"text"},{"r":5,"c":1,"v":"","t":"text"},{"r":5,"c":2,"v":"","t":"text"},{"r":5,"c":3,"v":"","t":"text"},{"r":5,"c":4,"v":"","t":"text"},{"r":5,"c":5,"v":"","t":"text"},{"r":5,"c":6,"v":"","t":"text"},{"r":5,"c":7,"v":"","t":"text"},{"r":5,"c":8,"v":"","t":"text"},{"r":5,"c":9,"v":"","t":"text"},{"r":5,"c":10,"v":"","t":"text"},{"r":5,"c":11,"v":"","t":"text"},{"r":5,"c":12,"v":"","t":"text"},{"r":5,"c":13,"v":"","t":"text"},{"r":5,"c":14,"v":"","t":"text"},{"r":5,"c":15,"v":"","t":"text"},{"r":5,"c":16,"v":"","t":"text"},{"r":5,"c":17,"v":"","t":"text"},{"r":5,"c":18,"v":"","t":"text"},{"r":5,"c":19,"v":"","t":"text"},{"r":5,"c":20,"v":"","t":"text"},{"r":5,"c":21,"v":"","t":"text"},{"r":5,"c":22,"v":"","t":"text"}]);
+  var itemOk0 = (i0ok);
+  var r = document.getElementById('ow-r-23-low');
+  if (itemOk0) {
+    opg23BronzeDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg23-low'));
+    checkOpg23Medal();
+  } else if (r) {
+    r.className='ow-result err'; r.textContent='Ikke helt rigtigt — tjek de røde felter og prøv igen.';
+  }
+}
+
+function checkOpg23Medal() {
+  if (opg23MedalShown) return;
+  var ok = false;
+  if (opg23Level === 1) ok = opg23BronzeDone;
+  else if (opg23Level === 2) ok = opg23BronzeDone && opg23SilverDone;
+  else if (opg23Level === 3) ok = opg23BronzeDone && opg23SilverDone;
+  if (ok) {
+    opg23MedalShown = true;
+    var prev = parseInt(loadProgress('medal_23',0));
+    if (opg23Level > prev) saveProgress('medal_23', opg23Level);
+    setTimeout(function(){ showMedal(opg23Level); }, 400);
+  }
+}
+
+function restartOpgaver23() {
+  opg23Started=false; opg23Level=1; opg23MedalShown=false;
+  opg23BronzeDone=false; opg23SilverDone=false;
+  var ew=document.querySelector('#t23-opg .energy-wrap'); if(ew)ew.classList.remove('slider-locked');
+  document.getElementById('restart-btn-23').style.display='none';
+  document.getElementById('ready-btn-wrap-23').style.display='block';
+  ['opg23-low','opg23-mid','opg23-high'].forEach(function(id){
+    var w=document.getElementById(id); if(!w)return;
+    w.classList.add('opgave-hidden'); w.style.display=''; w.style.background=''; w.style.borderColor='';
+    w.querySelectorAll('.ow-input').forEach(function(inp){inp.value='';inp.className='ow-input';});
+    w.querySelectorAll('.ow-result').forEach(function(r){r.className='ow-result';r.textContent='';});
+  });
+  var slider=document.getElementById('energy-slider-23'); if(slider)slider.value=1;
+  var state=document.getElementById('energy-state-23'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
+}
+
+function startOpgaver23() {
+  opg23Started=true; opg23MedalShown=false;
+  opg23BronzeDone=false; opg23SilverDone=false;
+  document.getElementById('ready-btn-wrap-23').style.display='none';
+  document.getElementById('restart-btn-23').style.display='block';
+  var ew=document.querySelector('#t23-opg .energy-wrap'); if(ew)ew.classList.add('slider-locked');
+  if(opg23Level>=1 && document.getElementById('opg23-low')){
+    showWidget(document.getElementById('opg23-low'));
+  }
+  if(opg23Level>=2 && document.getElementById('opg23-mid')){
+    showWidget(document.getElementById('opg23-mid'));
+  }
+}
+
+function updateEnergy23(val) {
+  if (opg23Started) return;
+  val = parseInt(val);
+  var state = document.getElementById('energy-state-23');
+  var lvl;
+  if (val < 40) lvl = 1; else if (val < 75) lvl = 2; else lvl = 3;
+  opg23Level = Math.min(lvl, 2);
+  if (opg23Level === 1) { state.textContent='Træt – 1 sæt'; state.style.color='#dc2626'; }
+  else if (opg23Level === 2) { state.textContent='Klar – 2 sæt'; state.style.color='#ca8a04'; }
+  else { state.textContent='On fire! – 3 sæt'; state.style.color='#16a34a'; }
+  ['opg23-low','opg23-mid','opg23-high'].forEach(function(id){
+    var w=document.getElementById(id); if(w){w.classList.add('opgave-hidden');w.style.display='';}
+  });
+  document.getElementById('ready-btn-wrap-23').style.display='block';
+}
+
+var opg23Level = 1, opg23Started = false, opg23MedalShown = false, opg23BronzeDone = false, opg23SilverDone = false;
+
+// ===== Excel-upload opgavetype: read/check a student-uploaded .xlsx =====
+window.__excelUploads = window.__excelUploads || {};
+
+function excelColLetter(c) {
+  var s = '', n = c + 1;
+  while (n > 0) {
+    var m = (n - 1) % 26;
+    s = String.fromCharCode(65 + m) + s;
+    n = Math.floor((n - 1) / 26);
+  }
+  return s;
+}
+
+function excelCellOk(actual, facit, tolPct) {
+  if (typeof actual !== 'number' || isNaN(actual)) return false;
+  if (facit === 0) return actual === 0;
+  var allowed = Math.abs(facit) * (tolPct / 100);
+  return Math.abs(actual - facit) <= allowed;
+}
+
+// Real-world exports (e.g. Statistikbanken) routinely mix text labels and
+// numeric data in the very same block an admin selects as one rectangle —
+// row headers, category names, even year headers can come through as text.
+// A cell marked cell.t === 'text' is compared as normalized text instead
+// of run through the numeric/percentage path, so labels are graded on
+// whether they match exactly (ignoring case and extra whitespace), never
+// silently forced through a numeric comparison against 0.
+function excelTextOk(actual, facit) {
+  function excelNorm(s) { return String(s === null || s === undefined ? '' : s).trim().toLowerCase().replace(/\s+/g, ' '); }
+  return excelNorm(actual) === excelNorm(facit);
+}
+
+// Renders the full used range of the uploaded sheet as a scrollable,
+// Excel-styled grid — sticky row numbers down the left, sticky column
+// letters across the top — so the student can see their own uploaded data.
+// `coloring`, when present, is a { "r,c": 'ok'|'bad' } map applied on top;
+// with no coloring the grid stays neutral (pre-check state).
+function excelRenderGrid(idBase, matrix, coloring) {
+  var el = document.getElementById('ow-' + idBase + '-grid');
+  if (!el) return;
+  if (!matrix || !matrix.length) { el.innerHTML = ''; return; }
+  var nCols = matrix.reduce(function (m, row) { return Math.max(m, row.length); }, 0);
+  var html = '<table style="border-collapse:collapse;font-family:monospace;font-size:0.8rem;width:100%">';
+  html += '<thead><tr><td style="position:sticky;top:0;left:0;z-index:2;width:28px;background:var(--bg);border:1px solid var(--border)"></td>';
+  for (var c = 0; c < nCols; c++) {
+    html += '<td style="position:sticky;top:0;z-index:1;background:var(--bg);border:1px solid var(--border);text-align:center;color:#9ca3af;padding:4px">' + excelColLetter(c) + '</td>';
+  }
+  html += '</tr></thead><tbody>';
+  for (var r = 0; r < matrix.length; r++) {
+    html += '<tr><td style="position:sticky;left:0;background:var(--bg);border:1px solid var(--border);text-align:center;color:#9ca3af">' + (r + 1) + '</td>';
+    var row = matrix[r] || [];
+    for (var c2 = 0; c2 < nCols; c2++) {
+      var v = row[c2];
+      var key = r + ',' + c2;
+      var state = coloring && coloring[key];
+      var bg = state === 'ok' ? 'background:#dcfce7;color:#15803d' : state === 'bad' ? 'background:#fee2e2;color:#b91c1c' : '';
+      html += '<td style="border:1px solid var(--border);padding:4px 6px;' + bg + '">' + (v === undefined || v === null ? '' : String(v)) + '</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+// Wired to the file input's onchange. Reads the file fully client-side —
+// nothing ever leaves the browser. Looks for a sheet with the EXACT name
+// the opgave requires; a mismatch (wrong tab name, or a file that doesn't
+// parse as a spreadsheet at all) gets a clear, specific status message
+// instead of silently failing or guessing at a different sheet.
+function excelFileSelected(idBase, faneName, inputEl) {
+  var status = document.getElementById('ow-' + idBase + '-status');
+  var file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+  if (typeof XLSX === 'undefined') {
+    if (status) { status.textContent = 'Excel-biblioteket er ikke færdigindlæst endnu (kræver internetforbindelse) — vent et par sekunder og prøv igen.'; status.style.color = '#b91c1c'; }
+    return;
+  }
+  if (status) { status.textContent = 'Læser fil…'; status.style.color = '#6b7280'; }
+  var reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, { type: 'array' });
+      if (wb.SheetNames.indexOf(faneName) === -1) {
+        if (status) {
+          status.textContent = 'Vi kunne ikke finde en fane, der hedder "' + faneName + '" i din fil. Fanenavne i filen: ' + wb.SheetNames.join(', ') + '.';
+          status.style.color = '#b91c1c';
+        }
+        delete window.__excelUploads[idBase];
+        excelRenderGrid(idBase, null);
+        return;
+      }
+      var sheet = wb.Sheets[faneName];
+      var matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
+      window.__excelUploads[idBase] = { matrix: matrix };
+      excelRenderGrid(idBase, matrix);
+      if (status) { status.textContent = 'Fil indlæst — ' + matrix.length + ' rækker fundet på fanen "' + faneName + '". Klar til at tjekke.'; status.style.color = '#15803d'; }
+    } catch (err) {
+      if (status) { status.textContent = 'Filen kunne ikke læses som en Excel-fil. Prøv at gemme den igen som .xlsx og upload på ny.'; status.style.color = '#b91c1c'; }
+      delete window.__excelUploads[idBase];
+      excelRenderGrid(idBase, null);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// Called from the niveau's combined checkBronzeNr()/checkSilverNr()/
+// checkGoldNr() function, exactly like checkSingleNumericField etc. — one
+// call per excel item, returning true/false into that item's ok-expression.
+function checkExcelItem(idBase, faneName, tolPct, cells) {
+  var status = document.getElementById('ow-' + idBase + '-status');
+  var upload = window.__excelUploads[idBase];
+  if (!upload) {
+    if (status) { status.textContent = 'Upload venligst din Excel-fil, før du tjekker.'; status.style.color = '#b91c1c'; }
+    return false;
+  }
+  var coloring = {};
+  var allOk = true;
+  cells.forEach(function (cell) {
+    var row = upload.matrix[cell.r] || [];
+    var raw = row[cell.c];
+    var ok;
+    if (cell.t === 'text') {
+      ok = excelTextOk(raw, cell.v);
+    } else {
+      var actual = raw;
+      if (typeof actual === 'string') actual = parseFloat(actual.replace(',', '.'));
+      ok = excelCellOk(actual, cell.v, tolPct);
+    }
+    if (!ok) allOk = false;
+    coloring[cell.r + ',' + cell.c] = ok ? 'ok' : 'bad';
+  });
+  excelRenderGrid(idBase, upload.matrix, coloring);
+  return allOk;
+}
+
+
+function quizRetry23() {
+  quiz23Answered={}; quiz23Correct=0; quiz23MultiSel={};
+  [1,2,3,4].forEach(function(n){
+    var qq=document.getElementById('qq23-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.style.pointerEvents='';b.style.background='';b.style.borderColor='';b.classList.remove('correct','wrong');var box=b.querySelector('.mbox');if(box){box.style.background='';box.style.borderColor='';box.style.color='';box.textContent='';}});
+    var fb=document.getElementById('qf23-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-23').style.display='none';
+}
+
+function checkMulti23(qnum, correctLetters) {
+  if (quiz23Answered[qnum]) return;
+  quiz23Answered[qnum] = true;
+  var qq = document.getElementById('qq23-' + qnum);
+  var fb = document.getElementById('qf23-' + qnum);
+  var allOk = true;
+  qq.querySelectorAll('.quiz-option').forEach(function(b){
+    b.style.pointerEvents = 'none';
+    var letter = b.getAttribute('data-letter');
+    var key = qnum + '_' + letter;
+    var wasSel = !!quiz23MultiSel[key];
+    var isCorrect = correctLetters.indexOf(letter) !== -1;
+    if (wasSel && isCorrect) b.classList.add('correct');
+    else if (wasSel && !isCorrect) { b.classList.add('wrong'); allOk = false; }
+    else if (!wasSel && isCorrect) allOk = false;
+  });
+  if (allOk) { fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!'; quiz23Correct++; runQuizSparkle(qq); }
+  else { fb.className='quiz-feedback show err'; fb.textContent='Ikke helt — se de markerede svar.'; }
+  quiz23CheckDone();
+}
+
+function quizMulti23(qnum, letter, btn) {
+  if (quiz23Answered[qnum]) return;
+  var key = qnum + '_' + letter;
+  var box = btn.querySelector('.mbox');
+  if (quiz23MultiSel[key]) {
+    delete quiz23MultiSel[key];
+    btn.style.background = ''; btn.style.borderColor = '';
+    if (box) { box.style.background=''; box.style.borderColor=''; box.style.color=''; box.textContent=''; }
+  } else {
+    quiz23MultiSel[key] = true;
+    btn.style.background = '#eff6ff'; btn.style.borderColor = '#2563eb';
+    if (box) { box.style.background='#2563eb'; box.style.borderColor='#2563eb'; box.style.color='white'; box.textContent='\u2713'; }
+  }
+}
+
+function quiz23CheckDone() {
+  if (Object.keys(quiz23Answered).length < quiz23Total) return;
+  var box=document.getElementById('quiz-score-23'); if(!box)return; box.style.display='block';
+  document.getElementById('quiz-score-23-title').textContent = quiz23Correct===quiz23Total ? 'Perfekt – '+quiz23Correct+'/'+quiz23Total+'!' : quiz23Correct+'/'+quiz23Total+' rigtige';
+  document.getElementById('quiz-score-23-text').textContent = quiz23Correct===quiz23Total ? 'Flot – du har styr på emnet!' : 'Se de markerede svar og prøv igen.';
+}
+
+function quizAnswer23(qnum, result, evt) {
+  if (quiz23Answered[qnum]) return;
+  quiz23Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq23-' + qnum);
+  var fb = document.getElementById('qf23-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz23Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  quiz23CheckDone();
+}
+
+var quiz23Answered = {}, quiz23Correct = 0, quiz23Total = 4, quiz23MultiSel = {};
+
 function checkGold223() {
   var i0ok0 = checkSingleNumericField('223g0-a0', 24, 0.05);
   var itemOk0 = (i0ok0);
