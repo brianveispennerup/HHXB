@@ -474,6 +474,15 @@ function removeFunctionBlock(jsText, fnName){
   while (jsText[end] === '\n') end++;
   return jsText.slice(0, loc.start) + jsText.slice(end);
 }
+// Removes EVERY copy of a function named fnName, not just the first —
+// self-heals a file that already has duplicates (e.g. from before this
+// dedup logic existed), rather than only preventing new ones. locateFunction
+// always finds the next remaining match, so looping until none are left
+// is safe regardless of how many copies are present.
+function removeAllFunctionCopies(jsText, fnName){
+  while (locateFunction(jsText, fnName)) jsText = removeFunctionBlock(jsText, fnName);
+  return jsText;
+}
 function replaceFunctionBlock(jsText, fnName, newFnText){
   var loc = locateFunction(jsText, fnName);
   if (!loc) return jsText;
@@ -593,46 +602,54 @@ function buildQuizBlock(nr, quizArr){
 function syncQuizForNr(jsText, nr, quizArr){
   var slug = slugOf(nr);
   var varRe = new RegExp('var quiz' + slug + 'Answered[^;]*;\\n?');
-  var hasExisting = new RegExp('function\\s+quizAnswer' + slug + '\\s*\\(').test(jsText);
   var hadMultiExisting = new RegExp('function\\s+quizMulti' + slug + '\\s*\\(').test(jsText);
 
   if (!quizArr || quizArr.length === 0){
-    if (hasExisting){
-      jsText = jsText.replace(varRe, '');
-      jsText = removeFunctionBlock(jsText, 'quizAnswer' + slug);
-      jsText = removeFunctionBlock(jsText, 'quiz' + slug + 'CheckDone');
-      jsText = removeFunctionBlock(jsText, 'quizMulti' + slug);
-      jsText = removeFunctionBlock(jsText, 'checkMulti' + slug);
-      jsText = removeFunctionBlock(jsText, 'quizRetry' + slug);
-    }
+    // Each removal is independent and self-healing — cleans up every copy
+    // of every piece even if some were already duplicated or desynced from
+    // each other, rather than relying on one shared "does it exist" flag.
+    while (varRe.test(jsText)) jsText = jsText.replace(varRe, '');
+    jsText = removeAllFunctionCopies(jsText, 'quizAnswer' + slug);
+    jsText = removeAllFunctionCopies(jsText, 'quiz' + slug + 'CheckDone');
+    jsText = removeAllFunctionCopies(jsText, 'quizMulti' + slug);
+    jsText = removeAllFunctionCopies(jsText, 'checkMulti' + slug);
+    jsText = removeAllFunctionCopies(jsText, 'quizRetry' + slug);
     return jsText;
   }
 
+  // Same fix as the opgave-shell sync: every piece is fully removed (ALL
+  // copies, not just the first) and then re-appended fresh, independently
+  // of the others — never gated by one shared "does quizAnswerNr exist"
+  // flag. That single-flag approach could leave a stale, out-of-date copy
+  // of quizRetryNr (or any other piece) sitting untouched and still active
+  // (later declarations win in JS) if it had ever gone out of sync with
+  // quizAnswerNr, or duplicate it further if it was already duplicated.
+  // Declaration order among these functions doesn't matter at runtime —
+  // function declarations are fully hoisted — so appending everything to
+  // the scaffold section uniformly is safe.
   var block = buildQuizBlock(nr, quizArr);
-  if (hasExisting){
-    jsText = jsText.replace(varRe, block.varLine + '\n');
-    jsText = replaceFunctionBlock(jsText, 'quizAnswer' + slug, block.answerFn);
-    if (new RegExp('function\\s+quiz' + slug + 'CheckDone\\s*\\(').test(jsText)){
-      jsText = replaceFunctionBlock(jsText, 'quiz' + slug + 'CheckDone', block.checkDoneFn);
-    } else {
-      jsText = insertAfterFunction(jsText, 'quizAnswer' + slug, '\n\n' + block.checkDoneFn);
-    }
-    if (hadMultiExisting && block.hasMulti){
-      jsText = replaceFunctionBlock(jsText, 'quizMulti' + slug, block.multiToggleFn);
-      jsText = replaceFunctionBlock(jsText, 'checkMulti' + slug, block.multiCheckFn);
-    } else if (hadMultiExisting && !block.hasMulti){
-      jsText = removeFunctionBlock(jsText, 'quizMulti' + slug);
-      jsText = removeFunctionBlock(jsText, 'checkMulti' + slug);
-    } else if (!hadMultiExisting && block.hasMulti){
-      jsText = insertAfterFunction(jsText, 'quiz' + slug + 'CheckDone', '\n\n' + block.multiToggleFn + '\n\n' + block.multiCheckFn);
-    }
-    jsText = replaceFunctionBlock(jsText, 'quizRetry' + slug, block.retryFn);
-  } else {
-    var pieces = [block.varLine, block.answerFn, block.checkDoneFn];
-    if (block.hasMulti) pieces.push(block.multiToggleFn, block.multiCheckFn);
-    pieces.push(block.retryFn);
-    jsText = appendToScaffoldSection(jsText, pieces.join('\n\n') + '\n');
+  while (varRe.test(jsText)) jsText = jsText.replace(varRe, '');
+  jsText = appendToScaffoldSection(jsText, block.varLine + '\n');
+
+  jsText = removeAllFunctionCopies(jsText, 'quizAnswer' + slug);
+  jsText = appendToScaffoldSection(jsText, block.answerFn + '\n');
+
+  jsText = removeAllFunctionCopies(jsText, 'quiz' + slug + 'CheckDone');
+  jsText = appendToScaffoldSection(jsText, block.checkDoneFn + '\n');
+
+  if (block.hasMulti){
+    jsText = removeAllFunctionCopies(jsText, 'quizMulti' + slug);
+    jsText = appendToScaffoldSection(jsText, block.multiToggleFn + '\n');
+    jsText = removeAllFunctionCopies(jsText, 'checkMulti' + slug);
+    jsText = appendToScaffoldSection(jsText, block.multiCheckFn + '\n');
+  } else if (hadMultiExisting){
+    jsText = removeAllFunctionCopies(jsText, 'quizMulti' + slug);
+    jsText = removeAllFunctionCopies(jsText, 'checkMulti' + slug);
   }
+
+  jsText = removeAllFunctionCopies(jsText, 'quizRetry' + slug);
+  jsText = appendToScaffoldSection(jsText, block.retryFn + '\n');
+
   return jsText;
 }
 
@@ -1771,7 +1788,6 @@ function applyOpgaveSlotsToDom(doc, nr, slotAssignment){
 function syncOpgaveShellForNr(jsText, nr, slotAssignment){
   var slug = slugOf(nr);
   var present = NIVEAU_ORDER.filter(function(n){ return slotAssignment[n] && slotAssignment[n].length > 0; });
-  var hasExisting = new RegExp('function\\s+updateEnergy' + slug + '\\s*\\(').test(jsText);
 
   if (present.some(function(n){ return slotAssignment[n].some(function(item){ return item.type === 'tegn'; }); })){
     jsText = ensureTegnModule(jsText);
@@ -1785,36 +1801,62 @@ function syncOpgaveShellForNr(jsText, nr, slotAssignment){
   }
 
   if (!present.length){
-    if (hasExisting){
+    // removeAllFunctionCopies/the var-regex loop are both safe no-ops when
+    // a piece is already absent, and they clean up EVERY copy if a piece
+    // somehow ended up duplicated — so this never needs a combined "did the
+    // shell exist at all" gate, and can't leave stragglers behind either
+    // from the five pieces being out of sync OR from pre-existing dupes.
+    while (new RegExp('var opg' + slug + 'Level\\b').test(jsText)){
       jsText = jsText.replace(new RegExp('var opg' + slug + 'Level[^;]*;\\n?'), '');
-      jsText = removeFunctionBlock(jsText, 'updateEnergy' + slug);
-      jsText = removeFunctionBlock(jsText, 'startOpgaver' + slug);
-      jsText = removeFunctionBlock(jsText, 'restartOpgaver' + slug);
-      jsText = removeFunctionBlock(jsText, 'checkOpg' + slug + 'Medal');
-      NIVEAU_ORDER.forEach(function(n){ jsText = removeFunctionBlock(jsText, 'check' + NIVEAU_INFO[n].fnPart + slug); });
     }
+    jsText = removeAllFunctionCopies(jsText, 'updateEnergy' + slug);
+    jsText = removeAllFunctionCopies(jsText, 'startOpgaver' + slug);
+    jsText = removeAllFunctionCopies(jsText, 'restartOpgaver' + slug);
+    jsText = removeAllFunctionCopies(jsText, 'checkOpg' + slug + 'Medal');
+    NIVEAU_ORDER.forEach(function(n){ jsText = removeAllFunctionCopies(jsText, 'check' + NIVEAU_INFO[n].fnPart + slug); });
     return jsText;
   }
 
+  // Each of these five pieces (state var + 4 functions) is checked and
+  // replaced/inserted INDEPENDENTLY — never gated by one shared "does the
+  // shell exist" flag. A single shared flag (based on e.g. only
+  // updateEnergyNr's presence) would wrongly treat the whole shell as
+  // brand-new the moment just ONE piece went missing for any reason,
+  // duplicating every OTHER piece that was still actually present.
+  //
+  // And critically: ANY pre-existing duplicate of a piece is fully removed
+  // (every copy, not just the first) before the single fresh copy goes
+  // back in. Without this, a file that already has 2 copies of a function
+  // (e.g. from before this fix existed) would only get its FIRST copy
+  // updated — leaving the second, stale copy in place. Since later
+  // function declarations win at runtime in JS, that stale second copy
+  // would stay the one actually running, silently keeping old bugs alive
+  // even after every edit "should" have fixed them.
   var shell = buildOpgaveShellJS(nr, slotAssignment);
-  if (hasExisting){
-    jsText = jsText.replace(new RegExp('var opg' + slug + 'Level[^;]*;\\n?'), shell.stateVarsLine + '\n');
-    jsText = replaceFunctionBlock(jsText, 'updateEnergy' + slug, shell.updateEnergyFn);
-    jsText = replaceFunctionBlock(jsText, 'startOpgaver' + slug, shell.startFn);
-    jsText = replaceFunctionBlock(jsText, 'restartOpgaver' + slug, shell.restartFn);
-    jsText = replaceFunctionBlock(jsText, 'checkOpg' + slug + 'Medal', shell.medalFn);
-  } else {
-    jsText = appendToScaffoldSection(jsText, [shell.stateVarsLine, shell.updateEnergyFn, shell.startFn, shell.restartFn, shell.medalFn].join('\n\n') + '\n');
+  while (new RegExp('var opg' + slug + 'Level\\b').test(jsText)){
+    jsText = jsText.replace(new RegExp('var opg' + slug + 'Level[^;]*;\\n?'), '');
   }
+  jsText = appendToScaffoldSection(jsText, shell.stateVarsLine + '\n');
+
+  [
+    ['updateEnergy' + slug, shell.updateEnergyFn],
+    ['startOpgaver' + slug, shell.startFn],
+    ['restartOpgaver' + slug, shell.restartFn],
+    ['checkOpg' + slug + 'Medal', shell.medalFn]
+  ].forEach(function(pair){
+    var fnName = pair[0], fnText = pair[1];
+    jsText = removeAllFunctionCopies(jsText, fnName);
+    jsText = appendToScaffoldSection(jsText, fnText + '\n');
+  });
 
   NIVEAU_ORDER.forEach(function(n){
     var fnName = 'check' + NIVEAU_INFO[n].fnPart + slug;
-    var existsFn = new RegExp('function\\s+' + fnName + '\\s*\\(').test(jsText);
     if (slotAssignment[n] && slotAssignment[n].length){
       var fnText = buildCatalogCheckFn(nr, n, slotAssignment[n]);
-      jsText = existsFn ? replaceFunctionBlock(jsText, fnName, fnText) : appendToScaffoldSection(jsText, fnText + '\n');
-    } else if (existsFn){
-      jsText = removeFunctionBlock(jsText, fnName);
+      jsText = removeAllFunctionCopies(jsText, fnName);
+      jsText = appendToScaffoldSection(jsText, fnText + '\n');
+    } else {
+      jsText = removeAllFunctionCopies(jsText, fnName);
     }
   });
 
@@ -2382,7 +2424,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
          flattenOrder: flattenOrder, buildEmneDataBlock: buildEmneDataBlock,
          buildRaekkefoelge: buildRaekkefoelge, buildNavneAlle: buildNavneAlle,
          buildFremgangFragments: buildFremgangFragments, regenerateDerivedJS: regenerateDerivedJS,
-         locateFunction: locateFunction, removeFunctionBlock: removeFunctionBlock,
+         locateFunction: locateFunction, removeFunctionBlock: removeFunctionBlock, removeAllFunctionCopies: removeAllFunctionCopies,
          replaceFunctionBlock: replaceFunctionBlock, replaceVarStatement: replaceVarStatement,
          appendToScaffoldSection: appendToScaffoldSection, buildQuizBlock: buildQuizBlock,
          syncQuizForNr: syncQuizForNr, esc1: esc1, escAttr: escAttr, escHtml: escHtml,
@@ -3536,6 +3578,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
           html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">' +
             '<div class="meta">' + h(item.titel) + ' — ' + h(itemSummary(item)) + '</div>' +
             '<div class="actions"><button class="btn-sm" onclick="ScaffoldUI.editOpgaveSlot(' + attrArg(n) + ',' + idx + ')">Redigér</button>' +
+            '<button class="btn-sm" onclick="ScaffoldUI.showMoveOpgaveForm(' + attrArg(n) + ',' + idx + ')">Flyt/kopiér</button>' +
             '<button class="btn-sm danger" onclick="ScaffoldUI.deleteOpgaveSlot(' + attrArg(n) + ',' + idx + ')">Slet</button></div></div>';
         });
       }
@@ -3560,6 +3603,87 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     slotsFor(opgState.nr)[n].splice(idx, 1);
     applyOpgaveSlots();
     log('del', 'Slettede opgave "' + item.titel + '" fra ' + NIVEAU_META[n].label + ' på ' + opgState.nr);
+    renderOpgaverTab();
+  };
+
+  // Re-applies whatever's in slotsFor(nr) to the DOM/JS-shell for that
+  // specific emne — used by move/copy so the TARGET emne (which may differ
+  // from opgState.nr, the emne currently open in the tab) gets synced too.
+  function applyOpgaveSlotsForNr(nr){
+    Scaffold.applyOpgaveSlotsToDom(doc, nr, slotsFor(nr));
+    dirtyOpgaveNrs[nr] = true;
+  }
+
+  // Only emner the tool can safely write opgaver into: either no existing
+  // opgave shell at all, or one the tool already manages. Hand-built shells
+  // are excluded — writing into those would risk corrupting hand-written
+  // check logic, same restriction as renderOpgaverTab enforces when an emne
+  // is opened directly.
+  function writableEmneOptions(s, selected){
+    var out = [];
+    s.forloeb.filter(function(f){ return f.aktiv; }).forEach(function(f){
+      var kaps = s.kapitler.filter(function(k){ return k.forloebId === f.id; });
+      kaps.forEach(function(k){
+        if (!k.emner.length) return;
+        var opts = k.emner.filter(function(nr){
+          var e = s.emner[nr];
+          return e && (!e.hasOpgaveShell || e.opgaveShellToolManaged);
+        });
+        if (!opts.length) return;
+        out.push('<optgroup label="' + h(f.nr + ' \u2013 ' + k.titel) + '">');
+        opts.forEach(function(nr){
+          var e = s.emner[nr];
+          out.push('<option value="' + h(nr) + '"' + (nr === selected ? ' selected' : '') + '>' + h(nr) + ' \u2013 ' + h(e.navn) + '</option>');
+        });
+        out.push('</optgroup>');
+      });
+    });
+    return out.join('');
+  }
+
+  // ---- Move/copy a single opgave item to a (possibly different) emne
+  // and/or niveau — for when it was built under the wrong emne/niveau by
+  // mistake. "Flyt" removes it from the source; "Kopiér" leaves the source
+  // untouched and duplicates it (deep-cloned, so the two copies never share
+  // state — editing one afterwards can't silently corrupt the other).
+  ScaffoldUI.showMoveOpgaveForm = function(n, idx){
+    var s = site();
+    var item = slotsFor(opgState.nr)[n][idx];
+    if (!item) return;
+    showInlineForm(
+      '<div class="form-box"><h3>Flyt/kopiér "' + h(item.titel) + '"</h3>' +
+      '<p><small>Fra ' + NIVEAU_META[n].label + ' på ' + h(opgState.nr) + '.</small></p>' +
+      '<div class="field"><label>Til emne</label><select id="mo-emne">' + writableEmneOptions(s, opgState.nr) + '</select></div>' +
+      '<div class="field"><label>Til niveau</label><select id="mo-niveau">' +
+        NIVEAU_ORDER_UI.map(function(nv){ return '<option value="' + nv + '"' + (nv === n ? ' selected' : '') + '>' + NIVEAU_META[nv].medal + ' ' + NIVEAU_META[nv].label + '</option>'; }).join('') +
+      '</select></div>' +
+      '<div class="field"><label><input type="radio" name="mo-mode" value="flyt" checked style="width:auto;margin-right:6px">Flyt (fjernes fra ' + h(opgState.nr) + ')</label>' +
+      '<label style="margin-top:4px"><input type="radio" name="mo-mode" value="kopier" style="width:auto;margin-right:6px">Kopiér (beholdes også på ' + h(opgState.nr) + ')</label></div>' +
+      '<div class="form-actions"><button class="btn-primary" onclick="ScaffoldUI.submitMoveOpgave(' + attrArg(n) + ',' + idx + ')">Udfør</button>' +
+      '<button class="btn-cancel" onclick="ScaffoldUI.renderOpgaverTab()">Annullér</button></div></div>');
+  };
+  ScaffoldUI.submitMoveOpgave = function(n, idx){
+    var sourceNr = opgState.nr;
+    var item = slotsFor(sourceNr)[n][idx];
+    if (!item) return;
+    var targetNr = document.getElementById('mo-emne').value;
+    var targetNiveau = document.getElementById('mo-niveau').value;
+    var modeEl = document.querySelector('input[name="mo-mode"]:checked');
+    var mode = modeEl ? modeEl.value : 'flyt';
+    if (!targetNr){ alert('Vælg et emne at flytte/kopiere til.'); return; }
+    if (targetNr === sourceNr && targetNiveau === n){
+      alert('Vælg et andet emne eller niveau — opgaven er allerede der.'); return;
+    }
+    var clone = JSON.parse(JSON.stringify(item));
+    slotsFor(targetNr)[targetNiveau].push(clone);
+    applyOpgaveSlotsForNr(targetNr);
+    if (mode === 'flyt'){
+      slotsFor(sourceNr)[n].splice(idx, 1);
+      applyOpgaveSlotsForNr(sourceNr);
+      log('edit', 'Flyttede opgave "' + item.titel + '" fra ' + NIVEAU_META[n].label + ' på ' + sourceNr + ' til ' + NIVEAU_META[targetNiveau].label + ' på ' + targetNr);
+    } else {
+      log('add', 'Kopierede opgave "' + item.titel + '" fra ' + NIVEAU_META[n].label + ' på ' + sourceNr + ' til ' + NIVEAU_META[targetNiveau].label + ' på ' + targetNr);
+    }
     renderOpgaverTab();
   };
 

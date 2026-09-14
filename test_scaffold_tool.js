@@ -1675,6 +1675,276 @@ async function runTegnBgSeparationAndDuplicateImageTests(){
   test('Kanvas-elementet er der stadig', new RegExp('id="canvas-999b0"').test(result.html));
 }
 
+async function runMoveOpgaveTests(){
+  section('Flyt/kopiér en enkelt opgave til et andet niveau og/eller emne (var manuelt "tilføjet et forkert sted")');
+  const w = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D = w.document;
+  const Scaffold = w.Scaffold;
+  const doc = w.ScaffoldUI.__debugDoc();
+
+  w.ScaffoldUI.activateForloeb('F7', 'Flyttest');
+  D.getElementById('af-titel').value = 'Flyttest';
+  w.ScaffoldUI.submitActivateForloeb('F7');
+  w.ScaffoldUI.showNewKapitelForm('f7');
+  D.getElementById('nk-titel').value = 'K1';
+  w.ScaffoldUI.submitNewKapitel('f7');
+  w.ScaffoldUI.showNewEmneForm('f7', 'K1');
+  D.getElementById('ne-nr').value = '7.7.1'; D.getElementById('ne-navn').value = 'Kilde'; D.getElementById('ne-desc').value = '';
+  w.ScaffoldUI.submitNewEmne('f7', 'K1');
+  w.ScaffoldUI.showNewEmneForm('f7', 'K1');
+  D.getElementById('ne-nr').value = '7.7.2'; D.getElementById('ne-navn').value = 'Mål'; D.getElementById('ne-desc').value = '';
+  w.ScaffoldUI.submitNewEmne('f7', 'K1');
+
+  w.ScaffoldUI.renderOpgaverTab();
+  D.getElementById('opg-emne-select').value = '7.7.1'; chg(D.getElementById('opg-emne-select'));
+
+  w.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D.getElementById('ot-type').value = 'talsvar';
+  w.ScaffoldUI.showOpgaveDetailForm('bronze', 'talsvar');
+  D.getElementById('of-titel').value = 'Forkert placeret opgave';
+  D.getElementById('of-instr').value = 'Find x';
+  D.getElementById('of-flabel-0').value = 'x';
+  D.getElementById('of-fsvar-0').value = '4';
+  w.ScaffoldUI.submitTalsvar('bronze');
+
+  w.ScaffoldUI.renderOpgaverTab();
+  test('"Flyt/kopiér"-knap findes på opgave-listen',
+    Array.from(D.querySelectorAll('.btn-sm')).some(b => b.textContent === 'Flyt/kopiér'));
+
+  // ---- Move within the SAME emne, to a different niveau ----
+  w.ScaffoldUI.showMoveOpgaveForm('bronze', 0);
+  test('Flyt-formular viser emne-vælger', !!D.getElementById('mo-emne'));
+  test('Flyt-formular viser niveau-vælger', !!D.getElementById('mo-niveau'));
+  D.getElementById('mo-emne').value = '7.7.1';
+  D.getElementById('mo-niveau').value = 'solv';
+  w.ScaffoldUI.submitMoveOpgave('bronze', 0);
+
+  let slots1 = w.ScaffoldUI.__debugOpgaveSlots('7.7.1');
+  test('Flyt til andet niveau (samme emne): væk fra bronze', slots1.bronze.length === 0);
+  test('Flyt til andet niveau (samme emne): findes nu på sølv', slots1.solv.length === 1 && slots1.solv[0].titel === 'Forkert placeret opgave');
+
+  // ---- Move across to a DIFFERENT emne ----
+  w.ScaffoldUI.renderOpgaverTab();
+  D.getElementById('opg-emne-select').value = '7.7.1'; chg(D.getElementById('opg-emne-select'));
+  w.ScaffoldUI.showMoveOpgaveForm('solv', 0);
+  const emneOptions = Array.from(D.getElementById('mo-emne').options).map(o => o.value);
+  test('Emne-vælger tilbyder målemnet', emneOptions.includes('7.7.2'));
+  D.getElementById('mo-emne').value = '7.7.2';
+  D.getElementById('mo-niveau').value = 'bronze';
+  D.querySelector('input[name="mo-mode"][value="flyt"]').checked = true;
+  w.ScaffoldUI.submitMoveOpgave('solv', 0);
+
+  let siteAfterMove = Scaffold.parseSite(doc);
+  let sourceSlots = w.ScaffoldUI.__debugOpgaveSlots('7.7.1');
+  let targetSlots = w.ScaffoldUI.__debugOpgaveSlots('7.7.2');
+  test('Flyt på tværs af emner: væk fra kilde-emnet', sourceSlots.solv.length === 0);
+  test('Flyt på tværs af emner: findes nu på mål-emnet', targetSlots.bronze.length === 1 && targetSlots.bronze[0].titel === 'Forkert placeret opgave');
+
+  const genAfterMove = w.ScaffoldUI.__debugGenerate();
+  test('Kilde-emnets opgave-boks (bronze) er tom i DOM\'en efter flytning',
+    (doc.getElementById('opg771-low').innerHTML || '').trim() === '');
+  test('Mål-emnets opgave-boks (bronze) indeholder det flyttede felt',
+    (doc.getElementById('opg772-low').innerHTML || '').includes('ow-772b0'));
+  test('Ingen nye valideringsproblemer efter flytning på tværs af emner', genAfterMove.newProblems.length === 0, JSON.stringify(genAfterMove.newProblems));
+
+  // ---- Copy (not move): source keeps its own independent copy ----
+  w.ScaffoldUI.renderOpgaverTab();
+  D.getElementById('opg-emne-select').value = '7.7.2'; chg(D.getElementById('opg-emne-select'));
+  w.ScaffoldUI.showMoveOpgaveForm('bronze', 0);
+  D.getElementById('mo-emne').value = '7.7.1';
+  D.getElementById('mo-niveau').value = 'guld';
+  D.querySelector('input[name="mo-mode"][value="kopier"]').checked = true;
+  w.ScaffoldUI.submitMoveOpgave('bronze', 0);
+
+  let sourceAfterCopy = w.ScaffoldUI.__debugOpgaveSlots('7.7.2');
+  let targetAfterCopy = w.ScaffoldUI.__debugOpgaveSlots('7.7.1');
+  test('Kopiér: originalen ligger STADIG i kilde-emnet', sourceAfterCopy.bronze.length === 1 && sourceAfterCopy.bronze[0].titel === 'Forkert placeret opgave');
+  test('Kopiér: en ny kopi findes i mål-emnet/niveauet', targetAfterCopy.guld.length === 1 && targetAfterCopy.guld[0].titel === 'Forkert placeret opgave');
+
+  // The two copies must be deep-cloned, independent objects — editing one
+  // (e.g. via the felter array) must never silently mutate the other.
+  sourceAfterCopy.bronze[0].felter[0].svar = 999;
+  test('De to kopier deler IKKE reference (redigering af den ene rører ikke den anden)',
+    targetAfterCopy.guld[0].felter[0].svar === 4);
+
+  // ---- Guardrails ----
+  w.ScaffoldUI.showMoveOpgaveForm('bronze', 0);
+  D.getElementById('mo-emne').value = '7.7.2';
+  D.getElementById('mo-niveau').value = 'bronze';
+  w.__lastAlert = null;
+  w.ScaffoldUI.submitMoveOpgave('bronze', 0);
+  test('Flyt/kopiér til samme emne+niveau (no-op) giver en advarsel i stedet for at duplikere stille',
+    !!w.__lastAlert);
+  let unchanged = w.ScaffoldUI.__debugOpgaveSlots('7.7.2');
+  test('Intet ekstra element blev tilføjet ved no-op-forsøget', unchanged.bronze.length === 1);
+
+  // Hand-built (non-tool-managed) emner must never be offered as a target —
+  // the tool cannot safely write into hand-written check logic.
+  w.ScaffoldUI.showMoveOpgaveForm('bronze', 0);
+  const finalEmneOptions = Array.from(D.getElementById('mo-emne').options).map(o => o.value);
+  test('Hånd-bygget emne (2.1.1) tilbydes IKKE som flytte-/kopiér-mål', !finalEmneOptions.includes('2.1.1'));
+
+  const finalResult = w.ScaffoldUI.__debugGenerate();
+  test('Ingen nye valideringsproblemer efter hele flyt/kopiér-flowet', finalResult.newProblems.length === 0, JSON.stringify(finalResult.newProblems));
+}
+
+async function runShellDesyncRegressionTest(){
+  section('Regression: en opgave-shells 5 dele (var + 4 funktioner) må ALDRIG dele én samlet "findes allerede"-detektion');
+  // This is a direct unit test against Scaffold.syncOpgaveShellForNr (no
+  // file/UI needed) — it simulates the exact bug reported live: a shell
+  // whose pieces have gone out of sync with each other (e.g. from an
+  // earlier manual edit, or an older tool version), where updateEnergyNr
+  // specifically is missing but its three sibling functions are still
+  // present. The old code used ONE shared "does updateEnergyNr exist" flag
+  // to decide the fate of all five pieces — so the missing updateEnergyNr
+  // alone made it treat the WHOLE shell as brand-new and re-append the
+  // three siblings that were still there, duplicating them.
+  const w = freshToolWindow();
+  const Scaffold = w.Scaffold;
+
+  const slug = '999';
+  const staleJs =
+    'var opg999Level = 1, opg999Started = false;\n' +
+    'function startOpgaver' + slug + '(){ opg999Started = true; }\n' +
+    'function restartOpgaver' + slug + '(){ opg999Level = 1; }\n' +
+    'function checkOpg' + slug + 'Medal(){ /* stale */ }\n' +
+    '// ===== SCAFFOLD: nye emner tilføjet via scaffolding-værktøjet =====\n';
+    // Note: deliberately NO updateEnergy999 function anywhere above.
+
+  const slotAssignment = {
+    bronze: [{ type: 'talsvar', titel: 'Test', instruktion: 'Find x', billede: '',
+      felter: [{ label: 'x', svar: 4, svartype: 'tal', tolerance: 0.05, hint: '' }] }],
+    solv: [], guld: []
+  };
+
+  const result = Scaffold.syncOpgaveShellForNr(staleJs, '9.9.9', slotAssignment);
+
+  function countFn(fnName){
+    const re = new RegExp('function\\s+' + fnName + '\\s*\\(', 'g');
+    return (result.match(re) || []).length;
+  }
+  test('updateEnergy999 (den tidligere manglende funktion) findes nu — præcis 1 gang', countFn('updateEnergy999') === 1);
+  test('startOpgaver999 (allerede tilstede) blev IKKE duplikeret', countFn('startOpgaver999') === 1);
+  test('restartOpgaver999 (allerede tilstede) blev IKKE duplikeret', countFn('restartOpgaver999') === 1);
+  test('checkOpg999Medal (allerede tilstede) blev IKKE duplikeret', countFn('checkOpg999Medal') === 1);
+  test('var opg999Level blev IKKE duplikeret', (result.match(/var\s+opg999Level\b/g) || []).length === 1);
+
+  // Running the sync a SECOND time (idempotency) must also stay clean —
+  // simulates clicking "Generate" more than once in the same session.
+  const result2 = Scaffold.syncOpgaveShellForNr(result, '9.9.9', slotAssignment);
+  test('Kørsel nummer to er stadig idempotent (ingen af de 4 funktioner duplikeres over tid)',
+    ['updateEnergy999','startOpgaver999','restartOpgaver999','checkOpg999Medal'].every(fn => {
+      const re = new RegExp('function\\s+' + fn + '\\s*\\(', 'g');
+      return (result2.match(re) || []).length === 1;
+    }));
+
+  section('Regression: en fil der ALLEREDE har 2 kopier (den ægte "kan ikke se guld-opgaven"-sag) skal SELVHELE, ikke kun undgå at forværre det');
+  // This reproduces the actual live bug report: a file that (from before
+  // this fix existed) already has TWO copies of startOpgaver/restartOpgaver/
+  // checkOpgMedal — an older, pre-gold copy positioned LAST in the text
+  // (so it's the one that actually wins at runtime — later function
+  // declarations override earlier ones in JS), and a newer, correct
+  // gold-aware copy positioned earlier. Simply detecting "does at least one
+  // copy exist, then replace THE FIRST match" (an earlier, insufficient fix)
+  // leaves the stale trailing copy completely untouched — replacing the
+  // first occurrence achieves nothing, because the SECOND one still governs
+  // behaviour. The fix must remove EVERY copy before writing the single
+  // fresh one back in.
+  const dupSlug = '888';
+  const alreadyDuplicatedJs =
+    // The newer, CORRECT (gold-aware) copy comes first...
+    'function startOpgaver' + dupSlug + '() { opg888Level_marker="new"; if(opg888Level>=3){ showWidget(document.getElementById("opg888-high")); } }\n' +
+    'function restartOpgaver' + dupSlug + '() { opg888Level_marker="new"; }\n' +
+    'function checkOpg' + dupSlug + 'Medal() { if (opg888Level === 3) opg888_ok = opg888BronzeDone && opg888SilverDone && opg888GoldDone; }\n' +
+    // ...but the OLDER, stale (pre-gold) copy comes LAST, so it's the one
+    // that actually executes — exactly what made the gold widget invisible.
+    'var opg888Level = 1;\n' +
+    'function updateEnergy' + dupSlug + '(val) { /* unaffected, single copy */ }\n' +
+    'function startOpgaver' + dupSlug + '() { opg888Level_marker="stale"; /* no gold check at all */ }\n' +
+    'function restartOpgaver' + dupSlug + '() { opg888Level_marker="stale"; }\n' +
+    'function checkOpg' + dupSlug + 'Medal() { if (opg888Level === 3) opg888_ok = opg888BronzeDone && opg888SilverDone; /* missing gold! */ }\n' +
+    '// ===== SCAFFOLD: nye emner tilføjet via scaffolding-værktøjet =====\n';
+
+  const dupSlotAssignment = {
+    bronze: [{ type: 'talsvar', titel: 'B', instruktion: 'x', billede: '', felter: [{ label: 'x', svar: 1, svartype: 'tal', tolerance: 0.05, hint: '' }] }],
+    solv:   [{ type: 'talsvar', titel: 'S', instruktion: 'x', billede: '', felter: [{ label: 'x', svar: 2, svartype: 'tal', tolerance: 0.05, hint: '' }] }],
+    guld:   [{ type: 'talsvar', titel: 'G', instruktion: 'x', billede: '', felter: [{ label: 'x', svar: 3, svartype: 'tal', tolerance: 0.05, hint: '' }] }]
+  };
+
+  const healed = Scaffold.syncOpgaveShellForNr(alreadyDuplicatedJs, '8.8.8', dupSlotAssignment);
+  function countDup(fnName){ return (healed.match(new RegExp('function\\s+' + fnName + '\\s*\\(', 'g')) || []).length; }
+  test('startOpgaver888: begge gamle kopier er væk, kun ÉN frisk kopi tilbage', countDup('startOpgaver888') === 1);
+  test('restartOpgaver888: begge gamle kopier er væk, kun ÉN frisk kopi tilbage', countDup('restartOpgaver888') === 1);
+  test('checkOpg888Medal: begge gamle kopier er væk, kun ÉN frisk kopi tilbage', countDup('checkOpg888Medal') === 1);
+  test('updateEnergy888 (var kun 1 kopi i forvejen) er stadig kun 1 kopi', countDup('updateEnergy888') === 1);
+  test('var opg888Level er ikke duplikeret', (healed.match(/var\s+opg888Level\b/g) || []).length === 1);
+
+  const survivingStart = healed.match(/function startOpgaver888\(\)[^]*?\n}/g).pop();
+  test('Den ENESTE tilbageværende startOpgaver888 er den FRISKE, korrekte version (viser guld-widget)',
+    survivingStart.includes('opg888-high'));
+  const survivingMedal = healed.match(/function checkOpg888Medal\(\)[^]*?\n}/g).pop();
+  test('Den ENESTE tilbageværende checkOpg888Medal tjekker rent faktisk guld (opg888GoldDone)',
+    survivingMedal.includes('opg888GoldDone'));
+
+  // Same class of bug, same fix, applied to the SIBLING sync path for
+  // quiz (syncQuizForNr) — found live in the same uploaded file
+  // (quizAnswer312/quizRetry312 both duplicated). A stale, non-multi-aware
+  // copy positioned LAST would otherwise silently keep governing behaviour
+  // even after the quiz gained a multi-select question.
+  const quizSlug = '712';
+  const alreadyDuplicatedQuizJs =
+    'function quizAnswer' + quizSlug + '(qnum, result, evt) { /* NEW, multi-aware */ quiz712_marker = "new"; }\n' +
+    'function quizRetry' + quizSlug + '() { quiz712MultiSel = {}; quiz712_marker = "new"; }\n' +
+    'var quiz712Answered = {}, quiz712Correct = 0, quiz712Total = 2, quiz712MultiSel = {};\n' +
+    'function quizAnswer' + quizSlug + '(qnum, result, evt) { /* OLD, stale — predates the multi question */ quiz712_marker = "stale"; }\n' +
+    'function quizRetry' + quizSlug + '() { quiz712_marker = "stale"; /* no quiz712MultiSel reset — bug */ }\n' +
+    '// ===== SCAFFOLD: nye emner tilføjet via scaffolding-værktøjet =====\n';
+
+  const w3 = freshToolWindow();
+  const healedQuiz = w3.Scaffold.syncQuizForNr(alreadyDuplicatedQuizJs, '7.1.2', [{ type: 'single' }, { type: 'multi' }]);
+  function countQuizDup(fnName){ return (healedQuiz.match(new RegExp('function\\s+' + fnName + '\\s*\\(', 'g')) || []).length; }
+  test('quizAnswer712: begge gamle kopier væk, kun ÉN frisk kopi tilbage', countQuizDup('quizAnswer712') === 1);
+  test('quizRetry712: begge gamle kopier væk, kun ÉN frisk kopi tilbage', countQuizDup('quizRetry712') === 1);
+  test('var quiz712Answered er ikke duplikeret', (healedQuiz.match(/var\s+quiz712Answered\b/g) || []).length === 1);
+  const survivingRetry = healedQuiz.match(/function quizRetry712\(\)[^]*?\n}/g).pop();
+  test('Den ENESTE tilbageværende quizRetry712 er multi-select-aware (nulstiller quiz712MultiSel)',
+    survivingRetry.includes('quiz712MultiSel'));
+
+  // Full end-to-end: build a real emne through the actual UI/tool flow,
+  // generate, and confirm validateDocument reports zero problems.
+  const w2 = freshToolWindow();
+  await new Promise(r => setTimeout(r, 60));
+  w2.ScaffoldUI.__debugInit(indexHtml, 'Index.html');
+  const D = w2.document;
+
+  w2.ScaffoldUI.activateForloeb('FD', 'Desynctest');
+  D.getElementById('af-titel').value = 'Desynctest';
+  w2.ScaffoldUI.submitActivateForloeb('FD');
+  w2.ScaffoldUI.showNewKapitelForm('fd');
+  D.getElementById('nk-titel').value = 'K1';
+  w2.ScaffoldUI.submitNewKapitel('fd');
+  w2.ScaffoldUI.showNewEmneForm('fd', 'K1');
+  D.getElementById('ne-nr').value = '5.5.5'; D.getElementById('ne-navn').value = 'Test'; D.getElementById('ne-desc').value = '';
+  w2.ScaffoldUI.submitNewEmne('fd', 'K1');
+  w2.ScaffoldUI.renderOpgaverTab();
+  D.getElementById('opg-emne-select').value = '5.5.5'; chg(D.getElementById('opg-emne-select'));
+  w2.ScaffoldUI.showOpgaveTypeForm('bronze');
+  D.getElementById('ot-type').value = 'talsvar';
+  w2.ScaffoldUI.showOpgaveDetailForm('bronze', 'talsvar');
+  D.getElementById('of-titel').value = 'Opgave'; D.getElementById('of-instr').value = 'Find x';
+  D.getElementById('of-flabel-0').value = 'x'; D.getElementById('of-fsvar-0').value = '4';
+  w2.ScaffoldUI.submitTalsvar('bronze');
+
+  // Click "Generate" twice in a row without any other change in between —
+  // exactly the real-world sequence that first surfaced this bug.
+  w2.ScaffoldUI.__debugGenerate();
+  const genTwice = w2.ScaffoldUI.__debugGenerate();
+  test('To på hinanden følgende "Generér" giver ingen nye valideringsproblemer',
+    genTwice.newProblems.length === 0, JSON.stringify(genTwice.newProblems));
+}
+
 (async () => {
   const ctx = await run();
   await runGeneration(ctx);
@@ -1686,6 +1956,8 @@ async function runTegnBgSeparationAndDuplicateImageTests(){
   await runPanelToggleAndTemplateTests();
   await runReopenEditAndQuizDeleteTests();
   await runMoveEmneTests();
+  await runMoveOpgaveTests();
+  await runShellDesyncRegressionTest();
   await runThemeTests();
   await runTabelColumnSyncTests();
   await runTabelGivenTextAndMultiInputReopenTests();
