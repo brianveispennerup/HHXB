@@ -568,7 +568,16 @@ a { text-decoration: none; color: inherit; }
 .mbox { width:18px;height:18px;border:1.5px solid #d1d5db;border-radius:4px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:12px;transition:all 0.15s; }
 .quiz-retry { margin-top:10px; padding:7px 16px; border:1.5px solid var(--border); border-radius:8px; background:var(--surface); font-size:0.83rem; font-weight:600; cursor:pointer; font-family:inherit; }
 
-</style>
+
+
+
+/* SCAFFOLD-THEME-CSS-START */
+:root{--surface:#ffd4a3;--accent:#d58310;}
+body{background-image:url('https://brianveispennerup.github.io/HHXB/autumn_background.jpg');background-size:cover;background-attachment:fixed;background-position:center}
+.theme-particle-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
+.theme-particle{position:absolute;top:-10px;animation:themeParticleFall linear infinite;will-change:transform}
+@keyframes themeParticleFall{to{transform:translateY(110vh) translateX(var(--tp-drift,0))}}
+/* SCAFFOLD-THEME-CSS-END */</style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
@@ -10257,6 +10266,43 @@ function owCheck(id, answer) {
 }
 
 // ===== SCAFFOLD: nye emner tilføjet via scaffolding-værktøjet =====
+// SCAFFOLD-THEME-JS-START
+var SITE_THEME = "custom_1791272872388";
+var medaljer = {"1":"🍂","2":"🥧","3":"☕"};
+var CUSTOM_THEMES = {"custom_1791272872388":{"navn":"Efterår","bgImage":"https://brianveispennerup.github.io/HHXB/autumn_background.jpg","particle":"🍂","cssVars":{"--surface":"#ffd4a3","--accent":"#d58310"},"medaljer":{"1":"🍂","2":"🥧","3":"☕"}}};
+var THEME_PARTICLE = "🍂";
+function initThemeParticles() {
+  if (document.querySelector('.theme-particle-overlay')) return;
+  if (typeof THEME_PARTICLE === 'undefined' || !THEME_PARTICLE) return;
+  var overlay = document.createElement('div');
+  overlay.className = 'theme-particle-overlay';
+  document.body.appendChild(overlay);
+  for (var i = 0; i < 45; i++) {
+    var f = document.createElement('div');
+    f.className = 'theme-particle';
+    f.textContent = THEME_PARTICLE;
+    f.style.left = (Math.random() * 100) + 'vw';
+    f.style.fontSize = (Math.random() * 12 + 8) + 'px';
+    f.style.opacity = (Math.random() * 0.5 + 0.4).toFixed(2);
+    f.style.animationDuration = (Math.random() * 9 + 7) + 's';
+    f.style.animationDelay = (Math.random() * 10) + 's';
+    f.style.setProperty('--tp-drift', (Math.random() * 80 - 40) + 'px');
+    overlay.appendChild(f);
+  }
+}
+document.addEventListener('DOMContentLoaded', initThemeParticles);
+// SCAFFOLD-THEME-JS-END
+
+
+
+
+
+
+
+
+
+
+
 function checkGold15() {
   var i0ok0 = checkTekstField('15g0-a0', "2%");
   var i0ok1 = checkTekstField('15g0-a1', "91,4%");
