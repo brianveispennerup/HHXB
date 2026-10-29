@@ -607,7 +607,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="forloeb-grid">
 <div class="forloeb-card active" onclick="showPage('f1')"><span class="forloeb-nr">F1</span><span class="forloeb-titel">Lineære funktioner</span></div>
 <div class="forloeb-card active" onclick="showPage('f2')"><span class="forloeb-nr">F2</span><span class="forloeb-titel">Deskriptiv statistik</span></div>
-<div class="forloeb-card disabled"><span class="forloeb-nr">F3</span><span class="forloeb-titel">Eksponentielle funktioner</span><span class="coming-soon">Kommer snart</span></div>
+<div class="forloeb-card active" onclick="showPage('f3')"><span class="forloeb-nr">F3</span><span class="forloeb-titel">Eksponentielle funktioner</span></div>
 <div class="forloeb-card disabled"><span class="forloeb-nr">F4</span><span class="forloeb-titel">Finansiel regning</span><span class="coming-soon">Kommer snart</span></div>
 <div class="forloeb-card disabled"><span class="forloeb-nr">F5</span><span class="forloeb-titel">Andengradsfunktioner</span><span class="coming-soon">Kommer snart</span></div>
 <div class="forloeb-card disabled"><span class="forloeb-nr">F6</span><span class="forloeb-titel">Sandsynlighedsregning og fordelinger</span><span class="coming-soon">Kommer snart</span></div>
@@ -4514,7 +4514,44 @@ Hint: Der kan være brug for at skitsere en sumkurve.</div><div style="margin-bo
     <h1>Procentregning</h1>
     
   </div>
-<div class="tabs"><button class="tab-btn active" data-tab="t14-mat">Materiale</button><button class="tab-btn" data-tab="t14-quiz">Tjekspørgsmål</button><button class="tab-btn" data-tab="t14-opg">Opgaver</button></div><div id="t14-mat" class="tab-panel active"><div class="simple-resource-list"><div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=158','_blank')"><input type="checkbox" class="card-check" id="chk-14-lrebog" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">1.4 Procentregning</div></div><canvas class="sparkle-canvas"></canvas></div></div></div><div id="t14-quiz" class="tab-panel"><div class="quiz-score" id="quiz-score-14" style="display:none"><h3 id="quiz-score-14-title"></h3><p id="quiz-score-14-text"></p><button class="quiz-retry" onclick="quizRetry14()">Prøv igen</button></div></div><div id="t14-opg" class="tab-panel"><div class="energy-wrap" data-scaffold-opgaver="1"><div class="energy-header"><span class="energy-question">Hvor meget energi har du i dag?</span><span class="energy-state" id="energy-state-14" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span></div><div class="energy-slider-track"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span><input type="range" class="energy-slider" id="energy-slider-14" min="0" max="100" value="1" oninput="updateEnergy14(this.value)"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span></div></div><div class="ready-btn-wrap" id="ready-btn-wrap-14" style="display:block"><button class="ready-btn" onclick="startOpgaver14()"><div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div><span class="ready-btn-cta">Ja, klar!</span></button></div><button class="restart-btn" id="restart-btn-14" onclick="restartOpgaver14()" style="display:none">↩ Vælg nyt niveau</button><div class="opgave-widget opgave-hidden" id="opg14-low"><div class="ow-item" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--border)"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Fremskrivningsfaktor</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Anvend formel (141) fra kapitel 1.4 til at bestemme fremskrivningsfaktoren for følgende:</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">At lægge 10% til</label><input class="ow-input" id="ow-14b0-a0" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">At trække 10% fra</label><input class="ow-input" id="ow-14b0-a1" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">At lægge 21% til</label><input class="ow-input" id="ow-14b0-a2" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">At trække 4% fra</label><input class="ow-input" id="ow-14b0-a3" type="text" style="width:120px"></div></div><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Den procentvise ændring</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Bestem den procentvise ændring for følgende fremskrivninger. Angiv som procenttal med et mellem rum mellem tal of procent.</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">1,1</label><input class="ow-input" id="ow-14b1-a0" type="text" style="width:120px" placeholder="fx +5,5 %"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">0,95</label><input class="ow-input" id="ow-14b1-a1" type="text" style="width:120px" placeholder="fx -5,5 %"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">0,634</label><input class="ow-input" id="ow-14b1-a2" type="text" style="width:120px"></div></div><button onclick="checkBronze14()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button><div class="ow-result" id="ow-r-14-low" style="margin-top:10px"></div></div><div class="opgave-widget opgave-hidden" id="opg14-mid"><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Priser, rabatter og fremskrivningsfaktorer</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Kantinen på en handelsskole justerer sine priser, og skolens webshop får nye besøgende. Svar med tal (brug komma eller punktum som decimaltegn). Afrund procenter til hele tal.</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Sandwichen koster 42 kr. og prisen stiger med 12,5 %. Hvad er den nye pris (kr.)?</label><input class="ow-input" id="ow-14s0-a0" type="text" style="width:120px" placeholder="kr."></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Antal besøg på webshoppen steg fra 8.400 til 10.248. Hvor mange procent steg antallet? Skriv kun tallet, uden %-tegn.</label><input class="ow-input" id="ow-14s0-a1" type="text" style="width:120px" placeholder="%"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">En jakke koster 1.360 kr. efter en rabat på 20 %. Hvad kostede jakken før rabatten (kr.)?</label><input class="ow-input" id="ow-14s0-a2" type="text" style="width:120px" placeholder="kr."></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Hvad er fremskrivningsfaktoren, når en pris falder med 7 %?</label><input class="ow-input" id="ow-14s0-a3" type="text" style="width:120px" placeholder="fx 1,05"></div></div><button onclick="checkSilver14()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button><div class="ow-result" id="ow-r-14-mid" style="margin-top:10px"></div></div><div class="opgave-widget opgave-hidden" id="opg14-high"><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Omsætning, moms og procentpoint</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Virksomheden "Nordlys Kaffe ApS" havde en omsætning på 2,4 mio. kr. i 2022. Omsætningen steg med 8 % i 2023, faldt med 5 % i 2024 og steg med 12 % i 2025. Brug fremskrivningsfaktorer og afrund til 2 decimaler, hvor intet andet er angivet.</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Omsætningen i 2025 (mio. kr.)</label><input class="ow-input" id="ow-14g0-a0" type="text" style="width:120px" placeholder="mio. kr."></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Samlet procentvis ændring fra 2022 til 2025 (%)</label><input class="ow-input" id="ow-14g0-a1" type="text" style="width:120px" placeholder="%"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Kaffemaskinen koster 1.875 kr. inkl. 25 % moms. Hvad er prisen uden moms (kr.)?</label><input class="ow-input" id="ow-14g0-a2" type="text" style="width:120px" placeholder="kr."></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Markedsandelen steg fra 18 % til 24 %. Hvor mange procentpoint er det en stigning på?</label><input class="ow-input" id="ow-14g0-a3" type="text" style="width:120px" placeholder="procentpoint"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Hvor mange procent steg markedsandelen fra 18 % til 24 % (relativ ændring)?</label><input class="ow-input" id="ow-14g0-a4" type="text" style="width:120px" placeholder="%"></div></div><button onclick="checkGold14()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button><div class="ow-result" id="ow-r-14-high" style="margin-top:10px"></div></div></div></div>
+<div class="tabs"><button class="tab-btn active" data-tab="t14-mat">Materiale</button><button class="tab-btn" data-tab="t14-quiz">Tjekspørgsmål</button><button class="tab-btn" data-tab="t14-opg">Opgaver</button></div><div id="t14-mat" class="tab-panel active"><div class="simple-resource-list"><div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=158','_blank')"><input type="checkbox" class="card-check" id="chk-14-lrebog" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">1.4 Procentregning</div></div><canvas class="sparkle-canvas"></canvas></div></div></div><div id="t14-quiz" class="tab-panel"><div class="quiz-score" id="quiz-score-14" style="display:none"><h3 id="quiz-score-14-title"></h3><p id="quiz-score-14-text"></p><button class="quiz-retry" onclick="quizRetry14()">Prøv igen</button></div></div><div id="t14-opg" class="tab-panel"><div class="energy-wrap" data-scaffold-opgaver="1"><div class="energy-header"><span class="energy-question">Hvor meget energi har du i dag?</span><span class="energy-state" id="energy-state-14" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span></div><div class="energy-slider-track"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span><input type="range" class="energy-slider" id="energy-slider-14" min="0" max="100" value="1" oninput="updateEnergy14(this.value)"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span></div></div><div class="ready-btn-wrap" id="ready-btn-wrap-14" style="display:block"><button class="ready-btn" onclick="startOpgaver14()"><div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div><span class="ready-btn-cta">Ja, klar!</span></button></div><button class="restart-btn" id="restart-btn-14" onclick="restartOpgaver14()" style="display:none">↩ Vælg nyt niveau</button><div class="opgave-widget opgave-hidden" id="opg14-low"><div class="ow-item" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--border)"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Fremskrivningsfaktor</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Anvend formel (141) fra kapitel 1.4 til at bestemme fremskrivningsfaktoren for følgende:</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">At lægge 10% til</label><input class="ow-input" id="ow-14b0-a0" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">At trække 10% fra</label><input class="ow-input" id="ow-14b0-a1" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">At lægge 21% til</label><input class="ow-input" id="ow-14b0-a2" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">At trække 4% fra</label><input class="ow-input" id="ow-14b0-a3" type="text" style="width:120px"></div></div><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Den procentvise ændring</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Bestem den procentvise ændring for følgende fremskrivninger. Angiv som procenttal med et mellem rum mellem tal of procent.</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">1,1</label><input class="ow-input" id="ow-14b1-a0" type="text" style="width:120px" placeholder="fx +5,5 %"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">0,95</label><input class="ow-input" id="ow-14b1-a1" type="text" style="width:120px" placeholder="fx -5,5 %"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">0,634</label><input class="ow-input" id="ow-14b1-a2" type="text" style="width:120px"></div></div><button onclick="checkBronze14()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button><div class="ow-result" id="ow-r-14-low" style="margin-top:10px"></div></div><div class="opgave-widget opgave-hidden" id="opg14-mid"><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Priser, rabatter og fremskrivningsfaktorer</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Kantinen på en handelsskole justerer sine priser, og skolens webshop får nye besøgende. Svar med tal (brug komma eller punktum som decimaltegn). Afrund procenter til hele tal.</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Sandwichen koster 42 kr. og prisen stiger med 12,5 %. Hvad er den nye pris (kr.)?</label><input class="ow-input" id="ow-14s0-a0" type="text" style="width:120px" placeholder="kr."></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Antal besøg på webshoppen steg fra 8.400 til 10.248. Hvor mange procent steg antallet? Skriv kun tallet, uden %-tegn.</label><input class="ow-input" id="ow-14s0-a1" type="text" style="width:120px" placeholder="%"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">En jakke koster 1.360 kr. efter en rabat på 20 %. Hvad kostede jakken før rabatten (kr.)?</label><input class="ow-input" id="ow-14s0-a2" type="text" style="width:120px" placeholder="kr."></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Hvad er fremskrivningsfaktoren, når en pris falder med 7 %?</label><input class="ow-input" id="ow-14s0-a3" type="text" style="width:120px" placeholder="fx 1,05"></div></div><button onclick="checkSilver14()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button><div class="ow-result" id="ow-r-14-mid" style="margin-top:10px"></div></div><div class="opgave-widget opgave-hidden" id="opg14-high"><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Omsætning, moms og procentpoint</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Virksomheden "Nordlys Kaffe ApS" havde en omsætning på 2,4 mio. kr. i 2022. Omsætningen steg med 8 % i 2023, faldt med 5 % i 2024 og steg med 12 % i 2025. Brug fremskrivningsfaktorer og afrund til 2 decimaler, hvor intet andet er angivet.</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Omsætningen i 2025 (mio. kr.)</label><input class="ow-input" id="ow-14g0-a0" type="text" style="width:120px" placeholder="mio. kr."></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Samlet procentvis ændring fra 2022 til 2025 (%)</label><input class="ow-input" id="ow-14g0-a1" type="text" style="width:120px" placeholder="%"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Kaffemaskinen koster 1.875 kr. inkl. 25 % moms. Hvad er prisen uden moms (kr.)?</label><input class="ow-input" id="ow-14g0-a2" type="text" style="width:120px" placeholder="kr."></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Markedsandelen steg fra 18 % til 24 %. Hvor mange procentpoint er det en stigning på?</label><input class="ow-input" id="ow-14g0-a3" type="text" style="width:120px" placeholder="procentpoint"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Hvor mange procent steg markedsandelen fra 18 % til 24 % (relativ ændring)?</label><input class="ow-input" id="ow-14g0-a4" type="text" style="width:120px" placeholder="%"></div></div><button onclick="checkGold14()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek svar</button><div class="ow-result" id="ow-r-14-high" style="margin-top:10px"></div></div></div></div><div id="page-3-3-1" class="page-hidden">
+  <a class="back-link" onclick="showPage('f3')">← F3 Eksponentielle funktioner</a>
+  <div class="emne-header">
+    <span class="tag">3.3.1</span>
+    <h1>Grundbegreber</h1>
+    
+  </div>
+<div class="tabs"><button class="tab-btn active" data-tab="t331-mat">Materiale</button><button class="tab-btn" data-tab="t331-quiz">Tjekspørgsmål</button><button class="tab-btn" data-tab="t331-opg">Opgaver</button></div><div id="t331-mat" class="tab-panel active"><div class="simple-resource-list"><div class="simple-card" onclick="window.open('https://laerebogimatematik1hhx.systime.dk/?id=226','_blank')"><input type="checkbox" class="card-check" id="chk-331-lrebog" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">Lærebog</div><div class="simple-card-title">3.3.1 Grundbegreber</div></div><canvas class="sparkle-canvas"></canvas></div><div class="simple-card" onclick="window.open('https://www.youtube.com/watch?v=DMAXKthV9Bs&amp;list=PL2cHPbw1WGYMWOepoYlgpndyCBr-j0Plj&amp;index=3','_blank')"><input type="checkbox" class="card-check" id="chk-331-youtub" onclick="handleCheck(this,event)"><div class="simple-card-content"><div class="simple-card-label">YouTube</div><div class="simple-card-title">Video: Eksponentielle funktioner</div></div><canvas class="sparkle-canvas"></canvas></div></div></div><div id="t331-quiz" class="tab-panel"><div class="quiz-question" id="qq331-1"><div class="quiz-q-text">1. Hvilken af følgende funktioner er en eksponentiel funktion?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer331(1,'correct',event)">A) \(f(x)=7\cdot 1{,}3^{x}\)</button>
+        <button class="quiz-option" onclick="quizAnswer331(1,'wrong',event)">B) \(f(x)=7\cdot x+1{,}3\)</button>
+        <button class="quiz-option" onclick="quizAnswer331(1,'wrong',event)">C) \(f(x)=1{,}3\cdot x^{7}\)</button>
+        <button class="quiz-option" onclick="quizAnswer331(1,'wrong',event)">D) \(f(x)=7x^{2}+1{,}3\)</button>
+      </div><div class="quiz-feedback" id="qf331-1"></div></div><div class="quiz-question" id="qq331-2"><div class="quiz-q-text">2. Hvad er grundtallet i den eksponentielle funktion \(g(x)=36\cdot 0{,}85^{x}\)?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer331(2,'correct',event)">A) 0,85</button>
+        <button class="quiz-option" onclick="quizAnswer331(2,'wrong',event)">B) 36</button>
+        <button class="quiz-option" onclick="quizAnswer331(2,'wrong',event)">C) 85</button>
+        <button class="quiz-option" onclick="quizAnswer331(2,'wrong',event)">D) 0,15</button>
+      </div><div class="quiz-feedback" id="qf331-2"></div></div><div class="quiz-question" id="qq331-3"><div class="quiz-q-text">3. Hvad er begyndelsesværdien i den eksponentielle funktion \(h(x)=4{,}2\cdot 1{,}07^{x}\)?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer331(3,'correct',event)">A) 4,2</button>
+        <button class="quiz-option" onclick="quizAnswer331(3,'wrong',event)">B) 1,07</button>
+        <button class="quiz-option" onclick="quizAnswer331(3,'wrong',event)">C) 7</button>
+        <button class="quiz-option" onclick="quizAnswer331(3,'wrong',event)">D) 5,27</button>
+      </div><div class="quiz-feedback" id="qf331-3"></div></div><div class="quiz-question" id="qq331-4"><div class="quiz-q-text">4. Hvornår er den eksponentielle funktion \(f(x)=b\cdot a^{x}\) aftagende?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer331(4,'correct',event)">A) Når \(0&lt;a&lt;1\)</button>
+        <button class="quiz-option" onclick="quizAnswer331(4,'wrong',event)">B) Når \(a&gt;1\)</button>
+        <button class="quiz-option" onclick="quizAnswer331(4,'wrong',event)">C) Når \(b&lt;1\)</button>
+        <button class="quiz-option" onclick="quizAnswer331(4,'wrong',event)">D) Når \(a=1\)</button>
+      </div><div class="quiz-feedback" id="qf331-4"></div></div><div class="quiz-question" id="qq331-5"><div class="quiz-q-text">5. Hvilke udsagn gælder for alle eksponentielle funktioner \(f(x)=b\cdot a^{x}\)? (Vælg alle korrekte)</div><div class="quiz-q-note">Vælg alle rigtige svar</div><div class="quiz-options">
+        <button class="quiz-option" type="button" data-letter="A" onclick="quizMulti331(5,'A',this)"><span class="mbox"></span> A) Grafen skærer y-aksen i punktet \((0,\,b)\)</button>
+        <button class="quiz-option" type="button" data-letter="B" onclick="quizMulti331(5,'B',this)"><span class="mbox"></span> B) Funktionen har ingen nulpunkter</button>
+        <button class="quiz-option" type="button" data-letter="C" onclick="quizMulti331(5,'C',this)"><span class="mbox"></span> C) Værdimængden er \(]0;\infty[\)</button>
+        <button class="quiz-option" type="button" data-letter="D" onclick="quizMulti331(5,'D',this)"><span class="mbox"></span> D) Grafen skærer x-aksen i punktet \((b,\,0)\)</button>
+      </div><button class="quiz-check-btn" type="button" style="margin-top:10px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-size:0.83rem;font-weight:600;cursor:pointer;font-family:inherit" onclick="checkMulti331(5,['A','B','C'])">Tjek svar</button><div class="quiz-feedback" id="qf331-5"></div></div><div class="quiz-question" id="qq331-6"><div class="quiz-q-text">6. Hvad er den omtrentlige værdi af Eulers tal \(e\)?</div><div class="quiz-options">
+        <button class="quiz-option" onclick="quizAnswer331(6,'correct',event)">A) 2,718</button>
+        <button class="quiz-option" onclick="quizAnswer331(6,'wrong',event)">B) 3,142</button>
+        <button class="quiz-option" onclick="quizAnswer331(6,'wrong',event)">C) 1,618</button>
+        <button class="quiz-option" onclick="quizAnswer331(6,'wrong',event)">D) 2,000</button>
+      </div><div class="quiz-feedback" id="qf331-6"></div></div><div class="quiz-score" id="quiz-score-331" style="display:none"><h3 id="quiz-score-331-title"></h3><p id="quiz-score-331-text"></p><button class="quiz-retry" onclick="quizRetry331()">Prøv igen</button></div></div><div id="t331-opg" class="tab-panel"><div class="energy-wrap" data-scaffold-opgaver="1"><div class="energy-header"><span class="energy-question">Hvor meget energi har du i dag?</span><span class="energy-state" id="energy-state-331" style="font-size:0.92rem;font-weight:700;color:#dc2626">Træt – 1 sæt</span></div><div class="energy-slider-track"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(310deg)">🪫</span><input type="range" class="energy-slider" id="energy-slider-331" min="0" max="100" value="1" oninput="updateEnergy331(this.value)"><span style="font-size:1.5rem;flex-shrink:0;filter:sepia(1) saturate(5) hue-rotate(80deg)">🔋</span></div></div><div class="ready-btn-wrap" id="ready-btn-wrap-331" style="display:block"><button class="ready-btn" onclick="startOpgaver331()"><div class="ready-btn-text">Har du blyant og papir klar?<div class="ready-btn-sub">Løs opgaverne på papir og tjek svarene her</div></div><span class="ready-btn-cta">Ja, klar!</span></button></div><button class="restart-btn" id="restart-btn-331" onclick="restartOpgaver331()" style="display:none">↩ Vælg nyt niveau</button><div class="opgave-widget opgave-hidden" id="opg331-low"><div class="ow-item" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--border)"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Grundtal og begyndelsesværdi</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Funktionerne \(p(x)=14\cdot 1{,}08^{x}\) og \(q(x)=0{,}45\cdot 0{,}92^{x}\) er eksponentielle funktioner. Angiv grundtal og begyndelsesværdi for hver af dem.</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Grundtal for p</label><input class="ow-input" id="ow-331b0-a0" type="text" style="width:120px" placeholder="a"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Begyndelsesværdi for p</label><input class="ow-input" id="ow-331b0-a1" type="text" style="width:120px" placeholder="b"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Grundtal for q</label><input class="ow-input" id="ow-331b0-a2" type="text" style="width:120px" placeholder="a"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Begyndelsesværdi for q</label><input class="ow-input" id="ow-331b0-a3" type="text" style="width:120px" placeholder="b"></div></div><div class="ow-item" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--border)"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Voksende eller aftagende?</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Afgør for hver eksponentiel funktion, om den er voksende eller aftagende. Skriv enten "voksende" eller "aftagende".</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">\(u(x)=6\cdot 0{,}83^{x}\)</label><input class="ow-input" id="ow-331b1-a0" type="text" style="width:200px" placeholder="voksende/aftagende"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">\(v(x)=0{,}2\cdot 1{,}45^{x}\)</label><input class="ow-input" id="ow-331b1-a1" type="text" style="width:200px" placeholder="voksende/aftagende"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">\(w(x)=90\cdot 0{,}5^{x}\)</label><input class="ow-input" id="ow-331b1-a2" type="text" style="width:200px" placeholder="voksende/aftagende"></div></div><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Skæring med y-aksen</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Grafen for den eksponentielle funktion \(g(x)=12\cdot 0{,}6^{x}\) tegnes i et koordinatsystem.</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Grafen skærer y-aksen i punktet \((0,\,?)\). Hvad er y-værdien?</label><input class="ow-input" id="ow-331b2-a0" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Hvor mange nulpunkter har g?</label><input class="ow-input" id="ow-331b2-a1" type="text" style="width:120px" placeholder="antal"></div></div><button onclick="checkBronze331()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button><div class="ow-result" id="ow-r-331-low" style="margin-top:10px"></div></div><div class="opgave-widget opgave-hidden" id="opg331-mid"><div class="ow-item" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--border)"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Funktionsværdier</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Funktionerne \(f(x)=4\cdot 1{,}5^{x}\) og \(g(x)=80\cdot 0{,}5^{x}\) er eksponentielle. Beregn funktionsværdierne uden at afrunde.</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">f(0)</label><input class="ow-input" id="ow-331s0-a0" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">f(2)</label><input class="ow-input" id="ow-331s0-a1" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">f(3)</label><input class="ow-input" id="ow-331s0-a2" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">g(1)</label><input class="ow-input" id="ow-331s0-a3" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">g(3)</label><input class="ow-input" id="ow-331s0-a4" type="text" style="width:120px"></div></div><div class="ow-item" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--border)"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Find forskriften</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">En eksponentiel funktion \(f(x)=b\cdot a^{x}\) opfylder \(f(0)=6\) og \(f(1)=7{,}5\). Brug sammenhængen \(a=\frac{f(1)}{b}\).</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Begyndelsesværdien b</label><input class="ow-input" id="ow-331s1-a0" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Grundtallet a</label><input class="ow-input" id="ow-331s1-a1" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">f(4) (to decimaler)</label><input class="ow-input" id="ow-331s1-a2" type="text" style="width:120px" placeholder="to decimaler"></div></div><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Udfyld tabellen</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Udfyld tabellen for den eksponentielle funktion \(f(x)=10\cdot 0{,}5^{x}\).</div><div style="overflow-x:auto;margin-bottom:12px"><table style="border-collapse:collapse;font-size:0.85rem"><tbody><tr><td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">x</td><td style="border:1.5px solid var(--border);padding:6px 14px;font-weight:600;background:var(--bg)">f(x)</td></tr><tr><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">0</td><td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-331s2-h0" type="text" style="width:60px;text-align:center"></td></tr><tr><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">1</td><td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-331s2-h1" type="text" style="width:60px;text-align:center"></td></tr><tr><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">2</td><td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-331s2-h2" type="text" style="width:60px;text-align:center"></td></tr><tr><td style="border:1.5px solid var(--border);padding:6px 10px;text-align:center;background:var(--bg)">3</td><td style="border:1.5px solid var(--border);padding:3px"><input class="ow-input" id="ow-331s2-h3" type="text" style="width:60px;text-align:center"></td></tr></tbody></table></div></div><button onclick="checkSilver331()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button><div class="ow-result" id="ow-r-331-mid" style="margin-top:10px"></div></div><div class="opgave-widget opgave-hidden" id="opg331-high"><div class="ow-item" style="margin-bottom:18px;padding-bottom:16px;border-bottom:1px dashed var(--border)"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Den naturlige eksponentialfunktion</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Brug Eulers tal \(e\) og den naturlige eksponentialfunktion \(\exp(x)=e^{x}\). Afrund til tre decimaler.</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">exp(0)</label><input class="ow-input" id="ow-331g0-a0" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">exp(2)</label><input class="ow-input" id="ow-331g0-a1" type="text" style="width:120px" placeholder="tre decimaler"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">exp(3)</label><input class="ow-input" id="ow-331g0-a2" type="text" style="width:120px" placeholder="tre decimaler"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">exp(-1)</label><input class="ow-input" id="ow-331g0-a3" type="text" style="width:120px" placeholder="tre decimaler"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Er exp voksende eller aftagende?</label><input class="ow-input" id="ow-331g0-a4" type="text" style="width:200px" placeholder="voksende/aftagende"></div></div><div class="ow-item" style="margin-bottom:12px"><div class="ow-title" style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><div style="width:32px;height:32px;background:#1e3a5f;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><span style="font-size:0.95rem;font-weight:700">Bakteriekultur</span></div><div style="font-size:0.83rem;color:#6b7280;margin-bottom:10px">Antallet af bakterier i en kultur \(x\) timer efter start er givet ved den eksponentielle funktion \(N(x)=250\cdot 1{,}06^{x}\).</div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Antal bakterier ved start</label><input class="ow-input" id="ow-331g1-a0" type="text" style="width:120px"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Antal bakterier efter 10 timer (en decimal)</label><input class="ow-input" id="ow-331g1-a1" type="text" style="width:120px" placeholder="en decimal"></div><div style="margin-bottom:8px"><label style="font-size:0.83rem;display:block;margin-bottom:3px">Er antallet voksende eller aftagende?</label><input class="ow-input" id="ow-331g1-a2" type="text" style="width:200px" placeholder="voksende/aftagende"></div></div><button onclick="checkGold331()" class="ow-btn" style="padding:8px 20px;font-size:0.88rem">Tjek alle svar</button><div class="ow-result" id="ow-r-331-high" style="margin-top:10px"></div></div></div></div>
 
 <div id="page-fremgang" class="page-hidden">
 <a class="back-link" onclick="showPage('home')">← Alle forløb</a>
@@ -4525,7 +4562,7 @@ Hint: Der kan være brug for at skitsere en sumkurve.</div><div style="margin-bo
 <div class="fremgang-forloeb">
 <div class="fremgang-emne-list" id="fp-emne-list"></div>
 </div>
-</div>
+</div><div id="page-f3" class="page-hidden"><a class="back-link" onclick="showPage('home')">← Alle forløb</a><section class="intro"><h1>F3 – Eksponentielle funktioner</h1><p>Vælg et emne for at se materiale og opgaver.</p></section><p class="section-label">Kapitel 3.3 – Eksponentielle funktioner</p><div class="emne-grid"><div class="emne-card" onclick="showPage('3-3-1')"><span class="emne-nr">3.3.1</span><span class="emne-titel">Grundbegreber</span><span class="emne-desc">Grundtal, begyndelsesværdi og grafer</span></div></div></div>
 </main>
 <footer class="site-footer"><p>HHX Matematik B &nbsp;·&nbsp; B-niveau pensum</p></footer>
 <script>
@@ -9976,13 +10013,14 @@ var emneData = {
   '2.3': { navn: 'Udtræk fra databaser', opgaver: [], materiale: ['chk-23-lrebog','chk-23-youtub'] },
   '1.4': { navn: 'Procentregning', opgaver: [], materiale: ['chk-14-lrebog'] },
   '1.5': { navn: 'Indekstal', opgaver: [], materiale: ['chk-15-lrebog','chk-15-youtub','chk-15-youtub2'] },
+  '3.3.1': { navn: 'Grundbegreber', opgaver: [], materiale: ['chk-331-lrebog','chk-331-youtub'] },
 };
 
 // ── FREMGANG SIDE ─────────────────────────────────────────────────────────
 // Emner med et Bevis-afsnit der kan optjene et hjerte på F1-oversigten. Kun disse emner kan nogensinde vise et hjerte.
 var emnerMedBevis = ['3.2.2'];
-var emneRaekkefoelge = ['1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7','3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening','2.1.1','2.1.2','2.1.3','2.1.4','2.2.1','2.2.2','2.2.3','2.2.4','2.3','1.4','1.5'];
-var emneNavneAlle = {'1.3.1':'Simple ligninger','3.1.1':'Lodret-kriteriet og definition','3.1.2':'Funktion givet ved graf','3.1.3':'Regneforskrift og graf','3.1.4':'Grafiske løsninger','3.1.5':'Monotoniforhold','3.1.6':'Egenskaber ved grafer','3.1.7':'Omvendt funktion','3.2.1':'Grundbegreber','3.2.2':'Forskrift ud fra to punkter','3.2.3':'Vækstegenskaber','3.2.4':'Stykkevis lineære funktioner','3.2.5':'Skæring mellem lineære grafer','3.5.1':'Mindste kvadraters metode','3.5.2':'Korrelationskoefficienten','screening':'Matematikscreening 2025','2.1.1':'Hyppigheder og frekvenser','2.1.2':'Grafiske repræsentationer','2.1.3':'Positionsmål','2.1.4':'Spredningsmål','2.2.1':'Hyppigheder og frekvenser','2.2.2':'Grafiske repræsentationer','2.2.3':'Positionsmål','2.2.4':'Spredningsmål','2.3':'Udtræk fra databaser','1.4':'Procentregning','1.5':'Indekstal'};
+var emneRaekkefoelge = ['1.3.1','3.1.1','3.1.2','3.1.3','3.1.4','3.1.5','3.1.6','3.1.7','3.2.1','3.2.2','3.2.3','3.2.4','3.2.5','3.5.1','3.5.2','screening','2.1.1','2.1.2','2.1.3','2.1.4','2.2.1','2.2.2','2.2.3','2.2.4','2.3','1.4','1.5','3.3.1'];
+var emneNavneAlle = {'1.3.1':'Simple ligninger','3.1.1':'Lodret-kriteriet og definition','3.1.2':'Funktion givet ved graf','3.1.3':'Regneforskrift og graf','3.1.4':'Grafiske løsninger','3.1.5':'Monotoniforhold','3.1.6':'Egenskaber ved grafer','3.1.7':'Omvendt funktion','3.2.1':'Grundbegreber','3.2.2':'Forskrift ud fra to punkter','3.2.3':'Vækstegenskaber','3.2.4':'Stykkevis lineære funktioner','3.2.5':'Skæring mellem lineære grafer','3.5.1':'Mindste kvadraters metode','3.5.2':'Korrelationskoefficienten','screening':'Matematikscreening 2025','2.1.1':'Hyppigheder og frekvenser','2.1.2':'Grafiske repræsentationer','2.1.3':'Positionsmål','2.1.4':'Spredningsmål','2.2.1':'Hyppigheder og frekvenser','2.2.2':'Grafiske repræsentationer','2.2.3':'Positionsmål','2.2.4':'Spredningsmål','2.3':'Udtræk fra databaser','1.4':'Procentregning','1.5':'Indekstal','3.3.1':'Grundbegreber'};
 
 function updateFremgang() {
   var data = loadAllProgress();
@@ -9996,6 +10034,9 @@ function updateFremgang() {
     ] },
     { titel: 'F2 – Deskriptiv statistik', emner: [
       '2.1.1','2.1.2','2.1.3','2.1.4','2.2.1','2.2.2','2.2.3','2.2.4','2.3','1.4','1.5'
+    ] },
+    { titel: 'F3 – Eksponentielle funktioner', emner: [
+      '3.3.1'
     ] }
   ];
   var emneNavne = {
@@ -10025,7 +10066,8 @@ function updateFremgang() {
     '2.2.4':'Spredningsmål',
     '2.3':'Udtræk fra databaser',
     '1.4':'Procentregning',
-    '1.5':'Indekstal'
+    '1.5':'Indekstal',
+    '3.3.1':'Grundbegreber'
   };
 
   var harFremgang = false;
@@ -10276,6 +10318,223 @@ function owCheck(id, answer) {
 }
 
 // ===== SCAFFOLD: nye emner tilføjet via scaffolding-værktøjet =====
+function checkGold331() {
+  var i0ok0 = checkSingleNumericField('331g0-a0', 1, 0.001);
+  var i0ok1 = checkSingleNumericField('331g0-a1', 7.389, 0.001);
+  var i0ok2 = checkSingleNumericField('331g0-a2', 20.086, 0.001);
+  var i0ok3 = checkSingleNumericField('331g0-a3', 0.368, 0.001);
+  var i0ok4 = checkTekstField('331g0-a4', "voksende");
+  var itemOk0 = (i0ok0 && i0ok1 && i0ok2 && i0ok3 && i0ok4);
+  var i1ok0 = checkSingleNumericField('331g1-a0', 250, 0.01);
+  var i1ok1 = checkSingleNumericField('331g1-a1', 447.7, 0.1);
+  var i1ok2 = checkTekstField('331g1-a2', "voksende");
+  var itemOk1 = (i1ok0 && i1ok1 && i1ok2);
+  var r = document.getElementById('ow-r-331-high');
+  if (itemOk0 && itemOk1) {
+    opg331GoldDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg331-high'));
+    checkOpg331Medal();
+  } else if (r) {
+    var unfinished = [];
+    if (!itemOk0) unfinished.push("Den naturlige eksponentialfunktion");
+    if (!itemOk1) unfinished.push("Bakteriekultur");
+    r.className='ow-result err'; r.textContent='Mangler stadig: ' + unfinished.join(', ') + '.';
+  }
+}
+
+function checkSilver331() {
+  var i0ok0 = checkSingleNumericField('331s0-a0', 4, 0.001);
+  var i0ok1 = checkSingleNumericField('331s0-a1', 9, 0.001);
+  var i0ok2 = checkSingleNumericField('331s0-a2', 13.5, 0.001);
+  var i0ok3 = checkSingleNumericField('331s0-a3', 40, 0.001);
+  var i0ok4 = checkSingleNumericField('331s0-a4', 10, 0.001);
+  var itemOk0 = (i0ok0 && i0ok1 && i0ok2 && i0ok3 && i0ok4);
+  var i1ok0 = checkSingleNumericField('331s1-a0', 6, 0.001);
+  var i1ok1 = checkSingleNumericField('331s1-a1', 1.25, 0.001);
+  var i1ok2 = checkSingleNumericField('331s1-a2', 14.65, 0.01);
+  var itemOk1 = (i1ok0 && i1ok1 && i1ok2);
+  var i2ok0 = checkNumericTableGroup(['331s2-h0','331s2-h1','331s2-h2','331s2-h3'], [10,5,2.5,1.25], 0.05, null, false);
+  var itemOk2 = (i2ok0);
+  var r = document.getElementById('ow-r-331-mid');
+  if (itemOk0 && itemOk1 && itemOk2) {
+    opg331SilverDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg331-mid'));
+    checkOpg331Medal();
+  } else if (r) {
+    var unfinished = [];
+    if (!itemOk0) unfinished.push("Funktionsværdier");
+    if (!itemOk1) unfinished.push("Find forskriften");
+    if (!itemOk2) unfinished.push("Udfyld tabellen");
+    r.className='ow-result err'; r.textContent='Mangler stadig: ' + unfinished.join(', ') + '.';
+  }
+}
+
+function checkBronze331() {
+  var i0ok0 = checkSingleNumericField('331b0-a0', 1.08, 0.001);
+  var i0ok1 = checkSingleNumericField('331b0-a1', 14, 0.001);
+  var i0ok2 = checkSingleNumericField('331b0-a2', 0.92, 0.001);
+  var i0ok3 = checkSingleNumericField('331b0-a3', 0.45, 0.001);
+  var itemOk0 = (i0ok0 && i0ok1 && i0ok2 && i0ok3);
+  var i1ok0 = checkTekstField('331b1-a0', "aftagende");
+  var i1ok1 = checkTekstField('331b1-a1', "voksende");
+  var i1ok2 = checkTekstField('331b1-a2', "aftagende");
+  var itemOk1 = (i1ok0 && i1ok1 && i1ok2);
+  var i2ok0 = checkSingleNumericField('331b2-a0', 12, 0.001);
+  var i2ok1 = checkSingleNumericField('331b2-a1', 0, 0.05);
+  var itemOk2 = (i2ok0 && i2ok1);
+  var r = document.getElementById('ow-r-331-low');
+  if (itemOk0 && itemOk1 && itemOk2) {
+    opg331BronzeDone = true;
+    if (r) { r.className='ow-result ok'; r.textContent='Rigtigt!'; }
+    runOpgaveSparkle(document.getElementById('opg331-low'));
+    checkOpg331Medal();
+  } else if (r) {
+    var unfinished = [];
+    if (!itemOk0) unfinished.push("Grundtal og begyndelsesværdi");
+    if (!itemOk1) unfinished.push("Voksende eller aftagende?");
+    if (!itemOk2) unfinished.push("Skæring med y-aksen");
+    r.className='ow-result err'; r.textContent='Mangler stadig: ' + unfinished.join(', ') + '.';
+  }
+}
+
+function checkOpg331Medal() {
+  if (opg331MedalShown) return;
+  var ok = false;
+  if (opg331Level === 1) ok = opg331BronzeDone;
+  else if (opg331Level === 2) ok = opg331BronzeDone && opg331SilverDone;
+  else if (opg331Level === 3) ok = opg331BronzeDone && opg331SilverDone && opg331GoldDone;
+  if (ok) {
+    opg331MedalShown = true;
+    var prev = parseInt(loadProgress('medal_331',0));
+    if (opg331Level > prev) saveProgress('medal_331', opg331Level);
+    setTimeout(function(){ showMedal(opg331Level); }, 400);
+  }
+}
+
+function restartOpgaver331() {
+  opg331Started=false; opg331Level=1; opg331MedalShown=false;
+  opg331BronzeDone=false; opg331SilverDone=false; opg331GoldDone=false;
+  var ew=document.querySelector('#t331-opg .energy-wrap'); if(ew)ew.classList.remove('slider-locked');
+  document.getElementById('restart-btn-331').style.display='none';
+  document.getElementById('ready-btn-wrap-331').style.display='block';
+  ['opg331-low','opg331-mid','opg331-high'].forEach(function(id){
+    var w=document.getElementById(id); if(!w)return;
+    w.classList.add('opgave-hidden'); w.style.display=''; w.style.background=''; w.style.borderColor='';
+    w.querySelectorAll('.ow-input').forEach(function(inp){inp.value='';inp.className='ow-input';});
+    w.querySelectorAll('.ow-result').forEach(function(r){r.className='ow-result';r.textContent='';});
+  });
+  var slider=document.getElementById('energy-slider-331'); if(slider)slider.value=1;
+  var state=document.getElementById('energy-state-331'); if(state){state.textContent='Træt – 1 sæt';state.style.color='#dc2626';}
+}
+
+function startOpgaver331() {
+  opg331Started=true; opg331MedalShown=false;
+  opg331BronzeDone=false; opg331SilverDone=false; opg331GoldDone=false;
+  document.getElementById('ready-btn-wrap-331').style.display='none';
+  document.getElementById('restart-btn-331').style.display='block';
+  var ew=document.querySelector('#t331-opg .energy-wrap'); if(ew)ew.classList.add('slider-locked');
+  if(opg331Level>=1 && document.getElementById('opg331-low')){
+    showWidget(document.getElementById('opg331-low'));
+  }
+  if(opg331Level>=2 && document.getElementById('opg331-mid')){
+    showWidget(document.getElementById('opg331-mid'));
+  }
+  if(opg331Level>=3 && document.getElementById('opg331-high')){
+    showWidget(document.getElementById('opg331-high'));
+  }
+}
+
+function updateEnergy331(val) {
+  if (opg331Started) return;
+  val = parseInt(val);
+  var state = document.getElementById('energy-state-331');
+  var lvl;
+  if (val < 40) lvl = 1; else if (val < 75) lvl = 2; else lvl = 3;
+  opg331Level = Math.min(lvl, 3);
+  if (opg331Level === 1) { state.textContent='Træt – 1 sæt'; state.style.color='#dc2626'; }
+  else if (opg331Level === 2) { state.textContent='Klar – 2 sæt'; state.style.color='#ca8a04'; }
+  else { state.textContent='On fire! – 3 sæt'; state.style.color='#16a34a'; }
+  ['opg331-low','opg331-mid','opg331-high'].forEach(function(id){
+    var w=document.getElementById(id); if(w){w.classList.add('opgave-hidden');w.style.display='';}
+  });
+  document.getElementById('ready-btn-wrap-331').style.display='block';
+}
+
+var opg331Level = 1, opg331Started = false, opg331MedalShown = false, opg331BronzeDone = false, opg331SilverDone = false, opg331GoldDone = false;
+
+function quizRetry331() {
+  quiz331Answered={}; quiz331Correct=0; quiz331MultiSel={};
+  [1,2,3,4,5,6].forEach(function(n){
+    var qq=document.getElementById('qq331-'+n); if(!qq)return;
+    qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=false;b.style.pointerEvents='';b.style.background='';b.style.borderColor='';b.classList.remove('correct','wrong');var box=b.querySelector('.mbox');if(box){box.style.background='';box.style.borderColor='';box.style.color='';box.textContent='';}});
+    var fb=document.getElementById('qf331-'+n); if(fb){fb.className='quiz-feedback';fb.textContent='';}
+  });
+  document.getElementById('quiz-score-331').style.display='none';
+}
+
+function checkMulti331(qnum, correctLetters) {
+  if (quiz331Answered[qnum]) return;
+  quiz331Answered[qnum] = true;
+  var qq = document.getElementById('qq331-' + qnum);
+  var fb = document.getElementById('qf331-' + qnum);
+  var allOk = true;
+  qq.querySelectorAll('.quiz-option').forEach(function(b){
+    b.style.pointerEvents = 'none';
+    var letter = b.getAttribute('data-letter');
+    var key = qnum + '_' + letter;
+    var wasSel = !!quiz331MultiSel[key];
+    var isCorrect = correctLetters.indexOf(letter) !== -1;
+    if (wasSel && isCorrect) b.classList.add('correct');
+    else if (wasSel && !isCorrect) { b.classList.add('wrong'); allOk = false; }
+    else if (!wasSel && isCorrect) allOk = false;
+  });
+  if (allOk) { fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!'; quiz331Correct++; runQuizSparkle(qq); }
+  else { fb.className='quiz-feedback show err'; fb.textContent='Ikke helt — se de markerede svar.'; }
+  quiz331CheckDone();
+}
+
+function quizMulti331(qnum, letter, btn) {
+  if (quiz331Answered[qnum]) return;
+  var key = qnum + '_' + letter;
+  var box = btn.querySelector('.mbox');
+  if (quiz331MultiSel[key]) {
+    delete quiz331MultiSel[key];
+    btn.style.background = ''; btn.style.borderColor = '';
+    if (box) { box.style.background=''; box.style.borderColor=''; box.style.color=''; box.textContent=''; }
+  } else {
+    quiz331MultiSel[key] = true;
+    btn.style.background = '#eff6ff'; btn.style.borderColor = '#2563eb';
+    if (box) { box.style.background='#2563eb'; box.style.borderColor='#2563eb'; box.style.color='white'; box.textContent='\u2713'; }
+  }
+}
+
+function quiz331CheckDone() {
+  if (Object.keys(quiz331Answered).length < quiz331Total) return;
+  var box=document.getElementById('quiz-score-331'); if(!box)return; box.style.display='block';
+  document.getElementById('quiz-score-331-title').textContent = quiz331Correct===quiz331Total ? 'Perfekt – '+quiz331Correct+'/'+quiz331Total+'!' : quiz331Correct+'/'+quiz331Total+' rigtige';
+  document.getElementById('quiz-score-331-text').textContent = quiz331Correct===quiz331Total ? 'Flot – du har styr på emnet!' : 'Se de markerede svar og prøv igen.';
+}
+
+function quizAnswer331(qnum, result, evt) {
+  if (quiz331Answered[qnum]) return;
+  quiz331Answered[qnum] = true;
+  var btn = evt.target;
+  var qq = document.getElementById('qq331-' + qnum);
+  var fb = document.getElementById('qf331-' + qnum);
+  qq.querySelectorAll('.quiz-option').forEach(function(b){b.disabled=true;});
+  if (result === 'correct') {
+    btn.classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent='Korrekt!';
+    quiz331Correct++; runQuizSparkle(btn);
+  } else {
+    btn.classList.add('wrong'); fb.className='quiz-feedback show err'; fb.textContent='Ikke rigtigt — prøv igen.';
+  }
+  quiz331CheckDone();
+}
+
+var quiz331Answered = {}, quiz331Correct = 0, quiz331Total = 6, quiz331MultiSel = {};
+
 function checkGold14() {
   var i0ok0 = checkSingleNumericField('14g0-a0', 2.76, 0.01);
   var i0ok1 = checkSingleNumericField('14g0-a1', 14.91, 0.1);
