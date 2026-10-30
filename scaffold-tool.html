@@ -738,6 +738,16 @@ var PARTICLE_JS =
 '}\n' +
 'document.addEventListener(\'DOMContentLoaded\', initThemeParticles);';
 
+// Materiale-lås: slås til/fra via attributten data-materiale-laas på <body> (on/off). Mangler den, er låsen slået fra.
+function getMaterialeLaas(doc){
+  return !!(doc && doc.body && doc.body.getAttribute('data-materiale-laas') === 'on');
+}
+function setMaterialeLaas(doc, on){
+  if (!doc || !doc.body) return false;
+  doc.body.setAttribute('data-materiale-laas', on ? 'on' : 'off');
+  return on;
+}
+
 function currentThemeId(jsText){
   var m = jsText.match(/var SITE_THEME\s*=\s*["']([^"']*)["']/);
   return m ? m[1] : 'standard';
@@ -2639,7 +2649,7 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
          renderCatalogItemBodyHtml: renderCatalogItemBodyHtml,
          buildCatalogCheckFn: buildCatalogCheckFn, buildOpgaveShellJS: buildOpgaveShellJS, ensureTegnModule: ensureTegnModule,
          ensureAnswerTypeHelpers: ensureAnswerTypeHelpers, ensureCloseMedalFix: ensureCloseMedalFix,
-         applyTheme: applyTheme, currentThemeId: currentThemeId, SITE_THEMES: SITE_THEMES,
+         applyTheme: applyTheme, currentThemeId: currentThemeId, getMaterialeLaas: getMaterialeLaas, setMaterialeLaas: setMaterialeLaas, SITE_THEMES: SITE_THEMES,
          currentCustomThemes: currentCustomThemes, allThemes: allThemes,
          deleteQuizQuestionSafe: deleteQuizQuestionSafe, parseOpgaveSlotsFromDom: parseOpgaveSlotsFromDom,
          tegnBezierSegments: tegnBezierSegments, tegnSampleBezier: tegnSampleBezier };
@@ -2878,7 +2888,14 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     var current = Scaffold.currentThemeId(jsText);
     var themes = Scaffold.allThemes(jsText);
     var customIds = Object.keys(Scaffold.currentCustomThemes(jsText));
-    var html = '<h2>Tema</h2>';
+    var laasOn = Scaffold.getMaterialeLaas(doc);
+    var html = '<h2>Funktioner</h2>' +
+      '<div class="card" style="max-width:640px"><label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer">' +
+      '<input type="checkbox" id="laasToggle" ' + (laasOn ? 'checked ' : '') + 'onchange="ScaffoldUI.setMaterialeLaas(this.checked)" style="margin-top:4px">' +
+      '<span><b>Lås Tjekspørgsmål og Opgaver, til alt materiale er åbnet</b><br>' +
+      '<small>Når den er til, er fanerne Tjekspørgsmål/Opgaver nedtonede, indtil eleven har åbnet alle materialekort i emnet (konfetti, når det lykkes). ' +
+      'Materialekort bliver altid grønne, når linket åbnes — uanset denne indstilling. Elever, der allerede har fremgang, bliver ikke låst ude.</small></span></label></div>' +
+      '<h2 style="margin-top:28px">Tema</h2>';
     html += '<p><small>Et tema ændrer kun udseendet — baggrund, farver, en valgfri partikel-effekt (fx sne) og medaljeikoner — og rører aldrig indhold. Det kan altid skiftes tilbage til Standard uden at miste noget.</small></p>';
     html += '<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:14px">';
     Object.keys(themes).forEach(function(id){
@@ -2907,6 +2924,11 @@ return { parseSite: parseSite, extractEmneDataBlock: extractEmneDataBlock,
     $content.innerHTML = html;
   }
   ScaffoldUI.renderTemaTab = renderTemaTab;
+  ScaffoldUI.setMaterialeLaas = function(on){
+    Scaffold.setMaterialeLaas(doc, !!on);
+    log('edit', 'Materiale-lås ' + (on ? 'slået til' : 'slået fra'));
+    renderTemaTab();
+  };
   ScaffoldUI.applyTheme = function(themeId){
     jsText = Scaffold.applyTheme(doc, jsText, themeId);
     var themes = Scaffold.allThemes(jsText);

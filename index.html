@@ -594,7 +594,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 <script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script></head>
-<body>
+<body data-materiale-laas="on">
 <header class="site-header">
 <div class="header-inner">
 <span class="logo" onclick="showPage('home')" style="cursor:pointer">HHX Matematik B</span>
@@ -12692,6 +12692,214 @@ function quizRetry213() {
 </div>
 </div>
 
+<script id="materiale-laas">
+/* MATERIALE-LAAS: "åbn materialet før du går videre".
+   - Et materialekort bliver grønt, når eleven ÅBNER linket (ikke ved flueben).
+   - Hvis <body data-materiale-laas="on">: faner uden for "Materiale" er låst, til alle kort i emnet er åbnet.
+   - Slå fra: ændr til data-materiale-laas="off" (eller brug kontakten i scaffold-tool'et, fanen Tema).
+   - Bagudkompatibel: bruger samme localStorage-nøgler som før (mat_<id>), plus laas_<emne>. */
+(function () {
+  var STORAGE_KEY = 'hhxb_fremgang';
+  var CSS =
+    '.simple-card .card-check{pointer-events:none}' +
+    '.simple-card{cursor:pointer}' +
+    '.simple-card:focus-visible{outline:2px solid var(--accent,#2563eb);outline-offset:2px}' +
+    '.tab-btn.tab-locked{opacity:.4;cursor:not-allowed;background:var(--bg,#f0f0ed);border-style:dashed}' +
+    '.tab-btn.tab-locked:hover{border-color:var(--border);color:var(--text-muted)}' +
+    '.tab-btn.tab-locked::after{content:" \\1F512";font-size:.8em}' +
+    '.tab-btn.tab-unlocking{animation:laasPop .6s ease}' +
+    '@keyframes laasPop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}' +
+    '.laas-info{margin:0 0 12px;padding:9px 14px;border-radius:10px;background:#fffbeb;border:1.5px solid #fcd34d;color:#92400e;font-size:.85rem;font-weight:600}' +
+    '.laas-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 18px;border-radius:10px;font-size:.88rem;z-index:10000;box-shadow:0 4px 16px rgba(0,0,0,.25)}' +
+    '.laas-confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:10001}';
+
+  function laasOn() {
+    return !!document.body && document.body.getAttribute('data-materiale-laas') === 'on';
+  }
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch (e) { return {}; }
+  }
+  function save(key, val) {
+    try { var d = load(); d[key] = val; localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch (e) {}
+  }
+
+  // Finder alle emne-sider med Materiale-fane: { page, prefix:'t131', panel, cards:[card], tabs:[btn] }
+  function groups() {
+    var out = [];
+    document.querySelectorAll('[id^="page-"]').forEach(function (page) {
+      var matBtn = page.querySelector('.tab-btn[data-tab$="-mat"]');
+      if (!matBtn) return;
+      var panel = document.getElementById(matBtn.getAttribute('data-tab'));
+      if (!panel) return;
+      var prefix = matBtn.getAttribute('data-tab').replace(/-mat$/, '');
+      var tabs = [];
+      page.querySelectorAll('.tab-btn').forEach(function (b) { if (b !== matBtn) tabs.push(b); });
+      out.push({ page: page, prefix: prefix, panel: panel, matBtn: matBtn,
+        cards: Array.prototype.slice.call(panel.querySelectorAll('.simple-card')), tabs: tabs });
+    });
+    return out;
+  }
+  function cbOf(card) { return card.querySelector('.card-check'); }
+
+  function openedCount(g, data) {
+    var n = 0;
+    g.cards.forEach(function (c) { var cb = cbOf(c); if (cb && data['mat_' + cb.id]) n++; });
+    return n;
+  }
+  function medalOf(g, data) {
+    // medal_<nr uden punktummer>; siden hedder page-1-3-1 eller page-2-3 el.lign.
+    var m = g.page.id.replace(/^page-/, '').split('-').join('');
+    return parseInt(data['medal_' + m] || 0) || 0;
+  }
+  // Åbnet: alle kort set, ELLER tidligere låst op (flag), ELLER ingen kort.
+  function isOpen(g, data) {
+    if (!g.cards.length) return true;
+    if (data['laas_' + g.prefix]) return true;
+    return openedCount(g, data) === g.cards.length;
+  }
+
+  function toast(msg) {
+    var old = document.querySelector('.laas-toast');
+    if (old) old.remove();
+    var t = document.createElement('div');
+    t.className = 'laas-toast'; t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function () { if (t.parentNode) t.remove(); }, 2600);
+  }
+
+  function paintCards(g, data) {
+    g.cards.forEach(function (c) {
+      var cb = cbOf(c);
+      if (!cb) return;
+      var seen = !!data['mat_' + cb.id];
+      cb.checked = seen;
+      cb.tabIndex = -1;
+      cb.setAttribute('aria-hidden', 'true');
+      c.classList.toggle('done', seen);
+      if (!c.hasAttribute('tabindex')) { c.tabIndex = 0; c.setAttribute('role', 'link'); }
+    });
+  }
+
+  function apply(animateGroup) {
+    var data = load();
+    groups().forEach(function (g) {
+      paintCards(g, data);
+      var open = isOpen(g, data);
+      var locked = laasOn() && !open;
+      g.tabs.forEach(function (b) {
+        var was = b.classList.contains('tab-locked');
+        b.classList.toggle('tab-locked', locked);
+        if (locked) { b.setAttribute('aria-disabled', 'true'); b.title = 'Åbn alt materialet først'; }
+        else { b.removeAttribute('aria-disabled'); b.removeAttribute('title'); }
+        if (was && !locked && animateGroup === g) {
+          b.classList.add('tab-unlocking');
+          setTimeout(function () { b.classList.remove('tab-unlocking'); }, 700);
+        }
+      });
+      var info = g.panel.querySelector('.laas-info');
+      if (locked) {
+        if (!info) { info = document.createElement('div'); info.className = 'laas-info'; g.panel.insertBefore(info, g.panel.firstChild); }
+        info.textContent = 'Åbn alt materialet (' + openedCount(g, data) + '/' + g.cards.length + ') for at låse Tjekspørgsmål og Opgaver op.';
+      } else if (info) { info.remove(); }
+    });
+  }
+
+  function confetti() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var cv = document.createElement('canvas');
+    cv.className = 'laas-confetti';
+    cv.width = window.innerWidth; cv.height = window.innerHeight;
+    document.body.appendChild(cv);
+    var ctx = cv.getContext && cv.getContext('2d');
+    if (!ctx) { cv.remove(); return; }
+    var colors = ['#16a34a', '#fbbf24', '#2563eb', '#ef4444', '#a855f7', '#34d399'];
+    var ps = [];
+    for (var i = 0; i < 120; i++) {
+      ps.push({ x: cv.width / 2 + (Math.random() - .5) * 200, y: cv.height * 0.55,
+        vx: (Math.random() - .5) * 14, vy: -Math.random() * 14 - 4,
+        s: Math.random() * 6 + 4, r: Math.random() * 6, vr: (Math.random() - .5) * .4,
+        c: colors[i % colors.length], life: 1 });
+    }
+    function step() {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      var alive = false;
+      ps.forEach(function (p) {
+        if (p.life <= 0) return;
+        alive = true;
+        p.x += p.vx; p.y += p.vy; p.vy += .35; p.vx *= .99; p.r += p.vr; p.life -= .011;
+        ctx.save(); ctx.globalAlpha = Math.max(p.life, 0);
+        ctx.translate(p.x, p.y); ctx.rotate(p.r);
+        ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
+        ctx.restore();
+      });
+      if (alive) requestAnimationFrame(step); else cv.remove();
+    }
+    step();
+  }
+
+  // Elevens åbning af et kort
+  function opened(card) {
+    var cb = cbOf(card);
+    if (!cb) return;
+    var g = null;
+    groups().some(function (x) { if (x.cards.indexOf(card) !== -1) { g = x; return true; } return false; });
+    var before = g ? isOpen(g, load()) : true;
+    if (!load()['mat_' + cb.id]) save('mat_' + cb.id, true);
+    var sparkleCanvas = card.querySelector('.sparkle-canvas');
+    var wasDone = card.classList.contains('done');
+    cb.checked = true; card.classList.add('done');
+    if (!wasDone && sparkleCanvas && typeof window.runSparkle === 'function') {
+      try { window.runSparkle(sparkleCanvas); } catch (e) {}
+    }
+    if (g) {
+      var data = load();
+      var after = isOpen(g, data);
+      if (!before && after) {
+        save('laas_' + g.prefix, true);
+        apply(g);
+        confetti();
+        if (laasOn()) toast('Tjekspørgsmål og Opgaver er låst op!');
+        return;
+      }
+    }
+    apply(g);
+  }
+
+  // Klik på kort (capture, så det også virker hvis andre handlere stopper bobling)
+  document.addEventListener('click', function (e) {
+    var card = e.target.closest && e.target.closest('.simple-card');
+    if (card && card.querySelector('.card-check')) opened(card);
+  }, true);
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('simple-card')) {
+      e.preventDefault();
+      e.target.click();
+    }
+  });
+
+  // Blokér klik på låste faner (window-capture kommer før sidens egen tab-handler)
+  window.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.tab-btn.tab-locked');
+    if (!b) return;
+    e.stopPropagation(); e.preventDefault();
+    var g = null;
+    groups().some(function (x) { if (x.tabs.indexOf(b) !== -1) { g = x; return true; } return false; });
+    if (g) toast('Åbn alt materialet først (' + openedCount(g, load()) + '/' + g.cards.length + ').');
+  }, true);
+
+  function init() {
+    var st = document.createElement('style');
+    st.id = 'laas-css'; st.textContent = CSS;
+    document.head.appendChild(st);
+    apply();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+
+  window.MaterialeLaas = { apply: apply, isOn: laasOn, openedCount: function (prefix) {
+    var g = groups().filter(function (x) { return x.prefix === prefix; })[0];
+    return g ? openedCount(g, load()) : 0; } };
+})();
+</script>
 <script id="haefte-js">
 /* HAEFTE-JS-START  (opgavehæfte: Word / PDF). Selvstændigt modul – røres ikke af scaffold-toolet. */
 (function () {
