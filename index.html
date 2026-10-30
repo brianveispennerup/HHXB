@@ -12692,4 +12692,1163 @@ function quizRetry213() {
 </div>
 </div>
 
+<script id="haefte-js">
+/* HAEFTE-JS-START  (opgavehæfte: Word / PDF). Selvstændigt modul – røres ikke af scaffold-toolet. */
+(function () {
+  'use strict';
+
+  var JSZIP_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  var PAGED_URL = 'https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.polyfill.min.js';
+  var NIVEAUER = [['low', 'Bronze'], ['mid', 'Sølv'], ['high', 'Guld']];
+  var unsupportedTex = [];
+
+  /* ───────────────────────── 1. UDTRÆK AF OPGAVER FRA SIDEN ───────────────────────── */
+
+  function wrapNode(node) {
+    var w = document.createElement('div');
+    if (node.tagName === 'BUTTON') { // indholdet af en knap (fx svarmulighed), ikke selve knappen
+      Array.prototype.forEach.call(node.childNodes, function (c) { w.appendChild(c.cloneNode(true)); });
+    } else w.appendChild(node.cloneNode(true));
+    return w;
+  }
+
+  // Tekst med LaTeX bevaret (\( \) og $$ $$), uden inputfelter/knapper.
+  function texOf(node) {
+    var w = wrapNode(node);
+    Array.prototype.forEach.call(w.querySelectorAll('.katex-display'), function (k) {
+      var a = k.querySelector('annotation[encoding="application/x-tex"]');
+      k.parentNode.replaceChild(document.createTextNode('$$' + (a ? a.textContent : '') + '$$'), k);
+    });
+    Array.prototype.forEach.call(w.querySelectorAll('.katex'), function (k) {
+      var a = k.querySelector('annotation[encoding="application/x-tex"]');
+      k.parentNode.replaceChild(document.createTextNode('\\(' + (a ? a.textContent : '') + '\\)'), k);
+    });
+    Array.prototype.forEach.call(w.querySelectorAll('br'), function (b) {
+      b.parentNode.replaceChild(document.createTextNode(' '), b);
+    });
+    Array.prototype.forEach.call(w.querySelectorAll('input,button,select,textarea,script,style,svg,canvas,img,.mbox'), function (e) {
+      e.parentNode.removeChild(e);
+    });
+    return w.textContent.replace(/ /g, ' ');
+  }
+
+  // Hele node er selv en KaTeX-formel?
+  function isKatexNode(n) {
+    return n.classList && (n.classList.contains('katex') || n.classList.contains('katex-display'));
+  }
+
+  function splitMath(s) {
+    var out = [], re = /\$\$([\s\S]*?)\$\$|\\\(([\s\S]*?)\\\)/g, last = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > last) out.push({ k: 't', v: s.slice(last, m.index) });
+      if (m[1] !== undefined) out.push({ k: 'd', v: m[1] });
+      else out.push({ k: 'm', v: m[2] });
+      last = re.lastIndex;
+    }
+    if (last < s.length) out.push({ k: 't', v: s.slice(last) });
+    return out;
+  }
+
+  function arrayToRows(tex) {
+    var m = tex.match(/\\begin\{array\}\{[^}]*\}([\s\S]*?)\\end\{array\}/);
+    if (!m) return null;
+    var rows = m[1].replace(/\\hline/g, '').split(/\\\\/).map(function (r) { return r.trim(); })
+      .filter(function (r) { return r; })
+      .map(function (r) {
+        return r.split('&').map(function (c) {
+          c = c.replace(/\\%/g, '%').trim();
+          return /\\|\^|_\{/.test(c) ? '\\(' + c + '\\)' : c;
+        });
+      });
+    return rows.length ? rows : null;
+  }
+
+  // Tekst, der kun giver mening på skærmen (musen, knapper, tastaturgenveje …), hører ikke hjemme på papir.
+  // Fjernes sætning for sætning, så nyttig tekst i samme afsnit bevares.
+  var UI_SENTENCE = [
+    /ctrl\s*\+|cmd\s*\+/i,
+    /^\s*(klik|tryk|dobbeltklik|upload|slip\b)/i,
+    /^\s*træk\s+(i|op|ned|nær|musen|punkt)/i,
+    /^\s*hold\s+(musen|shift|ctrl|nede)/i,
+    /\b(klik|tryk)\s+(på|igen)\b/i,
+    /\bknappen\b|\bmusen\b|slip for at|rul for at zoome|\bupload\b/i,
+    /øverst i koordinatsystemet/i,
+    /^\s*sæt\s+\d+\.\s+endepunkt/i
+  ];
+  function dropUi(s) {
+    var saved = [];
+    var prot = s.replace(/\$\$[\s\S]*?\$\$|\\\([\s\S]*?\\\)/g, function (m) { saved.push(m); return '\u0001' + (saved.length - 1) + '\u0002'; });
+    var keep = prot.split(/(?<=[.!?])\s+/).filter(function (x) { return !UI_SENTENCE.some(function (re) { return re.test(x); }); });
+    return keep.join(' ').replace(/\u0001(\d+)\u0002/g, function (m, i) { return saved[+i]; });
+  }
+
+  function textBlocks(s, out) {
+    // s: tekst med \( \) og $$ $$. Display-formler bliver egne blokke (array -> tabel).
+    s = s.replace(/(^|[^\\$])\$([^\s$](?:[^$]*[^\s$])?)\$/g, function (m, a, b) { return a + '\\(' + b + '\\)'; });
+    var parts = splitMath(s), cur = [];
+    function flushP() {
+      var t = cur.map(function (p) {
+        return p.k === 't' ? p.v.replace(/\s+/g, ' ') : '\\(' + p.v.replace(/\s+/g, ' ').trim() + '\\)';
+      }).join('').trim();
+      cur = [];
+      t = dropUi(t).trim();
+      if (t) out.push({ t: 'p', s: t });
+    }
+    parts.forEach(function (p) {
+      if (p.k === 'd') {
+        flushP();
+        var rows = arrayToRows(p.v);
+        if (rows) out.push({ t: 'table', rows: rows, input: false, data: true });
+        else out.push({ t: 'disp', tex: p.v.replace(/\s+/g, ' ').trim() });
+      } else cur.push(p);
+    });
+    flushP();
+  }
+
+  function isHidden(n) {
+    var st = (n.getAttribute && n.getAttribute('style')) || '';
+    return /display\s*:\s*none/.test(st);
+  }
+  function isBold(n) {
+    var st = (n.getAttribute && n.getAttribute('style')) || '';
+    return /font-weight\s*:\s*(600|700|800|bold)/i.test(st) || n.tagName === 'B' || n.tagName === 'STRONG';
+  }
+  // Svarfelter: tekstinput og skifteknapper (fx Åben/Lukket)
+  var FIELD_SEL = 'input:not([type="file"]):not([type="hidden"]),button[data-state]';
+  function hasAnswerFields(n) { return !!n.querySelector(FIELD_SEL); }
+
+  function skipEl(n) {
+    var t = n.tagName;
+    if (t === 'SCRIPT' || t === 'STYLE' || t === 'SVG' || t === 'svg' || t === 'NOSCRIPT') return true;
+    var c = n.classList;
+    if (c.contains('ow-result') || c.contains('quiz-feedback') || c.contains('ow-title') || c.contains('sparkle-canvas') || c.contains('piecewise-brace')) return true;
+    if (n.id && (/-modebar$/.test(n.id) || /-progress$/.test(n.id))) return true;
+    if (t === 'BUTTON' && !c.contains('quiz-option')) return true;
+    // skjulte trin (vises først senere på siden) tages kun med, hvis de indeholder svarfelter eller et tegnefelt
+    if (isHidden(n) && !hasAnswerFields(n) && t !== 'CANVAS' && !n.querySelector('canvas')) return true;
+    return false;
+  }
+
+  var BLOCK_TAGS = { DIV: 1, P: 1, LI: 1, UL: 1, OL: 1, H1: 1, H2: 1, H3: 1, H4: 1, SECTION: 1, BLOCKQUOTE: 1 };
+
+  function hasBlockChild(n) {
+    return Array.prototype.some.call(n.children, function (c) { return BLOCK_TAGS[c.tagName] || c.tagName === 'TABLE' || c.tagName === 'CANVAS' || c.tagName === 'IMG'; });
+  }
+  function needsRecursion(n) {
+    return !!n.querySelector('table,canvas,img,button.quiz-option,.piecewise-brace') || (hasAnswerFields(n) && hasBlockChild(n));
+  }
+
+  function canvasBg(id) {
+    var scripts = document.scripts, re = new RegExp('initTegnCanvas\\(\\s*[\'"]' + id.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '[\'"]\\s*,\\s*[\'"](data:image\\/[a-z]+;base64,[A-Za-z0-9+\\/=]+)[\'"]');
+    for (var i = 0; i < scripts.length; i++) {
+      var m = scripts[i].textContent.match(re);
+      if (m) return m[1];
+    }
+    return null;
+  }
+
+  function tableBlock(t) {
+    var input = !!t.querySelector('input');
+    var rows = Array.prototype.map.call(t.querySelectorAll('tr'), function (tr) {
+      return Array.prototype.map.call(tr.children, function (td) {
+        if (td.querySelector('input')) return '';
+        return texOf(td).replace(/\s+/g, ' ').trim();
+      });
+    });
+    return { t: 'table', rows: rows, input: input };
+  }
+
+  function imgBlock(im) {
+    var h = parseInt(im.getAttribute('height'), 10), w = parseInt(im.getAttribute('width'), 10);
+    return { t: 'img', src: im.src || im.getAttribute('src'), attrW: w || 0, attrH: h || 0, alt: im.getAttribute('alt') || '' };
+  }
+
+  // Tekst og svarfelter i den rækkefølge, de står på siden: [{k:'t',v},{k:'b'}]
+  function partsOf(n) {
+    var parts = [];
+    function addText(s) { if (s) parts.push({ k: 't', v: s }); }
+    (function rec(el) {
+      Array.prototype.forEach.call(el.childNodes, function (c) {
+        if (c.nodeType === 3) { addText(c.data.replace(/ /g, ' ')); return; }
+        if (c.nodeType !== 1) return;
+        if (c.matches(FIELD_SEL)) { parts.push({ k: 'b' }); return; }
+        if (c.tagName === 'BUTTON' || c.tagName === 'SCRIPT' || c.tagName === 'STYLE' || c.classList.contains('ow-result')) return;
+        if (isKatexNode(c)) { addText(texOf(c)); return; }
+        if (c.querySelector('.katex') || c.querySelector(FIELD_SEL)) rec(c); else addText(texOf(c));
+      });
+    })(n);
+    // sammenlæg tilstødende tekster, ryd mellemrum
+    var out = [];
+    parts.forEach(function (p) {
+      if (p.k === 't' && out.length && out[out.length - 1].k === 't') out[out.length - 1].v += p.v; else out.push({ k: p.k, v: p.v });
+    });
+    out.forEach(function (p) { if (p.k === 't') p.v = p.v.replace(/\s+/g, ' '); });
+    out.forEach(function (p, i) { if (p.k === 't' && i > 0 && out[i - 1].k === 'b' && /^[^\s,.;:)!?]/.test(p.v)) p.v = ' ' + p.v; });
+    if (out.length && out[0].k === 't') out[0].v = out[0].v.replace(/^\s+/, '');
+    if (out.length && out[out.length - 1].k === 't') out[out.length - 1].v = out[out.length - 1].v.replace(/\s+$/, '');
+    return out.filter(function (p) { return p.k === 'b' || p.v; });
+  }
+
+  // Stykkevis funktion: "g(x) = { udtryk  når betingelse …"
+  function casesBlock(n) {
+    var kids = Array.prototype.slice.call(n.children), bi = -1;
+    kids.forEach(function (k, i) { if (k.classList.contains('piecewise-brace')) bi = i; });
+    var label = kids.slice(0, bi).map(function (k) { return texOf(k).replace(/\s+/g, ' ').trim(); }).join(' ').trim();
+    var host = kids[bi + 1], rows = [];
+    if (host) Array.prototype.forEach.call(host.children, function (row) {
+      var cells = [];
+      var items = row.children.length ? Array.prototype.slice.call(row.children) : [row];
+      items.forEach(function (c) {
+        if (c.matches(FIELD_SEL)) cells.push({ b: true });
+        else cells.push({ s: texOf(c).replace(/\s+/g, ' ').trim() });
+      });
+      rows.push(cells);
+    });
+    return { t: 'cases', label: label, rows: rows };
+  }
+
+  function collectBlocks(root) {
+    var out = [], buf = [];
+    function flush() {
+      var s = buf.join(''); buf = [];
+      if (s.trim()) textBlocks(s, out);
+    }
+    function walk(el) {
+      Array.prototype.forEach.call(el.childNodes, function (n) {
+        if (n.nodeType === 3) { buf.push(n.data); return; }
+        if (n.nodeType !== 1) return;
+        if (skipEl(n)) return;
+        var tag = n.tagName;
+        if (isKatexNode(n)) { buf.push(texOf(n)); return; }
+        if (tag === 'TABLE') { flush(); out.push(tableBlock(n)); return; }
+        if (tag === 'CANVAS') {
+          flush();
+          out.push({ t: 'tegn', id: n.id, bg: canvasBg(n.id), cw: parseInt(n.getAttribute('width'), 10) || 320, ch: parseInt(n.getAttribute('height'), 10) || 300 });
+          return;
+        }
+        if (tag === 'IMG') { flush(); out.push(imgBlock(n)); return; }
+        if (tag === 'BUTTON') { // svarmulighed (quiz-option) med tekst og/eller figur
+          flush();
+          var m = (n.id || '').match(/-([A-Za-z0-9])$/), im = n.querySelector('img');
+          out.push({ t: 'opt', letter: m ? m[1] : '', text: texOf(n).replace(/\s+/g, ' ').trim(), img: im ? imgBlock(im) : null });
+          return;
+        }
+        if (n.querySelector(':scope > .piecewise-brace')) { flush(); out.push(casesBlock(n)); return; }
+        if (needsRecursion(n)) { flush(); walk(n); flush(); return; }
+        if (hasAnswerFields(n)) { flush(); out.push({ t: 'field', parts: partsOf(n) }); return; }
+        if (BLOCK_TAGS[tag]) {
+          flush(); var st = out.length; buf.push(texOf(n)); flush();
+          if (isBold(n)) for (var i = st; i < out.length; i++) if (out[i].t === 'p') out[i].t = 'sub';
+          return;
+        }
+        buf.push(texOf(n)); // inline (span, b, i, label …)
+      });
+    }
+    walk(root);
+    flush();
+    // saml på hinanden følgende svarfelter til ét gitter
+    var res = [], grp = null;
+    out.forEach(function (b) {
+      if (b.t === 'field') { if (!grp) { grp = { t: 'fields', items: [] }; res.push(grp); } grp.items.push(b); }
+      else { grp = null; res.push(b); }
+    });
+    return res;
+  }
+
+  function unitsOf(widget) {
+    var direct = widget.querySelector(':scope > .ow-title');
+    if (direct) return [{ title: textOfTitle(direct), root: widget }];
+    var items = Array.prototype.filter.call(widget.querySelectorAll(':scope > .ow-item'), function (it) { return it.querySelector(':scope > .ow-title'); });
+    return items.map(function (it) { return { title: textOfTitle(it.querySelector(':scope > .ow-title')), root: it }; });
+  }
+  function textOfTitle(t) {
+    var sp = t.querySelector('span');
+    return (sp ? sp.textContent : t.textContent).replace(/\s+/g, ' ').trim();
+  }
+
+  function buildOpgave(u, n) {
+    var isExcel = !!u.root.querySelector('input[type="file"],[id$="-file"]');
+    var blocks;
+    if (isExcel) blocks = [{ t: 'note', s: 'Denne opgave løses på computer på hjemmesiden (upload af Excel-fil).' }];
+    else blocks = collectBlocks(u.root);
+    var titel = /^(øvelse|opgave)\b/i.test(u.title) ? u.title : 'Opgave ' + n + ' – ' + u.title;
+    return { titel: titel, blocks: blocks, excel: isExcel };
+  }
+
+  function findFormelsamling(fid) {
+    var s = document.querySelector('script[data-formelsamling="' + fid + '"]');
+    return s ? s.textContent : null;
+  }
+
+  function buildModel(fid) {
+    var page = document.getElementById('page-' + fid);
+    if (!page) throw new Error('Forløbet findes ikke: ' + fid);
+    var h1 = page.querySelector('h1');
+    var full = h1 ? h1.textContent.trim() : fid;
+    var sp = full.split(/\s+[–-]\s+/);
+    var model = { id: fid, forl: sp.length > 1 ? sp[0] : fid.toUpperCase(), navn: sp.length > 1 ? sp.slice(1).join(' – ') : full, kapitler: [], bilag: null };
+    var kap = null;
+    Array.prototype.forEach.call(page.children, function (el) {
+      if (el.classList.contains('section-label')) { kap = { titel: el.textContent.trim(), emner: [] }; model.kapitler.push(kap); return; }
+      if (!el.classList.contains('emne-grid')) return;
+      if (!kap) { kap = { titel: '', emner: [] }; model.kapitler.push(kap); }
+      Array.prototype.forEach.call(el.querySelectorAll('.emne-card'), function (card) {
+        var oc = card.getAttribute('onclick') || '', m = oc.match(/showPage\('([^']+)'\)/);
+        if (!m) return;
+        var ep = document.getElementById('page-' + m[1]);
+        if (!ep) return;
+        var nrEl = card.querySelector('.emne-nr'), tEl = card.querySelector('.emne-titel');
+        var emne = { nr: nrEl ? nrEl.textContent.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF\uFE0F]/gu, '').trim() : '', navn: tEl ? tEl.textContent.trim() : m[1], niveauer: [] };
+        var widgets = Array.prototype.slice.call(ep.querySelectorAll('.opgave-widget'));
+        NIVEAUER.forEach(function (nv) {
+          var w = widgets.filter(function (x) { return new RegExp('-' + nv[0] + '$').test(x.id); })[0];
+          if (!w) return;
+          var opg = [], n = 0;
+          unitsOf(w).forEach(function (u) { n++; opg.push(buildOpgave(u, n)); });
+          if (opg.length) emne.niveauer.push({ navn: nv[1], opgaver: opg });
+        });
+        if (emne.niveauer.length) kap.emner.push(emne);
+      });
+    });
+    model.kapitler = model.kapitler.filter(function (k) { return k.emner.length; });
+    var md = findFormelsamling(fid);
+    if (md && md.trim()) model.bilag = parseBilag(md);
+    return model;
+  }
+
+  /* ───────────────── 2. FORMELSAMLING (markdown i <script data-formelsamling>) ───────────────── */
+
+  function mdInline(s) { // $…$ -> \( … \)
+    return s.replace(/\$\$([^$]+)\$\$/g, '$$$$$1$$$$').replace(/(^|[^$\\])\$([^$]+)\$/g, function (m, a, b) { return a + '\\(' + b + '\\)'; });
+  }
+  function parseBilag(md) {
+    var lines = md.replace(/\r/g, '').split('\n'), titel = 'Bilag: Formelsamling', blocks = [], i = 0, para = [];
+    function flushPara() {
+      if (para.length) { blocks.push({ t: 'p', s: mdInline(para.join(' ')) }); para = []; }
+    }
+    while (i < lines.length) {
+      var l = lines[i].trim();
+      if (!l) { flushPara(); i++; continue; }
+      var h = l.match(/^(#{1,6})\s+(.*)$/);
+      if (h) {
+        flushPara();
+        if (h[1].length === 1) titel = h[2].trim();
+        else blocks.push({ t: 'h', s: mdInline(h[2].trim()) });
+        i++; continue;
+      }
+      if (l.charAt(0) === '|') {
+        flushPara();
+        var rows = [];
+        while (i < lines.length && lines[i].trim().charAt(0) === '|') {
+          var row = lines[i].trim();
+          if (!/^\|[\s:|-]+\|?$/.test(row)) {
+            rows.push(row.replace(/^\||\|$/g, '').split('|').map(function (c) { return mdInline(c.trim()); }));
+          }
+          i++;
+        }
+        blocks.push({ t: 'table', rows: rows, input: false, data: true, bilag: true });
+        continue;
+      }
+      if (/^\$\$[\s\S]*\$\$$/.test(l)) { flushPara(); blocks.push({ t: 'disp', tex: l.slice(2, -2).trim() }); i++; continue; }
+      para.push(l); i++;
+    }
+    flushPara();
+    return { titel: titel, blocks: blocks };
+  }
+
+  /* ───────────────────────── 3. INLINE-TEKST (tekst, fed, formler) ───────────────────────── */
+
+  function parseInline(s) { // -> [{k:'t',v,b}|{k:'m',v}]
+    var out = [];
+    splitMath(s).forEach(function (p) {
+      if (p.k === 't') {
+        var bits = p.v.split(/\*\*/);
+        bits.forEach(function (b, ix) { if (b) out.push({ k: 't', v: b, b: ix % 2 === 1 }); });
+      } else out.push({ k: 'm', v: p.v });
+    });
+    return out;
+  }
+  function plainLen(s) { return s.replace(/\\\([\s\S]*?\\\)/g, 'xxxx').length; }
+
+  function fieldText(f) { return f.parts.map(function (p) { return p.k === 't' ? p.v : ''; }).join(''); }
+  function fieldBlanks(f) { return f.parts.filter(function (p) { return p.k === 'b'; }).length; }
+  function fieldCols(items) {
+    if (items.length < 2) return 1;
+    if (items.some(function (f) { return fieldBlanks(f) > 1; })) return 1;
+    var mx = Math.max.apply(null, items.map(function (f) { return plainLen(fieldText(f)); }));
+    return mx <= 12 ? 3 : (mx <= 30 ? 2 : 1);
+  }
+  function blankLen(f, cols) { // længde af svarstreg i tegn
+    var nb = fieldBlanks(f), last = f.parts[f.parts.length - 1];
+    if (nb === 1 && last && last.k === 'b') return cols === 3 ? 9 : cols === 2 ? 12 : 20;
+    return nb === 1 ? 12 : 11;
+  }
+
+  /* ───────────────────────── 4. LATEX -> OMML (Word-ligninger) ───────────────────────── */
+
+  var SYM = { cdot: '⋅', times: '×', div: '÷', pm: '±', mp: '∓', leq: '≤', le: '≤', geq: '≥', ge: '≥', neq: '≠', ne: '≠', approx: '≈',
+    to: '→', rightarrow: '→', Rightarrow: '⇒', Leftrightarrow: '⇔', leftarrow: '←', infty: '∞', pi: 'π', alpha: 'α', beta: 'β', gamma: 'γ',
+    delta: 'δ', Delta: 'Δ', theta: 'θ', lambda: 'λ', mu: 'μ', sigma: 'σ', Sigma: 'Σ', rho: 'ρ', omega: 'ω', varepsilon: 'ε', epsilon: 'ε',
+    ldots: '…', dots: '…', cdots: '…', in: '∈', mid: '|', circ: '∘', cap: '∩', cup: '∪', subset: '⊂', emptyset: '∅', angle: '∠', degree: '°',
+    sim: '∼', equiv: '≡', propto: '∝', setminus: '∖', ast: '∗', bullet: '•', colon: ':', lbrace: '{', rbrace: '}', prime: '′' };
+  var FUNC = { sin: 1, cos: 1, tan: 1, ln: 1, log: 1, lg: 1, exp: 1, min: 1, max: 1, lim: 1, arcsin: 1, arccos: 1, arctan: 1 };
+  var SPACE = { ',': 1, ';': 1, ':': 1, '!': 1, ' ': 1, quad: 1, qquad: 1, displaystyle: 1, textstyle: 1, scriptstyle: 1, limits: 1, nolimits: 1 };
+
+  function X(s) { return String(s).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  var MATH_RPR = '<w:rPr><w:rFonts w:ascii="Cambria Math" w:hAnsi="Cambria Math"/></w:rPr>';
+  function mrun(t, plain) {
+    return '<m:r>' + (plain ? '<m:rPr><m:sty m:val="p"/></m:rPr>' : '') + MATH_RPR + '<m:t xml:space="preserve">' + X(t) + '</m:t></m:r>';
+  }
+
+  function TexParser(src) { this.s = src; this.i = 0; }
+  TexParser.prototype.ws = function () { while (this.i < this.s.length && /\s/.test(this.s[this.i])) this.i++; };
+  TexParser.prototype.cmdName = function () { // efter '\'
+    var m = /^[A-Za-z]+/.exec(this.s.slice(this.i));
+    if (m) { this.i += m[0].length; return m[0]; }
+    var c = this.s[this.i++]; return c || '';
+  };
+  TexParser.prototype.rawGroup = function () { // {…} som rå tekst
+    this.ws();
+    if (this.s[this.i] !== '{') { return this.s[this.i++] || ''; }
+    var d = 0, st = ++this.i;
+    for (; this.i < this.s.length; this.i++) {
+      var c = this.s[this.i];
+      if (c === '{') d++;
+      else if (c === '}') { if (d === 0) break; d--; }
+    }
+    var r = this.s.slice(st, this.i); this.i++;
+    return r;
+  };
+  TexParser.prototype.arg = function () { // ét argument -> OMML-streng
+    this.ws();
+    if (this.s[this.i] === '{') { this.i++; var r = this.seq(true); if (this.s[this.i] === '}') this.i++; return r; }
+    var a = this.atom(); return a ? this.finish([a]) : '';
+  };
+  TexParser.prototype.finish = function (frags) {
+    // sammenlæg tilstødende tekstløb af samme type til ét <m:r>
+    var out = '', buf = '', plain = null;
+    frags.forEach(function (f) {
+      if (typeof f === 'string') { if (buf) { out += mrun(buf, plain); buf = ''; plain = null; } out += f; }
+      else {
+        if (buf && plain !== !!f.p) { out += mrun(buf, plain); buf = ''; }
+        plain = !!f.p; buf += f.r;
+      }
+    });
+    if (buf) out += mrun(buf, plain);
+    return out;
+  };
+  TexParser.prototype.scripts = function () {
+    var sub = null, sup = null;
+    for (;;) {
+      this.ws();
+      var c = this.s[this.i];
+      if (c === '^') { this.i++; sup = this.arg(); }
+      else if (c === '_') { this.i++; sub = this.arg(); }
+      else break;
+    }
+    return { sub: sub, sup: sup };
+  };
+  function withScripts(base, sc) {
+    if (sc.sub === null && sc.sup === null) return base;
+    var e = '<m:e>' + base + '</m:e>';
+    if (sc.sub !== null && sc.sup !== null) return '<m:sSubSup>' + e + '<m:sub>' + sc.sub + '</m:sub><m:sup>' + sc.sup + '</m:sup></m:sSubSup>';
+    if (sc.sup !== null) return '<m:sSup>' + e + '<m:sup>' + sc.sup + '</m:sup></m:sSup>';
+    return '<m:sSub>' + e + '<m:sub>' + sc.sub + '</m:sub></m:sSub>';
+  }
+  TexParser.prototype.seq = function (inGroup) {
+    var frags = [], self = this;
+    for (;;) {
+      this.ws();
+      if (this.i >= this.s.length) break;
+      var c = this.s[this.i];
+      if (c === '}' && inGroup) break;
+      if (c === '}') { this.i++; continue; }
+      if (c === '\\' && /^\\(right|end)\b/.test(this.s.slice(this.i, this.i + 7))) break;
+      if (c === '&') { this.i++; continue; }
+      // \sum og lignende: resten af gruppen bliver kroppen
+      var mm = /^\\(sum|prod|int)(?![A-Za-z])/.exec(this.s.slice(this.i));
+      if (mm) {
+        this.i += mm[0].length;
+        var sc0 = this.scripts();
+        var body = this.seq(inGroup);
+        var chr = { sum: '∑', prod: '∏', int: '∫' }[mm[1]];
+        frags.push('<m:nary><m:naryPr><m:chr m:val="' + chr + '"/><m:limLoc m:val="' + (mm[1] === 'int' ? 'subSup' : 'undOvr') + '"/>' +
+          (sc0.sub === null ? '<m:subHide m:val="1"/>' : '') + (sc0.sup === null ? '<m:supHide m:val="1"/>' : '') + '</m:naryPr>' +
+          '<m:sub>' + (sc0.sub || '') + '</m:sub><m:sup>' + (sc0.sup || '') + '</m:sup><m:e>' + body + '</m:e></m:nary>');
+        break;
+      }
+      var a = this.atom();
+      if (a === null) continue;
+      var sc = this.scripts();
+      if (sc.sub !== null || sc.sup !== null) {
+        var base = typeof a === 'string' ? a : this.finish([a]);
+        frags.push(withScripts(base, sc));
+      } else frags.push(a);
+    }
+    return this.finish(frags);
+  };
+  TexParser.prototype.atom = function () {
+    this.ws();
+    var c = this.s[this.i];
+    if (c === undefined) return null;
+    if (c === '{') { this.i++; var r = this.seq(true); if (this.s[this.i] === '}') this.i++; return r || ''; }
+    if (c === '\\') { this.i++; return this.command(); }
+    this.i++;
+    if (c === '-') return { r: '−' };
+    if (c === '~') return { r: ' ' };
+    if (c === "'") return { r: '′' };
+    return { r: c };
+  };
+  TexParser.prototype.command = function () {
+    var n = this.cmdName();
+    if (n === 'frac' || n === 'dfrac' || n === 'tfrac') {
+      var a = this.arg(), b = this.arg();
+      return '<m:f><m:num>' + a + '</m:num><m:den>' + b + '</m:den></m:f>';
+    }
+    if (n === 'sqrt') {
+      this.ws(); var deg = '';
+      if (this.s[this.i] === '[') { var j = this.s.indexOf(']', this.i); deg = this.s.slice(this.i + 1, j); this.i = j + 1; }
+      var e = this.arg();
+      if (deg) { var dp = new TexParser(deg); deg = dp.seq(false); }
+      return '<m:rad><m:radPr>' + (deg ? '' : '<m:degHide m:val="1"/>') + '</m:radPr><m:deg>' + deg + '</m:deg><m:e>' + e + '</m:e></m:rad>';
+    }
+    if (n === 'bar' || n === 'overline') return '<m:bar><m:barPr><m:pos m:val="top"/></m:barPr><m:e>' + this.arg() + '</m:e></m:bar>';
+    if (n === 'underline') return '<m:bar><m:barPr><m:pos m:val="bot"/></m:barPr><m:e>' + this.arg() + '</m:e></m:bar>';
+    if (n === 'hat' || n === 'widehat') return '<m:acc><m:accPr><m:chr m:val="^"/></m:accPr><m:e>' + this.arg() + '</m:e></m:acc>';
+    if (n === 'vec') return '<m:acc><m:accPr><m:chr m:val="→"/></m:accPr><m:e>' + this.arg() + '</m:e></m:acc>';
+    if (n === 'text' || n === 'mathrm' || n === 'textrm' || n === 'operatorname' || n === 'mathbf' || n === 'textbf') {
+      return { r: this.rawGroup().replace(/\\%/g, '%').replace(/\\,/g, ' ').replace(/\\ /g, ' ').replace(/\\([{}_&$#])/g, '$1'), p: true };
+    }
+    if (n === 'mathit') return this.arg();
+    if (n === 'mathbb') { var bb = this.rawGroup(); return { r: ({ R: 'ℝ', N: 'ℕ', Z: 'ℤ', Q: 'ℚ', C: 'ℂ' })[bb] || bb, p: true }; }
+    if (n === 'left' || n === 'right') {
+      this.ws(); var d = this.s[this.i++];
+      if (d === '\\') { var nm = this.cmdName(); d = nm === 'lbrace' || nm === '{' ? '{' : nm === 'rbrace' || nm === '}' ? '}' : nm === '|' ? '‖' : nm === 'langle' ? '⟨' : nm === 'rangle' ? '⟩' : ''; }
+      return d && d !== '.' ? { r: d, p: true } : '';
+    }
+    if (n === '%') return { r: '%', p: true };
+    if (n === '{' || n === '}') return { r: n };
+    if (n === '&' || n === '#' || n === '_' || n === '$') return { r: n };
+    if (n === '|') return { r: '‖' };
+    if (n === '\\') return '';
+    if (n === 'begin') {
+      var env = this.rawGroup();
+      if (/^(aligned|align\*?|gathered|split)$/.test(env)) {
+        var endTag = '\\end{' + env + '}', j2 = this.s.indexOf(endTag, this.i), body = this.s.slice(this.i, j2 < 0 ? this.s.length : j2);
+        this.i = j2 < 0 ? this.s.length : j2 + endTag.length;
+        return '<m:eqArr>' + body.split(/\\\\/).filter(function (r) { return r.trim(); }).map(function (r) { return '<m:e>' + new TexParser(r).seq(false) + '</m:e>'; }).join('') + '</m:eqArr>';
+      }
+      unsupportedTex.push('begin{' + env + '}'); return '';
+    }
+    if (n === 'end') { this.rawGroup(); return ''; }
+    if (SPACE[n]) return { r: ' ' };
+    if (FUNC[n]) return { r: n, p: true };
+    if (SYM[n]) return { r: SYM[n] };
+    unsupportedTex.push('\\' + n);
+    return { r: n };
+  };
+  function texToOmml(tex) {
+    var p = new TexParser(tex);
+    var out = p.seq(false);
+    return out;
+  }
+
+  /* ───────────────────────── 5. HENT BILLEDER ───────────────────────── */
+
+  function fetchImage(src, contrast) {
+    return fetch(src).then(function (r) {
+      if (!r.ok) throw new Error('Billedet kunne ikke hentes (HTTP ' + r.status + '): ' + src.slice(0, 120));
+      return r.blob();
+    }).then(function (blob) {
+      return new Promise(function (res, rej) {
+        var u = URL.createObjectURL(blob), im = new Image();
+        im.onload = function () {
+          try {
+            var c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+            var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0);
+            if (contrast) { // gør svage gitterlinjer tydelige på print
+              var d = x.getImageData(0, 0, c.width, c.height), px = d.data;
+              for (var k = 0; k < px.length; k += 4) {
+                var r_ = px[k], g = px[k + 1], b = px[k + 2];
+                if (r_ >= 200 && r_ <= 250 && Math.abs(r_ - g) < 12 && Math.abs(g - b) < 14) { px[k] = 165; px[k + 1] = 170; px[k + 2] = 180; }
+              }
+              x.putImageData(d, 0, 0);
+            }
+            var url = c.toDataURL('image/png'), w = c.width, h = c.height;
+            if (!w || !h) throw new Error('tomt billede');
+            res({ url: url, w: w, h: h });
+          } catch (e) { rej(new Error('Billedet kunne ikke behandles: ' + src.slice(0, 120) + ' (' + e.message + ')')); }
+          URL.revokeObjectURL(u);
+        };
+        im.onerror = function () { URL.revokeObjectURL(u); rej(new Error('Billedet kunne ikke læses: ' + src.slice(0, 120))); };
+        im.src = u;
+      });
+    });
+  }
+
+  function makeGrid(cw, ch) { // millimeterpapir 12 cm bredt (100 px pr. cm), samme højde/bredde-forhold som tegnefeltet på siden
+    var W = 1200, H = Math.round(W * (ch || 300) / (cw || 320)), c = document.createElement('canvas'); c.width = W; c.height = H;
+    var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+    function lines(step, col, lw) { x.strokeStyle = col; x.lineWidth = lw; x.beginPath(); for (var i = 0; i <= W; i += step) { x.moveTo(i + .5, 0); x.lineTo(i + .5, H); } for (var j = 0; j <= H; j += step) { x.moveTo(0, j + .5); x.lineTo(W, j + .5); } x.stroke(); }
+    lines(20, '#e3e6ec', 1); lines(100, '#aab0bd', 2);
+    x.strokeStyle = '#555'; x.lineWidth = 4; x.strokeRect(2, 2, W - 4, H - 4);
+    return { url: c.toDataURL('image/png'), w: W, h: H };
+  }
+
+  function eachBlock(model, fn) {
+    model.kapitler.forEach(function (k) { k.emner.forEach(function (e) { e.niveauer.forEach(function (n) { n.opgaver.forEach(function (o) { o.blocks.forEach(function (b) { fn(b, o); }); }); }); }); });
+    if (model.bilag) model.bilag.blocks.forEach(function (b) { fn(b, null); });
+  }
+
+  function resolveImages(model) {
+    var cache = {}, jobs = [];
+    function need(src, contrast) {
+      var key = (contrast ? 'c|' : 'n|') + src;
+      if (!cache[key]) cache[key] = fetchImage(src, contrast);
+      return cache[key];
+    }
+    eachBlock(model, function (b) {
+      if (b.t === 'img') jobs.push(need(b.src, false).then(function (r) { b.data = r; }));
+      else if (b.t === 'opt' && b.img) jobs.push(need(b.img.src, false).then(function (r) { b.img.data = r; }));
+      else if (b.t === 'tegn') {
+        if (b.bg) jobs.push(need(b.bg, true).then(function (r) { b.data = r; }));
+        else b.data = makeGrid(b.cw, b.ch); // koordinatnet at tegne på, når siden selv tegner akserne
+      }
+    });
+    return Promise.all(jobs).then(function () { return model; });
+  }
+
+  function imageCount(model) {
+    var n = 0;
+    eachBlock(model, function (b) {
+      if (b.t === 'img') n++;
+      else if (b.t === 'opt' && b.img) n++;
+      else if (b.t === 'tegn') n++;
+    });
+    return n;
+  }
+
+  /* ───────────────────────── 6. WORD (.docx) ───────────────────────── */
+
+  var W_NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
+  var NAVY = '1E3A5F', ORANGE = 'D4820A', GREY = '6B7280';
+  var TEXT_W = 9865; // sidebredde i twips (A4, margener 1,8 cm)
+
+  function rpr(o) {
+    o = o || {};
+    return '<w:rPr>' + (o.b ? '<w:b/>' : '') + (o.i ? '<w:i/>' : '') + (o.color ? '<w:color w:val="' + o.color + '"/>' : '') +
+      (o.sz ? '<w:sz w:val="' + o.sz + '"/><w:szCs w:val="' + o.sz + '"/>' : '') + '</w:rPr>';
+  }
+  function wr(t, o) { return '<w:r>' + rpr(o) + '<w:t xml:space="preserve">' + X(t) + '</w:t></w:r>'; }
+  function ppr(o) {
+    o = o || {};
+    var s = '<w:pPr>';
+    if (o.style) s += '<w:pStyle w:val="' + o.style + '"/>';
+    if (o.keepNext) s += '<w:keepNext/>';
+    if (o.keepLines) s += '<w:keepLines/>';
+    if (o.pageBreak) s += '<w:pageBreakBefore/>';
+    if (o.border) s += '<w:pBdr><w:bottom w:val="single" w:sz="12" w:space="8" w:color="' + ORANGE + '"/></w:pBdr>';
+    if (o.before !== undefined || o.after !== undefined || o.line)
+      s += '<w:spacing' + (o.before !== undefined ? ' w:before="' + o.before + '"' : '') + (o.after !== undefined ? ' w:after="' + o.after + '"' : '') + (o.line ? ' w:line="' + o.line + '" w:lineRule="exact"' : '') + '/>';
+    if (o.ind) s += '<w:ind w:left="' + o.ind + '"/>';
+    if (o.jc) s += '<w:jc w:val="' + o.jc + '"/>';
+    return s + '</w:pPr>';
+  }
+  function inlineXml(s, o) {
+    return parseInline(s).map(function (p) {
+      if (p.k === 't') return wr(p.v, { b: p.b || (o && o.b), i: o && o.i, color: o && o.color, sz: o && o.sz });
+      return '<m:oMath>' + texToOmml(p.v) + '</m:oMath>';
+    }).join('');
+  }
+  function para(inner, o) { return '<w:p>' + ppr(o) + inner + '</w:p>'; }
+
+  function cellXml(inner, w, o) {
+    o = o || {};
+    return '<w:tc><w:tcPr><w:tcW w:w="' + w + '" w:type="dxa"/>' + (o.vmerge ? (o.vmerge === 'restart' ? '<w:vMerge w:val="restart"/>' : '<w:vMerge/>') : '') + (o.borders || '') + (o.valign ? '<w:vAlign w:val="' + o.valign + '"/>' : '') + '</w:tcPr>' + inner + '</w:tc>';
+  }
+  var BORD = '<w:tblBorders><w:top w:val="single" w:sz="6" w:space="0" w:color="444444"/><w:left w:val="single" w:sz="6" w:space="0" w:color="444444"/><w:bottom w:val="single" w:sz="6" w:space="0" w:color="444444"/><w:right w:val="single" w:sz="6" w:space="0" w:color="444444"/><w:insideH w:val="single" w:sz="6" w:space="0" w:color="444444"/><w:insideV w:val="single" w:sz="6" w:space="0" w:color="444444"/></w:tblBorders>';
+  var NOBORD = '<w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders>';
+  function tblXml(rowsXml, widths, o) {
+    o = o || {};
+    var tw = widths.reduce(function (a, b) { return a + b; }, 0);
+    return '<w:tbl><w:tblPr><w:tblW w:w="' + tw + '" w:type="dxa"/>' + (o.left ? '<w:jc w:val="left"/>' : '<w:jc w:val="center"/>') + (o.noBorders ? NOBORD : BORD) +
+      '<w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="40" w:type="dxa"/><w:left w:w="100" w:type="dxa"/><w:bottom w:w="40" w:type="dxa"/><w:right w:w="100" w:type="dxa"/></w:tblCellMar></w:tblPr>' +
+      '<w:tblGrid>' + widths.map(function (w) { return '<w:gridCol w:w="' + w + '"/>'; }).join('') + '</w:tblGrid>' + rowsXml + '</w:tbl>';
+  }
+  function trXml(cells, o) {
+    o = o || {};
+    return '<w:tr><w:trPr><w:cantSplit/>' + (o.h ? '<w:trHeight w:val="' + o.h + '" w:hRule="' + (o.rule || 'atLeast') + '"/>' : '') + '</w:trPr>' + cells + '</w:tr>';
+  }
+
+  function DocxBuilder(model) {
+    this.m = model; this.parts = []; this.media = []; this.mediaByUrl = {}; this.rels = []; this.bm = 100; this.toc = []; this.docPr = 1;
+  }
+  DocxBuilder.prototype.image = function (data, widthEmu, heightEmu, descr) {
+    var key = data.url, name = this.mediaByUrl[key];
+    if (!name) {
+      name = 'image' + (this.media.length + 1) + '.png'; this.mediaByUrl[key] = name;
+      this.media.push({ name: name, b64: data.url.split(',')[1] });
+    }
+    var rid = 'rIdImg' + name.replace(/\D/g, ''), id = this.docPr++;
+    if (this.rels.indexOf(rid) < 0) this.rels.push(rid);
+    return '<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="' + widthEmu + '" cy="' + heightEmu + '"/><wp:docPr id="' + id + '" name="Billede ' + id + '" descr="' + X(descr || '') + '"/>' +
+      '<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="' + name + '"/><pic:cNvPicPr/></pic:nvPicPr>' +
+      '<pic:blipFill><a:blip r:embed="' + rid + '"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + widthEmu + '" cy="' + heightEmu + '"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';
+  };
+  function imgSize(b, maxCm) { // -> [cx, cy] EMU
+    var d = b.data, w, h;
+    if (b.attrH) { h = b.attrH * 9525; w = h * d.w / d.h; if (b.attrW) w = b.attrW * 9525; }
+    else { w = (b.attrW || d.w) * 9525; h = w * d.h / d.w; }
+    var maxW = (maxCm || 13) * 360000;
+    if (w > maxW) { h = h * maxW / w; w = maxW; }
+    var maxH = 11 * 360000;
+    if (h > maxH) { w = w * maxH / h; h = maxH; }
+    return [Math.round(w), Math.round(h)];
+  }
+
+  DocxBuilder.prototype.heading = function (level, text, bookmark, pageBreak) {
+    var id = this.bm++, name = '_Toc' + id;
+    if (bookmark !== false) this.toc.push({ level: level, text: text, name: name, box: level === 1 && !bookmark });
+    return para((bookmark !== false ? '<w:bookmarkStart w:id="' + id + '" w:name="' + name + '"/>' : '') + inlineXml(text) + (bookmark !== false ? '<w:bookmarkEnd w:id="' + id + '"/>' : ''), { style: 'Heading' + level, pageBreak: pageBreak });
+  };
+
+  DocxBuilder.prototype.blockXml = function (b, next) {
+    var self = this, kn = next && /^(table|fields|tegn|img|opt|disp|cases)$/.test(next.t);
+    switch (b.t) {
+      case 'p': return para(inlineXml(b.s), { keepNext: kn, after: 80 });
+      case 'sub': return para(inlineXml(b.s, { b: true }), { keepNext: true, before: 140, after: 60 });
+      case 'h': return para(inlineXml(b.s, { b: true, color: '2F5496', sz: 26 }), { keepNext: true, before: 160, after: 80 });
+      case 'note': return para(inlineXml(b.s, { i: true, color: GREY }), { after: 80 });
+      case 'disp': return '<w:p><w:pPr><w:keepNext/><w:jc w:val="center"/></w:pPr><m:oMathPara><m:oMath>' + texToOmml(b.tex) + '</m:oMath></m:oMathPara></w:p>';
+      case 'img': {
+        var sz = imgSize(b);
+        return para(self.image(b.data, sz[0], sz[1], b.alt || 'Figur'), { jc: 'center', before: 40, after: 80, keepLines: true });
+      }
+      case 'opt': {
+        var hasLetter = b.text && /^[A-Za-z]\)/.test(b.text);
+        var inner = wr('☐  ') + (hasLetter ? '' : wr(b.letter ? b.letter + ')  ' : '', { b: true }));
+        if (b.img) { var s2 = imgSize({ data: b.img.data, attrW: b.img.attrW, attrH: b.img.attrH }, 6); inner += self.image(b.img.data, s2[0], s2[1], 'Svarmulighed ' + b.letter); }
+        else inner += inlineXml(b.text);
+        return para(inner, { before: 40, after: 60, keepLines: true });
+      }
+      case 'tegn': {
+        var w = 12 * 360000, h = Math.round(w * b.data.h / b.data.w);
+        return para(self.image(b.data, w, h, 'Koordinatsystem'), { jc: 'center', before: 60, after: 120, keepLines: true });
+      }
+      case 'table': return self.tableXml(b);
+      case 'fields': return self.fieldsXml(b);
+      case 'cases': return self.casesXml(b);
+    }
+    return '';
+  };
+
+  // stykkevis funktion:  g(x) = { udtryk  når betingelse
+  DocxBuilder.prototype.casesXml = function (b) {
+    var nc = Math.max.apply(null, b.rows.map(function (r) { return r.length; })), lw = b.label ? 1400 : 200, bw = 520, total = TEXT_W - 200;
+    var lens = [];
+    for (var c = 0; c < nc; c++) { var m = 6; b.rows.forEach(function (r) { var x = r[c]; m = Math.max(m, x ? (x.b ? 14 : plainLen(x.s)) : 0); }); lens.push(m); }
+    var sum = lens.reduce(function (a, v) { return a + v; }, 0), rest = total - lw - bw;
+    var widths = [lw, bw].concat(lens.map(function (l) { return Math.floor(rest * l / sum); }));
+    var bsz = Math.min(110, 30 + 22 * b.rows.length);
+    var rows = b.rows.map(function (r, ri) {
+      var last = ri === b.rows.length - 1, first = ri === 0, cells = '';
+      cells += cellXml(para(first && b.label ? inlineXml(b.label, { b: true }) : '', { jc: 'right', after: 0, keepNext: !last }), widths[0], { valign: 'center', vmerge: first ? 'restart' : 'cont' });
+      cells += cellXml(para(first ? wr('{', { sz: bsz }) : '', { jc: 'center', after: 0, keepNext: !last }), widths[1], { valign: 'center', vmerge: first ? 'restart' : 'cont' });
+      for (var c = 0; c < nc; c++) {
+        var x = r[c], inner = !x ? '' : (x.b ? wr(new Array(15).join('_')) : inlineXml(x.s));
+        cells += cellXml(para(inner, { after: 0, keepNext: !last }), widths[2 + c], { valign: 'center' });
+      }
+      return trXml(cells, { h: 560 });
+    }).join('');
+    return tblXml(rows, widths, { noBorders: true, left: true }) + para('', { after: 60, line: 20 });
+  };
+
+  DocxBuilder.prototype.tableXml = function (b) {
+    var cols = Math.max.apply(null, b.rows.map(function (r) { return r.length; }));
+    var wanted = [];
+    for (var c = 0; c < cols; c++) {
+      var mx = 3; b.rows.forEach(function (r) { mx = Math.max(mx, plainLen(r[c] || '')); });
+      wanted.push(b.bilag ? (c === 0 ? 2300 : 7300) : Math.min(5000, mx * 115 + 300));
+    }
+    var tot = wanted.reduce(function (a, v) { return a + v; }, 0), widths = wanted.slice();
+    if (b.bilag) widths = [2300, TEXT_W - 2300 - 200];
+    else if (tot > TEXT_W - 200) widths = wanted.map(function (w) { return Math.floor(w * (TEXT_W - 200) / tot); });
+    var rows = b.rows.map(function (r, ri) {
+      var cells = '';
+      for (var c = 0; c < cols; c++) {
+        var t = r[c] || '';
+        cells += cellXml(para(inlineXml(t, { b: b.bilag && ri === 0 || (b.bilag && c === 0) }), { keepNext: ri < b.rows.length - 1, after: 0 }), widths[c], { valign: 'center' });
+      }
+      return trXml(cells, { h: 480 });
+    }).join('');
+    return tblXml(rows, widths) + para('', { after: 60, line: 20 });
+  };
+
+  DocxBuilder.prototype.fieldsXml = function (b) {
+    var items = b.items, cols = fieldCols(items);
+    var w = Math.floor((TEXT_W - 200) / cols), rows = '';
+    for (var i = 0; i < items.length; i += cols) {
+      var cells = '';
+      for (var j = 0; j < cols; j++) {
+        var f = items[i + j], inner;
+        if (!f) inner = para('', { after: 0 });
+        else {
+          var bl = blankLen(f, cols);
+          inner = para(f.parts.map(function (p) { return p.k === 't' ? inlineXml(p.v) : wr(' ' + new Array(bl + 1).join('_')); }).join(''), { keepNext: i + cols < items.length, after: 100 });
+        }
+        cells += cellXml(inner, w);
+      }
+      rows += trXml(cells);
+    }
+    return tblXml(rows, new Array(cols).fill(w), { noBorders: true, left: true }) + para('', { after: 40, line: 20 });
+  };
+
+  DocxBuilder.prototype.body = function () {
+    var self = this, xml = '';
+    function blocks(list) {
+      return list.map(function (b, ix) { return self.blockXml(b, list[ix + 1]); }).join('');
+    }
+    this.m.kapitler.forEach(function (k) {
+      if (k.titel) xml += self.heading(1, k.titel);
+      k.emner.forEach(function (e) {
+        xml += self.heading(2, (e.nr ? e.nr + ' ' : '') + e.navn);
+        e.niveauer.forEach(function (n) {
+          xml += self.heading(3, n.navn, false);
+          n.opgaver.forEach(function (o) {
+            xml += para(inlineXml(o.titel, { b: true }), { keepNext: true, before: 160, after: 60 });
+            xml += blocks(o.blocks);
+          });
+        });
+      });
+    });
+    if (this.m.bilag) {
+      xml += this.heading(1, this.m.bilag.titel, true, true);
+      this.toc[this.toc.length - 1].box = false;
+      xml += blocks(this.m.bilag.blocks);
+    }
+    return xml;
+  };
+
+  DocxBuilder.prototype.cover = function () {
+    var m = this.m, pb = '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+    return para(wr(m.navn, { b: true, sz: 68, color: NAVY }), { jc: 'center', before: 3685, after: 120, border: true }) +
+      para(wr(m.forl + '  ·  Opgavehæfte', { sz: 32, color: GREY }), { jc: 'center', before: 280, after: 0 }) +
+      para(wr('HHX Matematik B', { sz: 26, color: GREY }), { jc: 'center', before: 80, after: 0 }) +
+      para(wr('Navn:  ', { b: true }) + wr(new Array(35).join('_')), { before: 4536, after: 0, ind: 1701 }) +
+      para(wr('Klasse:  ', { b: true }) + wr(new Array(15).join('_')), { before: 360, after: 0, ind: 1701 }) + pb;
+  };
+
+  DocxBuilder.prototype.tocXml = function () {
+    var self = this, W = [794, 7825, 1021];
+    var NB = '<w:tcBorders><w:bottom w:val="dotted" w:sz="4" w:space="0" w:color="CCCCCC"/></w:tcBorders>';
+    var head = trXml(cellXml(para('', { after: 0 }), W[0]) + cellXml(para('', { after: 0 }), W[1]) + cellXml(para(wr('Side', { sz: 18, color: GREY }), { jc: 'center', after: 0 }), W[2]));
+    var rows = this.toc.map(function (t) {
+      var first;
+      if (t.box) {
+        var inner = '<w:tbl><w:tblPr><w:tblW w:w="510" w:type="dxa"/><w:jc w:val="center"/><w:tblBorders><w:top w:val="single" w:sz="8" w:space="0" w:color="333333"/><w:left w:val="single" w:sz="8" w:space="0" w:color="333333"/><w:bottom w:val="single" w:sz="8" w:space="0" w:color="333333"/><w:right w:val="single" w:sz="8" w:space="0" w:color="333333"/></w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid><w:gridCol w:w="510"/></w:tblGrid>' +
+          '<w:tr><w:trPr><w:trHeight w:val="440" w:hRule="exact"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="510" w:type="dxa"/></w:tcPr>' + para('', { after: 0, before: 0 }) + '</w:tc></w:tr></w:tbl>';
+        first = inner + para('', { after: 0, before: 0, line: 20 });
+      } else first = para('', { after: 0 });
+      var txt = para(wr(t.text, { b: t.level === 1, sz: t.level === 1 ? 24 : 22 }), { before: 40, after: 40, ind: t.level === 2 ? 454 : 0 });
+      var pg = para('<w:fldSimple w:instr=" PAGEREF ' + t.name + ' \\h "><w:r><w:t>–</w:t></w:r></w:fldSimple>', { jc: 'center', before: 40, after: 40 });
+      return trXml(cellXml(first, W[0], { borders: NB, valign: 'center' }) + cellXml(txt, W[1], { borders: NB, valign: 'center' }) + cellXml(pg, W[2], { borders: NB, valign: 'center' }), { h: t.box ? 720 : 0 });
+    }).join('');
+    var tbl = '<w:tbl><w:tblPr><w:tblW w:w="' + (W[0] + W[1] + W[2]) + '" w:type="dxa"/>' + NOBORD + '<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid>' + W.map(function (w) { return '<w:gridCol w:w="' + w + '"/>'; }).join('') + '</w:tblGrid>' + head + rows + '</w:tbl>';
+    return para(wr('Indhold', { b: true, sz: 48, color: NAVY }), { border: true, after: 280 }) + tbl + '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+  };
+
+  var STYLES = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">' +
+    '<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="Calibri" w:cs="Calibri"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="da-DK"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="80" w:line="259" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>' +
+    '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>' +
+    [[1, 36, 240, 100], [2, 30, 200, 80], [3, 25, 160, 60]].map(function (h) {
+      return '<w:style w:type="paragraph" w:styleId="Heading' + h[0] + '"><w:name w:val="heading ' + h[0] + '"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:keepLines/><w:spacing w:before="' + h[2] + '" w:after="' + h[3] + '"/><w:outlineLvl w:val="' + (h[0] - 1) + '"/></w:pPr><w:rPr><w:b/><w:color w:val="' + NAVY + '"/><w:sz w:val="' + h[1] + '"/><w:szCs w:val="' + h[1] + '"/></w:rPr></w:style>';
+    }).join('') + '</w:styles>';
+
+  function buildDocxBlob(model, JSZipCtor) {
+    var b = new DocxBuilder(model), body = b.body(), doc = b.cover() + b.tocXml() + body;
+    var sect = '<w:sectPr><w:footerReference w:type="default" r:id="rIdFooter"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="907" w:right="1021" w:bottom="907" w:left="1021" w:header="454" w:footer="454" w:gutter="0"/><w:titlePg/></w:sectPr>';
+    var documentXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ' + W_NS + '><w:body>' + doc + sect + '</w:body></w:document>';
+    var footer = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr ' + W_NS + '>' + para('<w:fldSimple w:instr=" PAGE "><w:r>' + rpr({ sz: 18, color: GREY }) + '<w:t>1</w:t></w:r></w:fldSimple>', { jc: 'center' }) + '</w:ftr>';
+    var rels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
+      '<Relationship Id="rIdSettings" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>' +
+      '<Relationship Id="rIdFooter" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>' +
+      b.media.map(function (m) { return '<Relationship Id="rIdImg' + m.name.replace(/\D/g, '') + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/' + m.name + '"/>'; }).join('') + '</Relationships>';
+    var zip = new JSZipCtor();
+    zip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/>' +
+      '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>');
+    zip.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    zip.file('word/document.xml', documentXml);
+    zip.file('word/_rels/document.xml.rels', rels);
+    zip.file('word/styles.xml', STYLES);
+    zip.file('word/settings.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:updateFields w:val="true"/></w:settings>');
+    zip.file('word/footer1.xml', footer);
+    b.media.forEach(function (m) { zip.file('word/media/' + m.name, m.b64, { base64: true }); });
+    return zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  }
+
+  /* ───────────────────────── 7. PDF (HTML -> sideopdelt print) ───────────────────────── */
+
+  function hx(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function mathHtml(tex, display) {
+    if (window.katex) {
+      try { return window.katex.renderToString(tex, { throwOnError: false, displayMode: !!display }); } catch (e) { /* falder tilbage */ }
+    }
+    return '<i>' + hx(tex) + '</i>';
+  }
+  function inlineHtml(s) {
+    return parseInline(s).map(function (p) {
+      if (p.k === 't') return p.b ? '<b>' + hx(p.v) + '</b>' : hx(p.v);
+      return mathHtml(p.v, false);
+    }).join('');
+  }
+
+  function blockHtml(b, next) {
+    var kn = next && /^(table|fields|tegn|img|opt|disp|cases)$/.test(next.t) ? ' class="kn"' : '';
+    switch (b.t) {
+      case 'p': return '<p' + kn + '>' + inlineHtml(b.s) + '</p>';
+      case 'sub': return '<div class="sub">' + inlineHtml(b.s) + '</div>';
+      case 'h': return '<h4>' + inlineHtml(b.s) + '</h4>';
+      case 'note': return '<p class="note">' + inlineHtml(b.s) + '</p>';
+      case 'disp': return '<div class="disp kn">' + mathHtml(b.tex, true) + '</div>';
+      case 'img': {
+        var st = b.attrH ? ' style="height:' + b.attrH * 0.75 + 'pt"' : (b.data && b.data.w * 0.75 < 460 ? ' style="width:' + (b.attrW || b.data.w) * 0.75 + 'pt"' : '');
+        return '<div class="fig"><img src="' + b.data.url + '"' + st + ' alt="' + hx(b.alt || 'Figur') + '"></div>';
+      }
+      case 'opt': {
+        var hasLetter = b.text && /^[A-Za-z]\)/.test(b.text);
+        return '<div class="opt"><span class="cb"></span>' + (hasLetter ? '' : '<b>' + hx(b.letter ? b.letter + ')' : '') + '</b>') + (b.img ? '<img src="' + b.img.data.url + '" style="height:' + (b.img.attrH || 80) * 0.75 + 'pt" alt="Svarmulighed">' : '<span>' + inlineHtml(b.text) + '</span>') + '</div>';
+      }
+      case 'tegn': return '<div class="fig"><img class="tegn" src="' + b.data.url + '" alt="Koordinatsystem"></div>';
+      case 'table': {
+        return '<table class="dt' + (b.bilag ? ' bilag' : '') + '">' + b.rows.map(function (r, ri) {
+          return '<tr>' + r.map(function (c, ci) { return (b.bilag && (ri === 0 || ci === 0) ? '<th>' : '<td>') + inlineHtml(c) + (b.bilag && (ri === 0 || ci === 0) ? '</th>' : '</td>'); }).join('') + '</tr>';
+        }).join('') + '</table>';
+      }
+      case 'cases': {
+        var n = b.rows.length;
+        return '<table class="cs">' + b.rows.map(function (r, ri) {
+          return '<tr>' + (ri === 0 ? '<td class="cl" rowspan="' + n + '">' + inlineHtml(b.label) + '</td><td class="cb2" rowspan="' + n + '" style="font-size:' + (1.2 + n * 0.9) + 'em">{</td>' : '') +
+            r.map(function (x) { return '<td>' + (x.b ? '<span class="u"></span>' : inlineHtml(x.s)) + '</td>'; }).join('') + '</tr>';
+        }).join('') + '</table>';
+      }
+      case 'fields': {
+        var cols = fieldCols(b.items);
+        return '<div class="fields" style="grid-template-columns:repeat(' + cols + ',1fr)">' + b.items.map(function (f) {
+          var last = f.parts[f.parts.length - 1], one = fieldBlanks(f) === 1 && last && last.k === 'b';
+          return '<div class="f">' + f.parts.map(function (p) { return p.k === 't' ? inlineHtml(p.v) : '<span class="u' + (one ? ' end' : '') + '"></span>'; }).join('') + '</div>';
+        }).join('') + '</div>';
+      }
+    }
+    return '';
+  }
+
+  var PRINT_CSS = '@page{size:A4;margin:1.6cm 1.8cm 1.8cm;@bottom-center{content:counter(page);font:9pt Calibri,Carlito,sans-serif;color:#6b7280}}@page:first{@bottom-center{content:none}}' +
+    'html{font-family:Calibri,Carlito,"Segoe UI",Arial,sans-serif;font-size:11pt;color:#111;line-height:1.3}body{margin:0}' +
+    '.cover{break-after:page;text-align:center;padding-top:5.2cm}.cover h1{font-size:34pt;color:#1e3a5f;margin:0 0 6pt;padding-bottom:10pt;border-bottom:3px solid #d4820a}' +
+    '.cover .s1{font-size:16pt;color:#6b7280;margin-top:14pt}.cover .s2{font-size:13pt;color:#6b7280;margin-top:4pt}.cover .navn{text-align:left;margin:7cm 0 0 3cm}.cover .navn div{margin-bottom:18pt}.cover .navn span{display:inline-block;border-bottom:1px solid #111;width:8cm;vertical-align:bottom}' +
+    '.toc{break-after:page}.toc h2{font-size:24pt;color:#1e3a5f;margin:0 0 14pt;padding-bottom:8pt;border-bottom:3px solid #d4820a}.toc table{width:100%;border-collapse:collapse}.toc td{border-bottom:1px dotted #ccc;padding:3pt 0;vertical-align:middle}.toc td.b{width:1.4cm;text-align:center}.toc td.p{width:1.8cm;text-align:center}.toc .sd{font-size:9pt;color:#6b7280;border:0}' +
+    '.toc .box{display:inline-block;width:.9cm;height:.78cm;border:1px solid #333;vertical-align:middle}.toc tr.k td{height:1.27cm}.toc tr.k .t{font-weight:700;font-size:12pt}.toc tr.e .t{padding-left:.8cm}.toc a{color:inherit;text-decoration:none}.toc td.p a::after{content:target-counter(attr(href url),page)}' +
+    'h1.kap{font-size:18pt;color:#1e3a5f;margin:12pt 0 5pt;break-after:avoid}h2.emne{font-size:15pt;color:#1e3a5f;margin:10pt 0 4pt;break-after:avoid}h3.niv{font-size:12.5pt;color:#1e3a5f;margin:8pt 0 3pt;break-after:avoid}h4{font-size:13pt;color:#2f5496;margin:8pt 0 4pt;break-after:avoid}' +
+    '.kn{break-after:avoid}.ot{font-weight:700;margin:8pt 0 3pt;break-after:avoid}p{margin:0 0 4pt}.note{font-style:italic;color:#6b7280}.disp{text-align:center;margin:3pt 0}' +
+    '.fig{text-align:center;margin:4pt 0 6pt;break-inside:avoid}.fig img{max-width:13cm;max-height:11cm}.fig img.tegn{width:12cm;max-width:100%;max-height:none}' +
+    'table.dt{border-collapse:collapse;margin:3pt auto 6pt;break-inside:avoid}table.dt td,table.dt th{border:1px solid #444;padding:3pt 7pt;min-height:.85cm;height:.85cm;text-align:left;font-weight:400}table.dt th{font-weight:700}table.dt.bilag{width:100%}table.dt.bilag td,table.dt.bilag th{vertical-align:middle}table.dt.bilag th:first-child{width:4cm}' +
+    '.fields{display:grid;column-gap:.4cm;margin:3pt 0 6pt;break-inside:avoid}.f{padding:3pt 0 8pt;line-height:1.7}.u{display:inline-block;width:3cm;border-bottom:1px solid #444;margin:0 3pt;height:.9em}.u.end{width:6cm}.sub{font-weight:700;margin:7pt 0 3pt;break-after:avoid}.cs{border-collapse:collapse;margin:4pt 0 8pt;break-inside:avoid}.cs td{padding:3pt 10pt;vertical-align:middle}.cs td.cl{font-weight:700;text-align:right}.cs td.cb2{font-weight:300;padding:0 4pt;line-height:1}.opt .cb{display:inline-block;width:.38cm;height:.38cm;border:1px solid #444;flex:none}' +
+    '.tegnboks{height:7cm;border:1px solid #888;margin:4pt 0 8pt;break-inside:avoid}.opt{display:flex;align-items:center;gap:8pt;margin:2pt 0;break-inside:avoid}.katex{font-size:1.05em}.katex-display{margin:0}' +
+    '.bilagsektion{break-before:page}.bar{position:fixed;top:8px;right:8px;z-index:9;background:#1e3a5f;color:#fff;padding:8px 14px;border-radius:8px;font:14px sans-serif;cursor:pointer;border:0}@media print{.bar{display:none}}';
+
+  function printHtml(model, katexCssText, noPrint) {
+    var h = '', toc = [], id = 0;
+    function head(tag, cls, text, inToc, lvl) {
+      var hid = 'h' + (++id);
+      if (inToc) toc.push({ id: hid, text: text, lvl: lvl, box: lvl === 1 && !cls.bilag });
+      return '<' + tag + ' class="' + cls.c + '" id="' + hid + '">' + inlineHtml(text) + '</' + tag + '>';
+    }
+    model.kapitler.forEach(function (k) {
+      if (k.titel) h += head('h1', { c: 'kap' }, k.titel, true, 1);
+      k.emner.forEach(function (e) {
+        h += head('h2', { c: 'emne' }, (e.nr ? e.nr + ' ' : '') + e.navn, true, 2);
+        e.niveauer.forEach(function (n) {
+          h += '<h3 class="niv">' + hx(n.navn) + '</h3>';
+          n.opgaver.forEach(function (o) {
+            h += '<div class="ot">' + inlineHtml(o.titel) + '</div>' + o.blocks.map(function (x, i) { return blockHtml(x, o.blocks[i + 1]); }).join('');
+          });
+        });
+      });
+    });
+    if (model.bilag) {
+      h += '<div class="bilagsektion">' + head('h1', { c: 'kap', bilag: true }, model.bilag.titel, true, 1) + model.bilag.blocks.map(function (x, i) { return blockHtml(x, model.bilag.blocks[i + 1]); }).join('') + '</div>';
+      toc[toc.length - 1].box = false;
+    }
+    var tocH = '<div class="toc"><h2>Indhold</h2><table><tr><td></td><td></td><td class="sd p">Side</td></tr>' + toc.map(function (t) {
+      return '<tr class="' + (t.lvl === 1 ? 'k' : 'e') + '"><td class="b">' + (t.box ? '<span class="box"></span>' : '') + '</td><td class="t"><a href="#' + t.id + '">' + inlineHtml(t.text) + '</a></td><td class="p"><a href="#' + t.id + '"></a></td></tr>';
+    }).join('') + '</table></div>';
+    var cover = '<div class="cover"><h1>' + hx(model.navn) + '</h1><div class="s1">' + hx(model.forl) + '&nbsp; · &nbsp;Opgavehæfte</div><div class="s2">HHX Matematik B</div><div class="navn"><div><b>Navn:</b> &nbsp;<span></span></div><div><b>Klasse:</b> &nbsp;<span style="width:3.5cm"></span></div></div></div>';
+    return '<!DOCTYPE html><html lang="da"><head><meta charset="utf-8"><title>Opgavehæfte ' + hx(model.forl) + ' – ' + hx(model.navn) + '</title>' +
+      '<style>' + (katexCssText || '') + '</style><style>' + PRINT_CSS + '</style>' +
+      '<script>var NOPRINT=' + (noPrint ? 'true' : 'false') + ';window.PagedConfig={auto:true,after:function(){window.__haefteDone=true;var b=document.createElement("button");b.className="bar";b.textContent="Udskriv / gem som PDF";b.onclick=function(){window.print()};document.body.appendChild(b);' +
+      'if(!NOPRINT){setTimeout(function(){window.print()},400)}}};<\/script>' +
+      '<script src="' + PAGED_URL + '"><\/script></head><body>' + cover + tocH + h + '</body></html>';
+  }
+
+  /* ───────────────────────── 8. KNAP OG FLOW ───────────────────────── */
+
+  function loadScript(url, test) {
+    return new Promise(function (res, rej) {
+      if (test()) return res();
+      var s = document.createElement('script'); s.src = url; s.onload = function () { test() ? res() : rej(new Error('Bibliotek ikke tilgængeligt')); };
+      s.onerror = function () { rej(new Error('Kunne ikke hente bibliotek: ' + url)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function fileBase(model) { return 'Opgavehaefte_' + model.forl + '_' + model.navn.replace(/[^A-Za-z0-9ÆØÅæøå]+/g, '_'); }
+
+  function makeDocx(fid) {
+    var model;
+    return loadScript(JSZIP_URL, function () { return !!window.JSZip; }).then(function () {
+      model = buildModel(fid); return resolveImages(model);
+    }).then(function () {
+      var exp = imageCount(model);
+      return buildDocxBlob(model, window.JSZip).then(function (blob) { return { blob: blob, model: model, images: exp, name: fileBase(model) + '.docx' }; });
+    });
+  }
+
+  function download(blob, name) {
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+  }
+
+  function katexCssText() { // indlejres, så sideopdelingen ikke selv skal hente eksterne stylesheets
+    var l = document.querySelector('link[href*="katex"]'), url = l ? l.href : 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css';
+    var base = url.replace(/[^\/]*$/, '');
+    return fetch(url).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+      return t.replace(/url\((['"]?)(?!data:|https?:)/g, 'url($1' + base);
+    }).catch(function () { return ''; });
+  }
+
+  function makePdf(fid, win) {
+    var model;
+    return Promise.resolve().then(function () { model = buildModel(fid); return Promise.all([resolveImages(model), katexCssText()]); }).then(function (res) {
+      var html = printHtml(model, res[1], !!window.__haefteNoPrint);
+      win.location.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+      return { model: model, win: win };
+    });
+  }
+
+  var activeSay = null, activeBusy = null;
+
+  function ensureModal() {
+    var modal = document.getElementById('haefte-modal');
+    if (modal) return modal;
+    modal = document.createElement('div'); modal.id = 'haefte-modal'; modal.className = 'haefte-modal'; modal.hidden = true;
+    modal.innerHTML = '<div class="haefte-box" role="dialog" aria-modal="true" aria-labelledby="haefte-modal-titel"><h3 id="haefte-modal-titel">Hent opgavehæfte</h3><p>Vælg format. Hæftet indeholder forløbets opgaver med plads til svar.</p>' +
+      '<div class="haefte-choices"><button type="button" class="haefte-btn" data-haefte="docx"><b>Word</b><span>.docx-fil, kan redigeres</span></button><button type="button" class="haefte-btn" data-haefte="pdf"><b>PDF</b><span>åbner printdialogen</span></button></div>' +
+      '<button type="button" class="haefte-cancel" data-haefte="close">Annullér</button></div>';
+    document.body.appendChild(modal);
+    function close() { modal.hidden = true; }
+    modal.addEventListener('click', function (ev) {
+      if (ev.target === modal) { close(); return; }
+      var t = ev.target.closest('[data-haefte]'); if (!t) return;
+      var k = t.getAttribute('data-haefte'), fid = modal.getAttribute('data-fid'), say = activeSay || function () { }, busy = activeBusy || function () { };
+      if (k === 'close') { close(); return; }
+      if (k === 'docx') {
+        close(); busy(true);
+        makeDocx(fid).then(function (r) { download(r.blob, r.name); busy(false); })
+          .catch(function (e) { console.error(e); window.__haefteLastError = e; busy(false); say('Kunne ikke lave hæftet: ' + e.message, true); });
+      } else if (k === 'pdf') {
+        var win = window.open('', '_blank'); // skal åbnes direkte i klikket, ellers blokerer browseren pop-up'en
+        close();
+        if (!win) { busy(false); say('Tillad pop-ups for siden, og prøv igen.', true); return; }
+        win.document.write('<p style="font-family:sans-serif">Forbereder hæfte …</p>');
+        busy(true);
+        makePdf(fid, win).then(function () { busy(false); })
+          .catch(function (e) { console.error(e); window.__haefteLastError = e; busy(false); try { win.close(); } catch (x) { /* */ } say('Kunne ikke lave hæftet: ' + e.message, true); });
+      }
+    });
+    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && !modal.hidden) close(); });
+    return modal;
+  }
+
+  function injectBars() {
+    if (!document.getElementById('haefte-css')) {
+      var st = document.createElement('style'); st.id = 'haefte-css';
+      st.textContent = '.haefte-bar{margin:14px 0 4px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}.haefte-btn{padding:8px 16px;border:1.5px solid #1e3a5f;background:#fff;color:#1e3a5f;border-radius:8px;font-size:0.88rem;font-weight:600;font-family:inherit;cursor:pointer}.haefte-btn:hover{background:#1e3a5f;color:#fff}.haefte-status{font-size:0.85rem;color:#6b7280}.haefte-status.err{color:#b91c1c}' +
+        '.haefte-modal{position:fixed;inset:0;z-index:10000;background:rgba(17,24,39,.45);display:flex;align-items:center;justify-content:center;padding:16px}.haefte-modal[hidden]{display:none}.haefte-box{background:#fff;border-radius:14px;max-width:420px;width:100%;padding:22px 22px 16px;box-shadow:0 12px 40px rgba(0,0,0,.25);font-family:inherit;color:#111827}.haefte-box h3{margin:0 0 6px;font-size:1.15rem;color:#1e3a5f}.haefte-box p{margin:0 0 16px;font-size:0.9rem;color:#6b7280}' +
+        '.haefte-choices{display:flex;gap:10px;margin-bottom:12px}.haefte-choices .haefte-btn{flex:1;display:flex;flex-direction:column;gap:2px;padding:14px 10px;text-align:center}.haefte-choices .haefte-btn b{font-size:1.05rem}.haefte-choices .haefte-btn span{font-weight:400;font-size:0.78rem;opacity:.8}.haefte-cancel{display:block;margin:0 auto;border:0;background:none;color:#6b7280;font-size:0.85rem;cursor:pointer;font-family:inherit;padding:4px 10px}.haefte-cancel:hover{text-decoration:underline}@media print{.haefte-bar,.haefte-modal{display:none}}';
+      document.head.appendChild(st);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('div[id^="page-f"]'), function (page) {
+      var m = page.id.match(/^page-(f\d+)$/);
+      if (!m || page.querySelector('.haefte-bar')) return;
+      var intro = page.querySelector('.intro');
+      if (!intro) return;
+      var fid = m[1], bar = document.createElement('div'); bar.className = 'haefte-bar';
+      bar.innerHTML = '<button type="button" class="haefte-btn" data-haefte="open">📄 Print opgavehæfte</button><span class="haefte-status" role="status"></span>';
+      intro.appendChild(bar);
+      var status = bar.querySelector('.haefte-status');
+      function say(t, err) { status.textContent = t || ''; status.className = 'haefte-status' + (err ? ' err' : ''); }
+      function busy(on) { var b = bar.querySelector('[data-haefte="open"]'); b.disabled = !!on; b.style.opacity = on ? '.55' : ''; b.style.cursor = on ? 'progress' : ''; }
+      bar.addEventListener('click', function (ev) {
+        if (!ev.target.closest('[data-haefte="open"]')) return;
+        var modal = ensureModal(); modal.setAttribute('data-fid', fid); activeSay = say; activeBusy = busy; say('');
+        modal.hidden = false;
+      });
+    });
+  }
+
+  window.Haefte = { buildModel: buildModel, resolveImages: resolveImages, imageCount: imageCount, makeDocx: makeDocx, makePdf: makePdf, printHtml: printHtml,
+    texToOmml: texToOmml, unsupported: function () { return unsupportedTex.slice(); }, injectBars: injectBars, parseBilag: parseBilag, buildDocxBlob: buildDocxBlob };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectBars); else injectBars();
+})();
+/* HAEFTE-JS-END */
+</script>
+<script type="text/markdown" data-formelsamling="f2">
+# Bilag: Formelsamling
+
+### Diskrete observationssæt
+
+| Begreb | Formel / beskrivelse |
+|----------------------|------------------------------------------------------|
+| Antal observationer | $N$ er antallet af observationer |
+| Hyppighed | $h(x)$ = hyppigheden af $x$ = det antal gange $x$ forekommer |
+| Frekvens | $f(x)=\dfrac{h(x)}{N}$ |
+| Summeret hyppighed | $H(x)$ er summen af hyppighederne for de observationer, der højst er $x$. Fx $H(21)=83$ |
+| Summeret frekvens | $F(x)$ er summen af frekvenserne for de observationer, der højst er $x$ |
+| Middelværdi | $\bar{x}=\sum x\cdot f(x)$ |
+| Typetal | Den observation, der har den største hyppighed |
+| Varians | $s^2=\sum (x-\bar{x})^2\cdot f(x)$ |
+| Standardafvigelse | $s=\sqrt{s^2}$ |
+
+### Grupperede observationssæt
+
+| Begreb | Formel / beskrivelse |
+|----------------------|------------------------------------------------------|
+| Interval | Skrives $]a;b]$ – altså større end $a$ og mindre end eller lig med $b$ |
+| Intervalmidtpunkt | $x_{\text{midt}}=\dfrac{a+b}{2}$ |
+| Intervalfrekvens | $f(I)=\dfrac{h(I)}{N}$ = den tilsvarende procentdel af de $N$ observationer |
+| Summeret frekvens | $F(x)$ aflæses på sumkurven; punkterne er (højre intervalendepunkt, summeret frekvens) |
+| Gennemsnit | $\bar{x}=\sum x_{\text{midt}}\cdot f(I)$ |
+| Varians | $s^2=\sum (x_{\text{midt}}-\bar{x})^2\cdot f(I)$ |
+| Standardafvigelse | $s=\sqrt{s^2}$ |
+| Typeinterval | Intervallet med den største hyppighed, når intervallerne er lige brede |
+
+### Procentregning
+
+| Begreb | Formel / beskrivelse |
+|----------------------|------------------------------------------------------|
+| Fremskrivningsfaktor | $S=B\cdot(1+r)$, hvor $S$ er slutværdien, $B$ er begyndelsesværdien, $r$ er rentefoden (procentændringen) og $1+r$ er fremskrivningsfaktoren |
+
+### Indekstal
+
+| Begreb | Formel / beskrivelse |
+|----------------------|------------------------------------------------------|
+| Indekstal | $I_{\text{år}}=\dfrac{V_{\text{år}}}{V_{\text{basisår}}}\cdot 100$ |
+| Forhold mellem indekstal og værdier | $\dfrac{I_2}{I_1}=\dfrac{V_2}{V_1}$ |
+| Find indekstal | $I_2=I_1\cdot\dfrac{V_2}{V_1}$ |
+| Find værdi | $V_2=V_1\cdot\dfrac{I_2}{I_1}$ |
+</script>
 </body></html>
